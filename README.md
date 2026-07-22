@@ -651,3 +651,257 @@ Se ha construido una base de asistente local de desarrollo con:
 - Integración con VS Code
 
 Una alternativa privada y extensible a asistentes cloud.
+
+
+# Scripts de arranque Docker
+
+El proyecto dispone de scripts para facilitar el uso del entorno Docker en desarrollo y producción.
+
+Estructura:
+
+```text
+scripts/
+├── dev.sh        # Arranque entorno desarrollo
+├── prod.sh       # Arranque entorno producción
+├── stop.sh       # Detener servicios
+└── status.sh     # Ver estado del sistema
+```
+
+---
+
+# Preparación inicial
+
+Dar permisos de ejecución:
+
+```bash
+chmod +x scripts/*.sh
+```
+
+---
+
+# Desarrollo
+
+Para trabajar modificando código:
+
+```bash
+./scripts/dev.sh
+```
+
+Este modo utiliza:
+
+- `Dockerfile.dev`
+- `docker-compose.dev.yml`
+- `npm run dev`
+- Hot reload con `tsx watch`
+
+Flujo:
+
+```text
+Código fuente
+     |
+     ↓
+src/*.ts
+
+     |
+     ↓
+
+Docker Volume
+
+     |
+     ↓
+
+tsx watch
+
+     |
+     ↓
+
+Memory Service actualizado
+```
+
+Ventajas:
+
+- No es necesario reconstruir la imagen.
+- Los cambios se reflejan automáticamente.
+- Ideal para desarrollo y debugging.
+
+---
+
+# Producción
+
+Para ejecutar la versión preparada para producción:
+
+```bash
+./scripts/prod.sh
+```
+
+Equivalente a:
+
+```bash
+docker compose up -d --build
+```
+
+Este modo utiliza:
+
+- `Dockerfile`
+- `docker-compose.yml`
+- TypeScript compilado
+- Node.js ejecutando `/dist`
+
+Flujo:
+
+```text
+src/*.ts
+
+     |
+     ↓
+
+npm run build
+
+     |
+     ↓
+
+dist/*.js
+
+     |
+     ↓
+
+node dist/index.js
+```
+
+Ventajas:
+
+- Imagen optimizada.
+- Sin TypeScript en ejecución.
+- Entorno reproducible.
+- Preparado para despliegue.
+
+---
+
+# Detener servicios
+
+Para detener Docker:
+
+```bash
+./scripts/stop.sh
+```
+
+Equivalente:
+
+```bash
+docker compose down
+docker compose -f docker-compose.dev.yml down
+```
+
+Los datos persistentes de Qdrant se mantienen.
+
+---
+
+# Estado del sistema
+
+Comprobar servicios:
+
+```bash
+./scripts/status.sh
+```
+
+Comprueba:
+
+- Ollama
+- Memory Service
+- Qdrant
+- Contenedores Docker
+
+
+Ejemplo:
+
+```text
+=======================================
+ Local AI Memory Assistant
+ Estado del sistema
+=======================================
+
+▶ Ollama
+✓ Running
+
+▶ Memory Service
+✓ Running
+
+▶ Qdrant
+✓ Running
+
+
+Docker:
+
+NAME              STATUS
+memory-service    Up
+qdrant            Up
+```
+
+---
+
+# Servicios disponibles
+
+| Servicio | Puerto | Descripción |
+|---|---|---|
+| Ollama | 11434 | Modelos LLM locales |
+| Memory Service | 3000 | API de memoria MCP |
+| Qdrant | 6333 | Base de datos vectorial |
+
+---
+
+# Flujo recomendado
+
+## Desarrollo diario
+
+```bash
+./scripts/dev.sh
+```
+
+Modificar código:
+
+```text
+src/
+```
+
+Probar con:
+
+```text
+Continue Agent + MCP
+```
+
+---
+
+## Preparar versión producción
+
+```bash
+./scripts/prod.sh
+```
+
+---
+
+## Revisar estado
+
+```bash
+./scripts/status.sh
+```
+
+---
+
+## Finalizar sesión
+
+```bash
+./scripts/stop.sh
+```
+
+---
+
+# Resumen de comandos
+
+| Acción | Comando |
+|-|-|
+| Desarrollo | `./scripts/dev.sh` |
+| Producción | `./scripts/prod.sh` |
+| Estado | `./scripts/status.sh` |
+| Detener | `./scripts/stop.sh` |
+| Logs | `docker compose logs -f` |
+| Reconstruir | `docker compose up -d --build` |

@@ -141,3 +141,16 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Qdrant data
+data/qdrant/
+
+# Docker volumes
+*.db
+
+# Node
+node_modules/
+dist/
+
+# Environment
+.env

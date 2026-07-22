@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -10,5 +12,8 @@
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }
