@@ -905,3 +905,483 @@ Continue Agent + MCP
 | Detener | `./scripts/stop.sh` |
 | Logs | `docker compose logs -f` |
 | Reconstruir | `docker compose up -d --build` |
+
+
+
+# Local AI Memory Indexer
+
+## Descripción
+
+El **Local AI Memory Indexer** es el componente encargado de convertir un proyecto local (código, documentación y archivos de conocimiento) en una memoria vectorial consultable mediante Qdrant.
+
+El sistema implementa un pipeline RAG (**Retrieval Augmented Generation**) completamente local:
+
+```
+Proyecto
+   |
+   ▼
+Scanner de archivos
+   |
+   ▼
+Loaders
+   |
+   ▼
+Chunking
+   |
+   ▼
+Embeddings con Ollama
+   |
+   ▼
+Qdrant Vector Database
+```
+
+El objetivo es permitir que un modelo local pueda recuperar información relevante del proyecto sin necesidad de volver a analizar todos los archivos.
+
+---
+
+# Arquitectura del Indexador
+
+La estructura actual:
+
+```
+src/
+└── indexer/
+    |
+    ├── index-project.ts
+    ├── scanner.ts
+    ├── chunker.ts
+    ├── embedder.ts
+    ├── uploader.ts
+    ├── hash.ts
+    ├── registry.ts
+    |
+    └── loaders/
+        |
+        ├── filesystem.loader.ts
+        ├── markdown.loader.ts
+        ├── json.loader.ts
+        ├── pdf.loader.ts
+        └── git.loader.ts
+```
+
+---
+
+# Flujo de indexación
+
+Cuando se ejecuta:
+
+```bash
+npm run index .
+```
+
+el sistema realiza las siguientes operaciones:
+
+## 1. Escaneo del proyecto
+
+El scanner recorre el directorio indicado buscando archivos compatibles.
+
+Ejemplos:
+
+```
+.ts
+.js
+.md
+.json
+.dart
+.txt
+.pdf
+```
+
+Se ignoran carpetas que no aportan conocimiento:
+
+```
+node_modules
+.git
+dist
+build
+.vscode
+```
+
+Ejemplo:
+
+```
+Proyecto
+ |
+ ├── src/app.ts        ✔
+ ├── README.md         ✔
+ ├── package.json      ✔
+ ├── node_modules      ✘
+ └── dist              ✘
+```
+
+---
+
+# 2. Carga de documentos
+
+Cada tipo de archivo utiliza un loader especializado.
+
+Ejemplo:
+
+```
+filesystem.loader.ts
+
+archivo
+  |
+  ▼
+texto plano
+```
+
+Actualmente soporta:
+
+| Loader | Tipo |
+|-|-|
+| filesystem.loader | Archivos generales |
+| markdown.loader | Documentación Markdown |
+| json.loader | Configuraciones JSON |
+| pdf.loader | Documentos PDF |
+| git.loader | Historial Git |
+
+La arquitectura permite añadir nuevos loaders sin modificar el núcleo del indexador.
+
+---
+
+# 3. División en chunks
+
+Los documentos grandes no se almacenan completos.
+
+Ejemplo:
+
+```
+context.ts
+
+        |
+        ▼
+
+Chunk 0
+Chunk 1
+Chunk 2
+Chunk 3
+```
+
+Cada fragmento contiene una parte independiente del conocimiento.
+
+Ventajas:
+
+- búsquedas más precisas
+- menor consumo de contexto
+- recuperación más relevante
+
+---
+
+# 4. Generación de embeddings
+
+Cada chunk se convierte en un vector mediante Ollama.
+
+Modelo utilizado:
+
+```
+nomic-embed-text
+```
+
+Flujo:
+
+```
+Texto
+
+"Angular usa Native Federation"
+
+        |
+        ▼
+
+Embedding
+
+[
+ 0.023,
+ -0.152,
+ 0.881,
+ ...
+]
+
+        |
+        ▼
+
+Qdrant
+```
+
+Los embeddings se generan localmente sin enviar información a servicios externos.
+
+---
+
+# 5. Almacenamiento en Qdrant
+
+Cada vector se almacena junto con metadatos.
+
+Ejemplo:
+
+```json
+{
+  "file": "src/routes/context.ts",
+  "chunk": 4,
+  "type": "filesystem"
+}
+```
+
+Los metadatos permiten saber:
+
+- qué archivo originó el conocimiento
+- qué fragmento corresponde
+- qué tipo de documento era
+
+---
+
+# IDs persistentes con UUID v5
+
+Qdrant requiere que cada punto tenga un identificador válido.
+
+Inicialmente se utilizaban rutas:
+
+```
+src/app.ts-0
+```
+
+pero Qdrant solo acepta:
+
+- números
+- UUID
+
+La solución implementada utiliza UUID v5:
+
+```
+archivo + número de chunk
+
+        |
+        ▼
+
+UUID determinista
+```
+
+Ejemplo:
+
+```
+src/app.ts chunk 2
+
+↓
+
+550e8400-e29b-41d4-a716-446655440000
+```
+
+Ventaja:
+
+El mismo archivo y chunk siempre generan el mismo ID.
+
+Esto permite actualizar información sin duplicarla.
+
+---
+
+# Reindexación incremental
+
+El indexador mantiene un registro local:
+
+```
+.indexer-registry.json
+```
+
+Ejemplo:
+
+```json
+{
+  "src/app.ts": {
+    "hash": "a83f91...",
+    "chunks": 8,
+    "indexedAt": "2026-07-24"
+  }
+}
+```
+
+Cada archivo tiene asociado un hash SHA-256.
+
+---
+
+# Detección de cambios
+
+Cada ejecución compara:
+
+```
+Archivo actual
+      |
+      ▼
+SHA-256
+
+      |
+      ▼
+
+Registry anterior
+```
+
+Casos posibles:
+
+## Archivo sin cambios
+
+```
+hash actual
+     =
+hash guardado
+
+Resultado:
+
+No hacer nada
+```
+
+---
+
+## Archivo modificado
+
+```
+hash actual
+     !=
+hash guardado
+
+Resultado:
+
+1. Eliminar vectores antiguos
+2. Crear nuevos embeddings
+3. Actualizar Qdrant
+4. Actualizar registry
+```
+
+---
+
+## Archivo nuevo
+
+```
+No existe en registry
+
+Resultado:
+
+1. Leer archivo
+2. Crear chunks
+3. Generar embeddings
+4. Guardar en Qdrant
+5. Añadir registry
+```
+
+---
+
+# Limpieza de vectores huérfanos
+
+El sistema también detecta archivos eliminados.
+
+Ejemplo:
+
+Antes:
+
+```
+src/
+ |
+ ├── app.ts
+ └── users.ts
+```
+
+Registry:
+
+```json
+{
+ "app.ts": {},
+ "users.ts": {}
+}
+```
+
+Después:
+
+```
+src/
+ |
+ └── app.ts
+```
+
+El indexador detecta:
+
+```
+users.ts
+```
+
+ya no existe.
+
+Entonces:
+
+```
+Eliminar vectores de Qdrant
+
+        +
+
+Eliminar entrada del registry
+```
+
+Evita mantener información obsoleta.
+
+---
+
+# Estado actual del sistema
+
+Actualmente el indexador dispone de:
+
+- ✅ Escaneo automático de proyectos
+- ✅ Arquitectura modular de loaders
+- ✅ Procesamiento de documentos
+- ✅ División en chunks
+- ✅ Embeddings locales con Ollama
+- ✅ Persistencia vectorial en Qdrant
+- ✅ IDs deterministas
+- ✅ Reindexación incremental
+- ✅ Actualización de archivos modificados
+- ✅ Limpieza de vectores eliminados
+
+---
+
+# Próximas mejoras
+
+## Separación por proyectos
+
+Actualmente toda la información está en:
+
+```
+global_memory
+```
+
+La siguiente evolución será separar conocimiento:
+
+```
+Qdrant
+
+├── angular-project
+├── flutter-project
+├── memory-service
+└── documentation
+```
+
+permitiendo búsquedas específicas:
+
+```
+Buscar solo en proyecto Angular
+```
+
+---
+
+## Integración MCP
+
+El siguiente objetivo será exponer estas capacidades mediante MCP:
+
+```
+VS Code / Continue
+          |
+          ▼
+      MCP Server
+          |
+          ▼
+   Memory Service
+          |
+          ▼
+       Qdrant
+```
+
+permitiendo que el asistente pueda consultar y actualizar la memoria directamente desde el entorno de desarrollo.
