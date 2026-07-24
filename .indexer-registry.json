@@ -1,0 +1,572 @@
+{
+  "README.md": {
+    "hash": "79884586e44eb1105d2c19ed6cf30e21633221b27c4382e099798bea81ac6382",
+    "chunks": 16,
+    "indexedAt": "2026-07-24T11:57:14.953Z"
+  },
+  "data/projects.json": {
+    "hash": "8dad81c12362fd3f466c45698d6753829cfa5d848930206cc4963d64f5057bdf",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T12:23:14.036Z"
+  },
+  "data/qdrant/aliases/data.json": {
+    "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:14.999Z"
+  },
+  "data/qdrant/collections/global_memory/0/applied_seq.json": {
+    "hash": "6e0e2e690dd8939b9aab8e123c0cc90e728a2c6bb952487fe06e7454e59822a2",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.023Z"
+  },
+  "data/qdrant/collections/global_memory/0/newest_clocks.json": {
+    "hash": "f04a0f53ad08dc0ef7479f607b3188fcdc9492f5d1a1dec604d0684d22dab499",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.047Z"
+  },
+  "data/qdrant/collections/global_memory/0/replica_state.json": {
+    "hash": "0f69a18ea44ec7a7dabb4bfb23af1422136fa6b6803a5712822687877c21eeae",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.071Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/0d46ee88-837e-43d6-94d8-77323deec632/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.093Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/0d46ee88-837e-43d6-94d8-77323deec632/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.120Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/0d46ee88-837e-43d6-94d8-77323deec632/segment.json": {
+    "hash": "eec8b9a20fbc7b19cc02112ee7e5675ffa7377b132f8a17721f4b201f41b393f",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.145Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/0d46ee88-837e-43d6-94d8-77323deec632/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.165Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/4255aecb-f716-419a-b881-3a34b7a4ce6d/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.185Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/4255aecb-f716-419a-b881-3a34b7a4ce6d/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.204Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/4255aecb-f716-419a-b881-3a34b7a4ce6d/segment.json": {
+    "hash": "79d1d4c5c8d57c33ebdab3ba6d937410f4585a529042feb5c05ef3ec10bb1193",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.224Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/4255aecb-f716-419a-b881-3a34b7a4ce6d/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.243Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/42b88b30-59f7-4e8c-b44d-4591d2889a2c/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.262Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/42b88b30-59f7-4e8c-b44d-4591d2889a2c/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.284Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/42b88b30-59f7-4e8c-b44d-4591d2889a2c/segment.json": {
+    "hash": "4501a80bf00fb1cdd4e6758a205ec599982280a280f65ffa43b84e3383793ca2",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.304Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/42b88b30-59f7-4e8c-b44d-4591d2889a2c/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.322Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/43bf3c6c-29e2-489a-a905-098cbe76b3a8/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.346Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/43bf3c6c-29e2-489a-a905-098cbe76b3a8/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.367Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/43bf3c6c-29e2-489a-a905-098cbe76b3a8/segment.json": {
+    "hash": "e158ce2cfa9d0ac57dd955913c7acb847fec1c230acafd29b24e4e28d5083676",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.387Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/43bf3c6c-29e2-489a-a905-098cbe76b3a8/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.406Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/522bd6cd-41ee-4724-9d4d-8f180d45ca5e/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.424Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/522bd6cd-41ee-4724-9d4d-8f180d45ca5e/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.442Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/522bd6cd-41ee-4724-9d4d-8f180d45ca5e/segment.json": {
+    "hash": "173e2be551c9de3ab23e96ff4ab02e64484c9f72879cd319662aa0cb5a39a80b",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.461Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/522bd6cd-41ee-4724-9d4d-8f180d45ca5e/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.479Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/9afcd440-db1a-4825-ae54-4dc3e21e34f4/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.497Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/9afcd440-db1a-4825-ae54-4dc3e21e34f4/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.515Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/9afcd440-db1a-4825-ae54-4dc3e21e34f4/segment.json": {
+    "hash": "4bc2cb16cc4b0ef33678dc66510d24040d9beb419fc755f31504559e2d6c4005",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.535Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/9afcd440-db1a-4825-ae54-4dc3e21e34f4/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.555Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/c7710350-5689-4ef0-bfd7-9b8d7fe60eb7/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.573Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/c7710350-5689-4ef0-bfd7-9b8d7fe60eb7/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.594Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/c7710350-5689-4ef0-bfd7-9b8d7fe60eb7/segment.json": {
+    "hash": "4720702f5c5d5eb86d6ffae9f6c783ae99e68f1581157f384d67299be0f0928d",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.616Z"
+  },
+  "data/qdrant/collections/global_memory/0/segments/c7710350-5689-4ef0-bfd7-9b8d7fe60eb7/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.636Z"
+  },
+  "data/qdrant/collections/global_memory/0/shard_config.json": {
+    "hash": "65066de734166009a72a33b3e77c38e0c61565edae6492fbce864738e2f38328",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.658Z"
+  },
+  "data/qdrant/collections/global_memory/config.json": {
+    "hash": "3bf30ee1775dceaa02a15be2200d3e8af8848782e7cb32b7da27846b6772490f",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.687Z"
+  },
+  "data/qdrant/collections/global_memory/shard_key_mapping.json": {
+    "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.706Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/replica_state.json": {
+    "hash": "0f69a18ea44ec7a7dabb4bfb23af1422136fa6b6803a5712822687877c21eeae",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.727Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.747Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.768Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/segment.json": {
+    "hash": "93a390a164d67226524255599026e83c25206522c68bef74ffc0e8af1a8050eb",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.485Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.810Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.831Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.850Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/segment.json": {
+    "hash": "fdb41e367ed2231578e4bb9d5250d803a04dec044a2aa21d27c0bfd35f56e673",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.513Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.893Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.913Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.935Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/segment.json": {
+    "hash": "6606fa989b84de4d12dfd0517b19c7ae514a1def1e1a5832cb3edf31fbfb66e0",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.539Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:15.989Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.013Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.038Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/segment.json": {
+    "hash": "a61aeec21e0f770a8b256ceb13bd8619741bf73f4b71a3b735a50b7b1080cfe7",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.572Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.093Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.118Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.141Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/segment.json": {
+    "hash": "1fdf4946cca26ccf5769b9f06ed242a95c9ba37a9164f85d440aaae951b1dd5f",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.608Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.187Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.210Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.234Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/segment.json": {
+    "hash": "7ab7a5b212b9bd376119fa772882b513e290607a8aee59ac9de8735ee07d2710",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.643Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.280Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/payload_index/config.json": {
+    "hash": "68ea5223f46192993277cb3c297855444ebdaa03e33bff058d0234e567945098",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.302Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/payload_storage/config.json": {
+    "hash": "5d2d4a5dfbc77dec05decfae8b5228e1928bfce75b15e3be3922c392d603cfe8",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.324Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/segment.json": {
+    "hash": "986d1fe5b79a138a1f73656db4ef3f0b48f3ac31bdc1991b224b4c07709d0a05",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.674Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/vector_storage/vectors/config.json": {
+    "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.369Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/shard_config.json": {
+    "hash": "65066de734166009a72a33b3e77c38e0c61565edae6492fbce864738e2f38328",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.390Z"
+  },
+  "data/qdrant/collections/project_memory_service/config.json": {
+    "hash": "3bf30ee1775dceaa02a15be2200d3e8af8848782e7cb32b7da27846b6772490f",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.421Z"
+  },
+  "data/qdrant/collections/project_memory_service/shard_key_mapping.json": {
+    "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.440Z"
+  },
+  "data/qdrant/raft_state.json": {
+    "hash": "978c11653819c4e1f7e1b1cdb3e0d66cd613aa9e7dcb0762f5d78811c2cecc45",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:16.465Z"
+  },
+  "package-lock.json": {
+    "hash": "643ac7cb4e9890cf0f0bfc3c12dc2b4df340ae9033e68113395c23d39c539e5a",
+    "chunks": 80,
+    "indexedAt": "2026-07-24T11:57:18.964Z"
+  },
+  "package.json": {
+    "hash": "0ea12b6f0a9a2a963da33ed22d98a05ed759ed40afc50427cf23278a7bddfb87",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:17:10.652Z"
+  },
+  "src/ai/ollama.service.ts": {
+    "hash": "6e0942a99619f48b73da1756b851a52bec0116851df06fe71cbbd4e464128126",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.015Z"
+  },
+  "src/api/memory.context.ts": {
+    "hash": "3ceb12422b572609b72de2d386a7cefdca46081394bab3bbb613f34215fcc259",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.037Z"
+  },
+  "src/api/memory.controller.ts": {
+    "hash": "0ac09964e9aaa0143bb9ba7f760120097c23aad8dbe24876aabf6d30fb7950d4",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.062Z"
+  },
+  "src/config/index.ts": {
+    "hash": "75a6ba48a792aee2972f6f7abbd4ecf11407c29a8370ba3f5cb4a95be9a7add7",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.085Z"
+  },
+  "src/config.ts": {
+    "hash": "140c20c182ff6ec622f1a3d42d742523b069a21af4f964f226f9074d07c1fa64",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.110Z"
+  },
+  "src/index.ts": {
+    "hash": "30d06f5b0d9d0ea1e4484ba755e52e8383a73d972997ebc1b204dce4fcffda02",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.161Z"
+  },
+  "src/indexer/chunker.ts": {
+    "hash": "710299786fcc412f490b34737db30697c97458835f0636cef29c46f43ceef9de",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.186Z"
+  },
+  "src/indexer/embedder.ts": {
+    "hash": "35d5ed9ca3501cf1b6c242fcd706ebe97eacf761c3bee50ababdfc9440072c1a",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.211Z"
+  },
+  "src/indexer/hash.ts": {
+    "hash": "a18e3a23200600e482d163f3abf9d81b21850e6a03db7b01be57c09ba8a6dda2",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.238Z"
+  },
+  "src/indexer/index-project.ts": {
+    "hash": "3b0a380878449b3d9baf2558f5f1af02ed4d5e210fb05140cf5cc274856dfd1a",
+    "chunks": 4,
+    "indexedAt": "2026-07-24T13:34:30.441Z"
+  },
+  "src/indexer/index.ts": {
+    "hash": "b57859742d014d1fced1fd8bcfcd4777c3d11e3ba71ef26f63f4b1e37d05c7d7",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.341Z"
+  },
+  "src/indexer/loaders/filesystem.loader.ts": {
+    "hash": "41246d52aadd3a03518dfd2508db22bca6e9fd8aba3e6fb22c618509a1e563bc",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.365Z"
+  },
+  "src/indexer/loaders/git.loader.ts": {
+    "hash": "54fbb11e59b157ce25f6fb7a1af5303fcc72ee25da25fcdc2d85b48d904c00ff",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.389Z"
+  },
+  "src/indexer/loaders/json.loader.ts": {
+    "hash": "572a20513fa9abfa2b91fdafb7370d5e8c6acb3df32d992769ba076a08fb0dfd",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.414Z"
+  },
+  "src/indexer/loaders/markdown.loader.ts": {
+    "hash": "31279ecc918fe6895c5b590d868490a9b4d0eb6a8dfe2576b95412f3e7507453",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.438Z"
+  },
+  "src/indexer/loaders/pdf.loader.ts": {
+    "hash": "cf69a9be9198ced5f22b3f6254515baa5b78a47cf4c76140bd200ad653dbe031",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.462Z"
+  },
+  "src/indexer/scanner.ts": {
+    "hash": "f1c32184c519eb8a7fbdbcf6f7657219a0e43d295bb4b221ffc72a778283e3e7",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.541Z"
+  },
+  "src/indexer/uploader.ts": {
+    "hash": "d5af06da939a6d7dfe97f6cf081eb5e43d3f77a5ddc1ee923519a8a211e174f1",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T13:17:10.790Z"
+  },
+  "src/mcp/server.ts": {
+    "hash": "88519db73cfa37314c852f91400794c179b73e240ce83f2cef3e874567adae3a",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.696Z"
+  },
+  "src/memory/memory.manager.ts": {
+    "hash": "eca12669e9c16965e057d4dd09d1c829c36f57c70cbbe1152cb1444f8edf408a",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.720Z"
+  },
+  "src/memory/memory.service.ts": {
+    "hash": "940657be2dc6757d4f9f772aa441cc7d5a5d3bb93aff908bae3f06fbb203a05c",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.744Z"
+  },
+  "src/memory/memory.types.ts": {
+    "hash": "a564d5d0b4f69e9918babee8175b14a8f6e930c8f9f7a14038750d4760aff251",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.763Z"
+  },
+  "src/projects/collection.manager.ts": {
+    "hash": "528d2825270dc66204f97bef1baa1522c61ec80105276da4733595af5d81818f",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.784Z"
+  },
+  "src/projects/project.registry.ts": {
+    "hash": "4668320817df324eb26f49ce72a4899a0aa62b347f40ebd174559e929c8c44d9",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T12:14:44.490Z"
+  },
+  "src/projects/project.types.ts": {
+    "hash": "b19d0cf7d7b70b78cd77898ba666aa0b4f90a081ffa74df38bde67435c301f09",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.826Z"
+  },
+  "src/projects/test-project.ts": {
+    "hash": "0fccb5441c1f80291476023d12e4090dd1508163fdc359c3641d70c62b325ce6",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.849Z"
+  },
+  "src/qdrant/client.ts": {
+    "hash": "6e49d6b2fedb20a4d41b56135756780b8e4e2506048a9b2079982f1c1aad2d6b",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.867Z"
+  },
+  "src/qdrant/qdrant.service.ts": {
+    "hash": "c90588871f27ed0cbcfad1e9f66581df4bef4ebfc58337bd75ef356e5a9a502b",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T11:57:19.917Z"
+  },
+  "src/server.ts": {
+    "hash": "292ba0c6f9082b7c2f2e2944a5fe823d9fbf74b6e81e9339bd08bef3f77a0ee0",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.935Z"
+  },
+  "test.ts": {
+    "hash": "e77f7f6827e230d37def72aeef10869eda05d65dc7f4a0d8bc8e10366b98d539",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.953Z"
+  },
+  "tsconfig.json": {
+    "hash": "ddf7f431e379262b0556e3ca33c74a67f547859a6c6f9943fe5033e02ac0348e",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T11:57:19.976Z"
+  },
+  ".indexer-registry.json": {
+    "hash": "66511d96af4c804ec876167a96743d8f4c534ee302a0bbbe161de99ad90b623a",
+    "chunks": 22,
+    "indexedAt": "2026-07-24T13:35:14.409Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/applied_seq.json": {
+    "hash": "51f4caf279193dfd8b7fec5a367d81c53d1180deb75ea43fa69e271bf0d0827a",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.436Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/newest_clocks.json": {
+    "hash": "c27a58c66028266510bab00684a8b839078b93684d5ea0da71c2a600defdfa18",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.460Z"
+  },
+  "src/indexer/file.registry.ts": {
+    "hash": "0b838ecb74daebaadb639cbbc253da106cb7fff844ea73a5215930b9f98c3b13",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T12:09:11.465Z"
+  },
+  "src/projects/project.resolver.ts": {
+    "hash": "6bfb57f600c7fc4fd706452f9e25575df47413fca58488b26c3c1b4a4c52651d",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T12:23:14.309Z"
+  },
+  "data/registry/projects.json": {
+    "hash": "e324c8e0548a45b029f7eae5c12f17b6ace542366ab17eedfa827137fc5739ae",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.705Z"
+  },
+  "src/indexer/cleanup.ts": {
+    "hash": "8daa26f59b86a80f88073a1d1d21277d911bc40b67799074ca6c0a2b394313a3",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T13:28:32.324Z"
+  },
+  "src/indexer/registry.ts": {
+    "hash": "99fd6da785f05746d3a6de828173fc1bb6e7ce0c168cf684094ee91147e3de9b",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T12:38:28.882Z"
+  },
+  "src/indexer/language.ts": {
+    "hash": "c5a6bb16d3daa0937a036ed180fa763fdb9bae90b41eec004216bd41f94db277",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:09:14.396Z"
+  },
+  "src/indexer/run-cleanup.ts": {
+    "hash": "1e3ef7807ff9272bf875016c7a08c0a707ee4d482890259b7fac23b9acc2991b",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:17:10.732Z"
+  },
+  "src/orphan-test.ts": {
+    "hash": "0d9158115c3a20e66a52c485172e1863d60618f763d24b09b529a495d04081e1",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.735Z"
+  }
+}
