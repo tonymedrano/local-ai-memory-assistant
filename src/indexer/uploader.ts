@@ -132,3 +132,19 @@ export async function deleteFileVectors(
     },
   );
 }
+
+export async function getProjectFiles(collection: string) {
+  const result = await client.scroll(
+    collection,
+
+    {
+      limit: 10000,
+
+      with_payload: true,
+
+      with_vector: false,
+    },
+  );
+
+  return result.points.map((point) => point.payload as any);
+}

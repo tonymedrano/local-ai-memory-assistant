@@ -200,9 +200,9 @@
     "indexedAt": "2026-07-24T11:57:15.768Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/segment.json": {
-    "hash": "696c019f20a693512f9aea857ea29c0b37c5acaa66f4637bc31ecea7a67ea8c0",
+    "hash": "93a390a164d67226524255599026e83c25206522c68bef74ffc0e8af1a8050eb",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.403Z"
+    "indexedAt": "2026-07-24T13:35:14.485Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -220,9 +220,9 @@
     "indexedAt": "2026-07-24T11:57:15.850Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/segment.json": {
-    "hash": "77ea2c18dec2d6f223afaf5bf937d3da9071d1c0e84ceb32710b34664cf46cf4",
+    "hash": "fdb41e367ed2231578e4bb9d5250d803a04dec044a2aa21d27c0bfd35f56e673",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.427Z"
+    "indexedAt": "2026-07-24T13:35:14.513Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -240,9 +240,9 @@
     "indexedAt": "2026-07-24T11:57:15.935Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/segment.json": {
-    "hash": "e0c95802c70adc756e99bde0023bd1ee56b6bd030776d035d5727169dcd9659d",
+    "hash": "6606fa989b84de4d12dfd0517b19c7ae514a1def1e1a5832cb3edf31fbfb66e0",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.453Z"
+    "indexedAt": "2026-07-24T13:35:14.539Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -260,9 +260,9 @@
     "indexedAt": "2026-07-24T11:57:16.038Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/segment.json": {
-    "hash": "5ddb85064442f37f1d65b95c44e149996934713bd4d33ade6ea78b3ad01d15ee",
+    "hash": "a61aeec21e0f770a8b256ceb13bd8619741bf73f4b71a3b735a50b7b1080cfe7",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.479Z"
+    "indexedAt": "2026-07-24T13:35:14.572Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -280,9 +280,9 @@
     "indexedAt": "2026-07-24T11:57:16.141Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/segment.json": {
-    "hash": "be47f4a6bf3e7e4cac6da030a92b655ce9da61bb00e8fe41a2f926a9dca12ef1",
+    "hash": "1fdf4946cca26ccf5769b9f06ed242a95c9ba37a9164f85d440aaae951b1dd5f",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.506Z"
+    "indexedAt": "2026-07-24T13:35:14.608Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -300,9 +300,9 @@
     "indexedAt": "2026-07-24T11:57:16.234Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/segment.json": {
-    "hash": "25fa7cf12fd146ec2ee7879201425736cc7296a5e46a995509ef97dbab7b2d87",
+    "hash": "7ab7a5b212b9bd376119fa772882b513e290607a8aee59ac9de8735ee07d2710",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.534Z"
+    "indexedAt": "2026-07-24T13:35:14.643Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -320,9 +320,9 @@
     "indexedAt": "2026-07-24T11:57:16.324Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/segment.json": {
-    "hash": "117ccfbd96b23c298f1054afaaebcca9d4cb1e7faf9289f0c8e57af4fea5984b",
+    "hash": "986d1fe5b79a138a1f73656db4ef3f0b48f3ac31bdc1991b224b4c07709d0a05",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.566Z"
+    "indexedAt": "2026-07-24T13:35:14.674Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -355,9 +355,9 @@
     "indexedAt": "2026-07-24T11:57:18.964Z"
   },
   "package.json": {
-    "hash": "518271bcd4affa23a97467e5470457001a70789c8b43031a83c9952b628c58f9",
+    "hash": "0ea12b6f0a9a2a963da33ed22d98a05ed759ed40afc50427cf23278a7bddfb87",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:18.992Z"
+    "indexedAt": "2026-07-24T13:17:10.652Z"
   },
   "src/ai/ollama.service.ts": {
     "hash": "6e0942a99619f48b73da1756b851a52bec0116851df06fe71cbbd4e464128126",
@@ -405,9 +405,9 @@
     "indexedAt": "2026-07-24T11:57:19.238Z"
   },
   "src/indexer/index-project.ts": {
-    "hash": "7e3b08a8a565924f74eaa7e4eac4da02658d68a83cc63e163dfed8215b6b061b",
+    "hash": "3b0a380878449b3d9baf2558f5f1af02ed4d5e210fb05140cf5cc274856dfd1a",
     "chunks": 4,
-    "indexedAt": "2026-07-24T13:09:14.369Z"
+    "indexedAt": "2026-07-24T13:34:30.441Z"
   },
   "src/indexer/index.ts": {
     "hash": "b57859742d014d1fced1fd8bcfcd4777c3d11e3ba71ef26f63f4b1e37d05c7d7",
@@ -445,9 +445,9 @@
     "indexedAt": "2026-07-24T11:57:19.541Z"
   },
   "src/indexer/uploader.ts": {
-    "hash": "1b2d15a7b9158def932172fc7829e53175165d3691fb4c632c803a82c5fb229b",
+    "hash": "d5af06da939a6d7dfe97f6cf081eb5e43d3f77a5ddc1ee923519a8a211e174f1",
     "chunks": 2,
-    "indexedAt": "2026-07-24T13:09:14.454Z"
+    "indexedAt": "2026-07-24T13:17:10.790Z"
   },
   "src/mcp/server.ts": {
     "hash": "88519db73cfa37314c852f91400794c179b73e240ce83f2cef3e874567adae3a",
@@ -515,19 +515,19 @@
     "indexedAt": "2026-07-24T11:57:19.976Z"
   },
   ".indexer-registry.json": {
-    "hash": "86193bc157b511f75049998ec9ac6e140c367f6f42496c5747fb996f5985dc38",
+    "hash": "66511d96af4c804ec876167a96743d8f4c534ee302a0bbbe161de99ad90b623a",
     "chunks": 22,
-    "indexedAt": "2026-07-24T13:12:59.318Z"
+    "indexedAt": "2026-07-24T13:35:14.409Z"
   },
   "data/qdrant/collections/project_memory_service/0/applied_seq.json": {
-    "hash": "0939ebac57d3ab2f52f40f7ee82bce1b9120aabbcd19776b3aa42dc8caad2d40",
+    "hash": "51f4caf279193dfd8b7fec5a367d81c53d1180deb75ea43fa69e271bf0d0827a",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.357Z"
+    "indexedAt": "2026-07-24T13:35:14.436Z"
   },
   "data/qdrant/collections/project_memory_service/0/newest_clocks.json": {
-    "hash": "6fb94b7e8e471d19360a799b8851a5f51dce3fccd5e2ee12e71119ccb4e0cae5",
+    "hash": "c27a58c66028266510bab00684a8b839078b93684d5ea0da71c2a600defdfa18",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.378Z"
+    "indexedAt": "2026-07-24T13:35:14.460Z"
   },
   "src/indexer/file.registry.ts": {
     "hash": "0b838ecb74daebaadb639cbbc253da106cb7fff844ea73a5215930b9f98c3b13",
@@ -540,14 +540,14 @@
     "indexedAt": "2026-07-24T12:23:14.309Z"
   },
   "data/registry/projects.json": {
-    "hash": "e6aa08b37996def3faeda127f96b29302b9eb9556e28bfbd01cd50a84dd974da",
+    "hash": "e324c8e0548a45b029f7eae5c12f17b6ace542366ab17eedfa827137fc5739ae",
     "chunks": 1,
-    "indexedAt": "2026-07-24T13:12:59.594Z"
+    "indexedAt": "2026-07-24T13:35:14.705Z"
   },
   "src/indexer/cleanup.ts": {
-    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "chunks": 0,
-    "indexedAt": "2026-07-24T12:38:28.734Z"
+    "hash": "8daa26f59b86a80f88073a1d1d21277d911bc40b67799074ca6c0a2b394313a3",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T13:28:32.324Z"
   },
   "src/indexer/registry.ts": {
     "hash": "99fd6da785f05746d3a6de828173fc1bb6e7ce0c168cf684094ee91147e3de9b",
@@ -558,5 +558,15 @@
     "hash": "c5a6bb16d3daa0937a036ed180fa763fdb9bae90b41eec004216bd41f94db277",
     "chunks": 1,
     "indexedAt": "2026-07-24T13:09:14.396Z"
+  },
+  "src/indexer/run-cleanup.ts": {
+    "hash": "1e3ef7807ff9272bf875016c7a08c0a707ee4d482890259b7fac23b9acc2991b",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:17:10.732Z"
+  },
+  "src/orphan-test.ts": {
+    "hash": "0d9158115c3a20e66a52c485172e1863d60618f763d24b09b529a495d04081e1",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T13:35:14.735Z"
   }
 }
