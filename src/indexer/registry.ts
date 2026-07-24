@@ -1,81 +1,63 @@
-/**
- * Registry local del indexador.
- *
- * Guarda información sobre qué archivos
- * ya han sido procesados.
- *
- * Ejemplo:
- *
- * {
- *   "src/app.ts": {
- *      hash:"abc123",
- *      chunks:5,
- *      indexedAt:"2026-07-24"
- *   }
- * }
- *
- */
-
 import fs from "node:fs/promises";
+import path from "node:path";
 
-const REGISTRY_FILE = ".indexer-registry.json";
+export interface ProjectRegistry {
+  id: string;
 
-/**
- * Información almacenada
- * por cada archivo.
- */
-export interface RegistryEntry {
-  // Hash del contenido
-  hash: string;
+  name: string;
 
-  // Número de chunks generados
-  chunks: number;
+  rootPath: string;
 
-  // Fecha de indexación
-  indexedAt: string;
+  collection: string;
+
+  lastIndexed: string;
+
+  files: number;
 }
 
-/**
- * Registro completo.
- *
- * La clave es la ruta del archivo.
- */
-export type Registry = Record<string, RegistryEntry>;
+const REGISTRY_PATH = path.resolve(
+  process.cwd(),
+  "data/registry/projects.json",
+);
 
-/**
- * Carga el registro existente.
- *
- * Si es la primera ejecución
- * devuelve un objeto vacío.
- */
-export async function loadRegistry(): Promise<Registry> {
+async function loadRegistry() {
   try {
-    const data = await fs.readFile(REGISTRY_FILE, "utf8");
+    const data = await fs.readFile(REGISTRY_PATH, "utf-8");
 
     return JSON.parse(data);
   } catch {
-    return {};
+    return {
+      projects: [],
+    };
   }
 }
 
-/**
- * Guarda el estado actual
- * del indexador.
- */
-export async function saveRegistry(registry: Registry) {
-  await fs.writeFile(
-    REGISTRY_FILE,
-
-    JSON.stringify(registry, null, 2),
-  );
+async function saveRegistry(data: any) {
+  await fs.writeFile(REGISTRY_PATH, JSON.stringify(data, null, 2));
 }
 
-/**
- * Elimina una entrada del registry.
- *
- * Se usa cuando un archivo ya no existe
- * físicamente en el proyecto.
- */
-export function removeRegistryEntry(registry: Registry, file: string) {
-  delete registry[file];
+export async function registerProject(project: ProjectRegistry) {
+  const registry = await loadRegistry();
+
+  const index = registry.projects.findIndex((p: any) => p.id === project.id);
+
+  if (index >= 0) {
+    registry.projects[index] = project;
+  } else {
+    registry.projects.push(project);
+  }
+
+  await saveRegistry(registry);
+}
+
+export async function getProject(id: string) {
+  const registry = await loadRegistry();
+
+  return registry.projects.find((p: any) => p.id === id);
+}
+
+export async function listProjects() {
+  const registry = await loadRegistry();
+
+  return registry.projects;
 }

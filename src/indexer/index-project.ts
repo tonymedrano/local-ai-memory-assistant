@@ -26,7 +26,19 @@ import { uploadVector, deleteFileVectors } from "./uploader.js";
 
 import { fileHash } from "./hash.js";
 
-import { loadRegistry, saveRegistry, removeRegistryEntry } from "./registry.js";
+import {
+  loadRegistry,
+  saveRegistry,
+  removeRegistryEntry,
+} from "./file.registry.js";
+
+import { registerProject } from "./registry.js";
+
+import { ProjectRegistry } from "../projects/project.registry.js";
+
+import { ProjectResolver } from "../projects/project.resolver.js";
+
+import { detectLanguage } from "./language.js";
 
 import { v5 as uuidv5 } from "uuid";
 
@@ -39,11 +51,21 @@ import { v5 as uuidv5 } from "uuid";
 const UUID_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
 async function indexProject(folder: string) {
+  const projectRegistry = new ProjectRegistry();
+
+  const resolver = new ProjectResolver(projectRegistry);
+
+  const project = await resolver.resolve(folder);
+
+  const collection = project.collection;
+
+  const projectId = project.id;
+
   const files = await scanDirectory(folder);
 
   console.log(`Encontrados ${files.length} archivos`);
 
-  const registry = await loadRegistry();
+  const fileRegistry = await loadRegistry();
   /**
    * Lista de archivos actuales.
    */
@@ -55,20 +77,20 @@ async function indexProject(folder: string) {
    * Están en registry pero no
    * en el proyecto actual.
    */
-  for (const oldFile of Object.keys(registry)) {
+  for (const oldFile of Object.keys(fileRegistry)) {
     if (!currentFiles.has(oldFile)) {
       console.log(`Archivo eliminado: ${oldFile}`);
 
-      await deleteFileVectors(oldFile);
+      await deleteFileVectors(collection, projectId, oldFile);
 
-      removeRegistryEntry(registry, oldFile);
+      removeRegistryEntry(fileRegistry, oldFile);
     }
   }
 
   for (const file of files) {
     const hash = await fileHash(file);
 
-    const previous = registry[file];
+    const previous = fileRegistry[file];
 
     /**
      * Si existe y el hash coincide,
@@ -88,7 +110,7 @@ async function indexProject(folder: string) {
     if (previous) {
       console.log(`Actualizando: ${file}`);
 
-      await deleteFileVectors(file);
+      await deleteFileVectors(collection, projectId, file);
     }
 
     console.log(`Indexando: ${file}`);
@@ -107,22 +129,30 @@ async function indexProject(folder: string) {
       );
 
       await uploadVector(
+        collection,
+
         id,
 
         vector,
 
         {
+          projectId,
+
           file,
+
+          hash,
 
           chunk: chunk.index,
 
-          type: document.type,
+          language: detectLanguage(document.type),
+
+          indexedAt: new Date().toISOString(),
         },
       );
     }
 
     // Actualizamos memoria local
-    registry[file] = {
+    fileRegistry[file] = {
       hash,
 
       chunks: chunks.length,
@@ -131,9 +161,23 @@ async function indexProject(folder: string) {
     };
   }
 
-  await saveRegistry(registry);
+  await saveRegistry(fileRegistry);
 
   console.log("Indexación completada");
+
+  await registerProject({
+    id: project.id,
+
+    name: project.name,
+
+    rootPath: project.rootPath,
+
+    collection: "global_memory",
+
+    lastIndexed: new Date().toISOString(),
+
+    files: files.length,
+  });
 }
 
 indexProject(process.argv[2] ?? ".").catch((error) => {
