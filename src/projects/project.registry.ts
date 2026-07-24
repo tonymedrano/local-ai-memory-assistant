@@ -29,8 +29,17 @@ export class ProjectRegistry {
 
     if (!exists) {
       projects.push(project);
-
+console.log(
+  "Registrando proyecto:",
+  project
+);
       await fs.writeFile(PROJECT_FILE, JSON.stringify(projects, null, 2));
     }
+  }
+
+  async findByPath(rootPath: string): Promise<ProjectContext | undefined> {
+    const projects = await this.getProjects();
+
+    return projects.find((project) => project.rootPath === rootPath);
   }
 }

@@ -5,9 +5,9 @@
     "indexedAt": "2026-07-24T11:57:14.953Z"
   },
   "data/projects.json": {
-    "hash": "2c7fb23185ae697511e26d619583732ff84c2627d8b4d61c305cdbd3fbf5b25f",
+    "hash": "8dad81c12362fd3f466c45698d6753829cfa5d848930206cc4963d64f5057bdf",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:14.976Z"
+    "indexedAt": "2026-07-24T12:23:14.036Z"
   },
   "data/qdrant/aliases/data.json": {
     "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
@@ -200,9 +200,9 @@
     "indexedAt": "2026-07-24T11:57:15.768Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "e7caefebc07c434f5b456aaac6259bda1426e9ffe422974f84e7eddce5ed22ea",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:15.790Z"
+    "indexedAt": "2026-07-24T12:23:14.110Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/2e25b904-b97b-4a9e-ab45-8f6f917531ca/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -220,9 +220,9 @@
     "indexedAt": "2026-07-24T11:57:15.850Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "7856b2c9cebd1983249f070ad28e012c6179e46917362747b000385c80a0f52a",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:15.872Z"
+    "indexedAt": "2026-07-24T12:23:14.136Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/31637d00-5734-4b15-94da-fe0b4e3f2fe9/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -240,9 +240,9 @@
     "indexedAt": "2026-07-24T11:57:15.935Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "0c9a8c19db3d8a57eb62cda136cc529d7648776dc4b6ef286cebde1b958b4b99",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:15.962Z"
+    "indexedAt": "2026-07-24T12:23:14.165Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/47144bdb-9499-4dcb-bc5b-36b1dae304e0/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -260,9 +260,9 @@
     "indexedAt": "2026-07-24T11:57:16.038Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "6b89636db967dd35181a61e30ea68530b32adeb349dea6dd5bd95e99c5b02bb3",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:16.066Z"
+    "indexedAt": "2026-07-24T12:23:14.195Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ba4d37b7-5345-4f27-ab2d-bb04e1c26d7b/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -280,9 +280,9 @@
     "indexedAt": "2026-07-24T11:57:16.141Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "9ac45306f827af745acf12c1dce117da78d66085e48c8f9718ce78a7e2896313",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:16.166Z"
+    "indexedAt": "2026-07-24T12:23:14.224Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee292489-f7fb-4011-bff6-8b94f7f0e5d5/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -300,9 +300,9 @@
     "indexedAt": "2026-07-24T11:57:16.234Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "88590b38ba9304c28b96b5172f538e6788e3a0d72ab00a90c9ad2de9e29d9e84",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:16.258Z"
+    "indexedAt": "2026-07-24T12:23:14.252Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/ee612469-bb79-44c9-81bf-1db893df9552/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -320,9 +320,9 @@
     "indexedAt": "2026-07-24T11:57:16.324Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/segment.json": {
-    "hash": "ef0118d73d4f6043c9e274e9903ff1179b0593075212da8b16545963165beb0c",
+    "hash": "51895ad2728e32a07550814dda0a50d314b315ba24aff7227f08adddfb315cd8",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:16.347Z"
+    "indexedAt": "2026-07-24T12:23:14.277Z"
   },
   "data/qdrant/collections/project_memory_service/0/segments/fdec77f3-63a8-4a3a-aa06-f3b414dc2740/vector_storage/vectors/config.json": {
     "hash": "9de9c168720f8fdeda8ea8dd9911871c3f9ea36a7e05dfef985deb0a6cdbb942",
@@ -387,7 +387,7 @@
   "src/data/projects.json": {
     "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:19.132Z"
+    "indexedAt": "2026-07-24T12:14:44.451Z"
   },
   "src/index.ts": {
     "hash": "30d06f5b0d9d0ea1e4484ba755e52e8383a73d972997ebc1b204dce4fcffda02",
@@ -410,9 +410,9 @@
     "indexedAt": "2026-07-24T11:57:19.238Z"
   },
   "src/indexer/index-project.ts": {
-    "hash": "89c8232607d89e1faf9a60f3f9a64dfc6969fa4fb30750c6c8ab4b968c088b38",
+    "hash": "3efe801e82f08769befdfd5f697cc820457254ef40a3db9a0acf49d0b7fb2392",
     "chunks": 3,
-    "indexedAt": "2026-07-24T11:57:19.319Z"
+    "indexedAt": "2026-07-24T12:11:48.800Z"
   },
   "src/indexer/index.ts": {
     "hash": "b57859742d014d1fced1fd8bcfcd4777c3d11e3ba71ef26f63f4b1e37d05c7d7",
@@ -443,11 +443,6 @@
     "hash": "cf69a9be9198ced5f22b3f6254515baa5b78a47cf4c76140bd200ad653dbe031",
     "chunks": 1,
     "indexedAt": "2026-07-24T11:57:19.462Z"
-  },
-  "src/indexer/registry.ts": {
-    "hash": "0b838ecb74daebaadb639cbbc253da106cb7fff844ea73a5215930b9f98c3b13",
-    "chunks": 2,
-    "indexedAt": "2026-07-24T11:57:19.512Z"
   },
   "src/indexer/scanner.ts": {
     "hash": "f1c32184c519eb8a7fbdbcf6f7657219a0e43d295bb4b221ffc72a778283e3e7",
@@ -485,9 +480,9 @@
     "indexedAt": "2026-07-24T11:57:19.784Z"
   },
   "src/projects/project.registry.ts": {
-    "hash": "198b346f43d6f459fd56d676e8ad66bc7d8889ccfb5f3fc566f10fda5fb5e990",
+    "hash": "4668320817df324eb26f49ce72a4899a0aa62b347f40ebd174559e929c8c44d9",
     "chunks": 1,
-    "indexedAt": "2026-07-24T11:57:19.808Z"
+    "indexedAt": "2026-07-24T12:14:44.490Z"
   },
   "src/projects/project.types.ts": {
     "hash": "b19d0cf7d7b70b78cd77898ba666aa0b4f90a081ffa74df38bde67435c301f09",
@@ -523,5 +518,30 @@
     "hash": "ddf7f431e379262b0556e3ca33c74a67f547859a6c6f9943fe5033e02ac0348e",
     "chunks": 1,
     "indexedAt": "2026-07-24T11:57:19.976Z"
+  },
+  ".indexer-registry.json": {
+    "hash": "dfcc1461dcde79ae0ccee767c474d532a58edcf42bd68c4311b93b8e28c13144",
+    "chunks": 21,
+    "indexedAt": "2026-07-24T12:23:14.012Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/applied_seq.json": {
+    "hash": "d5925d3bd36965a3b6c8e188ea1b9a0ebe49f5ebde1821558231b6ba99cdaa99",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T12:23:14.062Z"
+  },
+  "data/qdrant/collections/project_memory_service/0/newest_clocks.json": {
+    "hash": "af748b284b2bebc658dae6ca8d267408fc4a9c8051a9e791e69b0dd22e170d6b",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T12:23:14.085Z"
+  },
+  "src/indexer/file.registry.ts": {
+    "hash": "0b838ecb74daebaadb639cbbc253da106cb7fff844ea73a5215930b9f98c3b13",
+    "chunks": 2,
+    "indexedAt": "2026-07-24T12:09:11.465Z"
+  },
+  "src/projects/project.resolver.ts": {
+    "hash": "6bfb57f600c7fc4fd706452f9e25575df47413fca58488b26c3c1b4a4c52651d",
+    "chunks": 1,
+    "indexedAt": "2026-07-24T12:23:14.309Z"
   }
 }
