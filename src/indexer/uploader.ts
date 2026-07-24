@@ -6,6 +6,14 @@
  * - Insertamos vectores
  * - Eliminamos vectores antiguos
  *
+ * La colección ahora es dinámica.
+ *
+ * Cada proyecto tiene su propia colección:
+ *
+ * project_memory_service
+ * project_angular_kpi
+ * project_flutter_ohms
+ *
  */
 
 import { QdrantClient } from "@qdrant/js-client-rest";
@@ -16,12 +24,12 @@ const client = new QdrantClient({
   checkCompatibility: false,
 });
 
-const COLLECTION = "global_memory";
-
 /**
  * Guarda un vector en Qdrant.
  */
 export async function uploadVector(
+  collection: string,
+
   id: string,
 
   vector: number[],
@@ -29,7 +37,7 @@ export async function uploadVector(
   payload: any,
 ) {
   await client.upsert(
-    COLLECTION,
+    collection,
 
     {
       points: [
@@ -37,7 +45,6 @@ export async function uploadVector(
           id,
 
           vector,
-
           payload,
         },
       ],
@@ -60,9 +67,13 @@ export async function uploadVector(
  * chunk2
  *
  */
-export async function deleteFileVectors(file: string) {
+export async function deleteFileVectors(
+  collection: string,
+
+  file: string,
+) {
   await client.delete(
-    COLLECTION,
+    collection,
 
     {
       filter: {

@@ -38,6 +38,10 @@ import { v5 as uuidv5 } from "uuid";
  */
 const UUID_NAMESPACE = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
 
+const collection = "project_memory_service";
+
+const projectId = "memory-service";
+
 async function indexProject(folder: string) {
   const files = await scanDirectory(folder);
 
@@ -59,7 +63,7 @@ async function indexProject(folder: string) {
     if (!currentFiles.has(oldFile)) {
       console.log(`Archivo eliminado: ${oldFile}`);
 
-      await deleteFileVectors(oldFile);
+      await deleteFileVectors(collection, oldFile);
 
       removeRegistryEntry(registry, oldFile);
     }
@@ -88,7 +92,7 @@ async function indexProject(folder: string) {
     if (previous) {
       console.log(`Actualizando: ${file}`);
 
-      await deleteFileVectors(file);
+      await deleteFileVectors(collection, file);
     }
 
     console.log(`Indexando: ${file}`);
@@ -107,11 +111,15 @@ async function indexProject(folder: string) {
       );
 
       await uploadVector(
+        collection,
+
         id,
 
         vector,
 
         {
+          project: projectId,
+
           file,
 
           chunk: chunk.index,
