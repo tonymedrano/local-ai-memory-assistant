@@ -32,9 +32,13 @@ import {
   removeRegistryEntry,
 } from "./file.registry.js";
 
+import { registerProject } from "./registry.js";
+
 import { ProjectRegistry } from "../projects/project.registry.js";
 
 import { ProjectResolver } from "../projects/project.resolver.js";
+
+import { detectLanguage } from "./language.js";
 
 import { v5 as uuidv5 } from "uuid";
 
@@ -77,7 +81,7 @@ async function indexProject(folder: string) {
     if (!currentFiles.has(oldFile)) {
       console.log(`Archivo eliminado: ${oldFile}`);
 
-      await deleteFileVectors(collection, oldFile);
+      await deleteFileVectors(collection, projectId, oldFile);
 
       removeRegistryEntry(fileRegistry, oldFile);
     }
@@ -106,7 +110,7 @@ async function indexProject(folder: string) {
     if (previous) {
       console.log(`Actualizando: ${file}`);
 
-      await deleteFileVectors(collection, file);
+      await deleteFileVectors(collection, projectId, file);
     }
 
     console.log(`Indexando: ${file}`);
@@ -132,13 +136,17 @@ async function indexProject(folder: string) {
         vector,
 
         {
-          project: projectId,
+          projectId,
 
           file,
 
+          hash,
+
           chunk: chunk.index,
 
-          type: document.type,
+          language: detectLanguage(document.type),
+
+          indexedAt: new Date().toISOString(),
         },
       );
     }
@@ -156,6 +164,20 @@ async function indexProject(folder: string) {
   await saveRegistry(fileRegistry);
 
   console.log("Indexación completada");
+
+  await registerProject({
+    id: project.id,
+
+    name: project.name,
+
+    rootPath: project.rootPath,
+
+    collection: "global_memory",
+
+    lastIndexed: new Date().toISOString(),
+
+    files: files.length,
+  });
 }
 
 indexProject(process.argv[2] ?? ".").catch((error) => {

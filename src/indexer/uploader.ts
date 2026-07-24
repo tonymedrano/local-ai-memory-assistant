@@ -16,6 +16,40 @@
  *
  */
 
+export type Language =
+  | "typescript"
+  | "javascript"
+  | "java"
+  | "python"
+  | "dart"
+  | "markdown"
+  | "json"
+  | "text";
+
+export interface VectorPayload extends Record<string, unknown> {
+  projectId: string;
+
+  file: string;
+
+  hash: string;
+
+  content?: string;
+
+  language:
+    | "typescript"
+    | "javascript"
+    | "java"
+    | "python"
+    | "dart"
+    | "markdown"
+    | "json"
+    | "text";
+
+  indexedAt: string;
+
+  chunk: number;
+}
+
 import { QdrantClient } from "@qdrant/js-client-rest";
 
 const client = new QdrantClient({
@@ -34,7 +68,7 @@ export async function uploadVector(
 
   vector: number[],
 
-  payload: any,
+  payload: VectorPayload,
 ) {
   await client.upsert(
     collection,
@@ -45,6 +79,7 @@ export async function uploadVector(
           id,
 
           vector,
+
           payload,
         },
       ],
@@ -70,6 +105,8 @@ export async function uploadVector(
 export async function deleteFileVectors(
   collection: string,
 
+  projectId: string,
+
   file: string,
 ) {
   await client.delete(
@@ -79,8 +116,13 @@ export async function deleteFileVectors(
       filter: {
         must: [
           {
+            key: "projectId",
+            match: {
+              value: projectId,
+            },
+          },
+          {
             key: "file",
-
             match: {
               value: file,
             },

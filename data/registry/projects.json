@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "id": "memory_service",
+      "name": "memory_service",
+      "rootPath": "/Users/tonymedrano/Public/memory-service",
+      "collection": "global_memory",
+      "lastIndexed": "2026-07-24T13:12:59.600Z",
+      "files": 112
+    }
+  ]
+}
