@@ -230,7 +230,9 @@ export async function searchMemory(
     throw new Error(await response.text());
   }
 
-  return await response.json();
+  const data = await response.json();
+
+  return data.result;
 }
 
 export async function findSimilarMemory(

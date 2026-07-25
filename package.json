@@ -12,7 +12,8 @@
     "test:similarity": "tsx src/tests/test-consolidation.ts",
     "test:consolidation": "tsx src/tests/test-memory-consolidation.ts",
     "test:score": "tsx src/tests/test-memory-score.ts",
-    "test:ranking": "tsx src/tests/test-memory-ranking.ts"
+    "test:ranking": "tsx src/tests/test-memory-ranking.ts",
+    "test:retrieval": "tsx src/tests/test-memory-retrieval.ts"
   },
   "keywords": [],
   "author": "",
