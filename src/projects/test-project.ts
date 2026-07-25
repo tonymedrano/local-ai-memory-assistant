@@ -2,7 +2,7 @@ import { ProjectRegistry } from "./project.registry.js";
 
 import { CollectionManager } from "./collection.manager.js";
 
-import { qdrant } from "../qdrant/client.js";
+import { qdrant } from "../qdrant/qdrant.client.js";
 
 async function main() {
   const registry = new ProjectRegistry();
