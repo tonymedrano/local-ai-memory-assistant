@@ -116,12 +116,12 @@ export async function saveMemory(
 
   payload: Record<string, unknown> | any,
 ) {
-    console.log("QDRANT SAVE");
+  console.log("QDRANT SAVE");
   console.log({
     collection: config.memoryCollection,
     id,
     vectorSize: vector.length,
-    payload
+    payload,
   });
   const response = await fetch(
     `${baseUrl}/collections/${config.memoryCollection}/points`,
@@ -231,4 +231,168 @@ export async function searchMemory(
   }
 
   return await response.json();
+}
+
+export async function findSimilarMemory(
+  vector: number[],
+  project?: string,
+  threshold = 0.9,
+) {
+  const filter: any = {};
+
+  if (project) {
+    filter.must = [
+      {
+        key: "project",
+
+        match: {
+          value: project,
+        },
+      },
+    ];
+  }
+
+  const response = await fetch(
+    `${baseUrl}/collections/${config.memoryCollection}/points/search`,
+
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        vector,
+
+        limit: 1,
+
+        with_payload: true,
+
+        score_threshold: threshold,
+
+        ...(Object.keys(filter).length ? { filter } : {}),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const data = await response.json();
+
+  if (!data.result || data.result.length === 0) {
+    return null;
+  }
+
+  return data.result[0];
+}
+
+export async function updateMemory(
+  id: string,
+  payload: Record<string, unknown>,
+) {
+  const response = await fetch(
+    `${baseUrl}/collections/${config.memoryCollection}/points/payload`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        points: [id],
+
+        payload,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+}
+
+/**
+ * Busca memorias similares para procesos internos.
+ *
+ * Usado por:
+ *
+ * - deduplicación
+ * - consolidación
+ * - refuerzo de memoria
+ *
+ */
+export async function searchSimilarMemories(
+  vector: number[],
+  options?: SearchOptions,
+) {
+  const filter: any = {};
+
+  if (options?.project) {
+    filter.must ??= [];
+
+    filter.must.push({
+      key: "project",
+
+      match: {
+        value: options.project,
+      },
+    });
+  }
+
+  if (options?.type) {
+    filter.must ??= [];
+
+    filter.must.push({
+      key: "type",
+
+      match: {
+        value: options.type,
+      },
+    });
+  }
+
+  const response = await fetch(
+    `${baseUrl}/collections/${config.memoryCollection}/points/search`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        vector,
+
+        limit: 3,
+
+        with_payload: true,
+
+        score_threshold: 0.8,
+
+        ...(Object.keys(filter).length
+          ? {
+              filter,
+            }
+          : {}),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const data = await response.json();
+
+  return (data.result ?? []).map((item: any) => ({
+    id: item.id,
+
+    score: item.score,
+
+    ...(item.payload ?? {}),
+  }));
 }

@@ -6,7 +6,20 @@ export async function memoryRoutes(app: FastifyInstance) {
   app.post("/memory", async (request) => {
     const memory = request.body as any;
 
-    return await store(memory);
+    try {
+
+  return await store(memory);
+
+} catch(error) {
+
+  console.error(error);
+
+  return {
+    error:"Error storing memory",
+    detail: String(error),
+  };
+
+}
   });
 
   app.post("/memory/search", async (request) => {
