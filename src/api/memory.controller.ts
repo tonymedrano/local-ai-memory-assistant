@@ -1,30 +1,59 @@
 import type { Request, Response } from "express";
 
-import { createEmbedding } from "../ai/ollama.service.js";
+import { store, recall } from "../memory/memory.service.js";
 
-import { saveMemory, searchMemory } from "../qdrant/qdrant.service.js";
-
+/**
+ * Guarda una memoria contextual.
+ *
+ * Flujo:
+ *
+ * HTTP
+ *  |
+ * controller
+ *  |
+ * memory.service
+ *  |
+ * Ollama embedding
+ *  |
+ * Qdrant contextual_memory
+ */
 export async function addMemory(req: Request, res: Response) {
-  const { id, text, metadata } = req.body;
+  try {
+    const memory = req.body;
 
-  const vector = await createEmbedding(text);
+    const result = await store(memory);
 
-  await saveMemory(id, vector, {
-    text,
-    ...metadata,
-  });
+    res.json(result);
+  } catch (error) {
+    console.error(error);
 
-  res.json({
-    ok: true,
-  });
+    res.status(500).json({
+      error: "Error storing memory",
+    });
+  }
 }
 
+/**
+ * Busca memoria contextual.
+ *
+ * Ejemplo:
+ *
+ * {
+ *   query:"¿Qué base vectorial usamos?"
+ * }
+ */
 export async function findMemory(req: Request, res: Response) {
-  const { query } = req.body;
+  try {
+    const { query, options } = req.body;
 
-  const vector = await createEmbedding(query);
+    const result = await recall(query, options);
 
-  const result = await searchMemory(vector);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
 
-  res.json(result);
+    res.status(500).json({
+      error: "Error searching memory",
+    });
+  }
 }

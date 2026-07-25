@@ -1385,3 +1385,465 @@ VS Code / Continue
 ```
 
 permitiendo que el asistente pueda consultar y actualizar la memoria directamente desde el entorno de desarrollo.
+
+
+
+
+# Actualización: Memoria vectorial por proyecto e Indexación incremental avanzada
+
+## Nueva arquitectura de almacenamiento
+
+El sistema ha evolucionado desde una única colección global hacia una arquitectura de memoria separada por proyectos.
+
+Anteriormente:
+
+```
+Qdrant
+
+└── global_memory
+```
+
+Ahora:
+
+```
+Qdrant
+
+├── project_memory_service
+├── project_angular_kpi
+├── project_flutter_ohms
+└── otros proyectos
+```
+
+Cada proyecto mantiene su propia colección vectorial.
+
+Ventajas:
+
+* Separación completa de conocimiento.
+* Menos ruido en las búsquedas.
+* Contexto más relevante para el agente.
+* Posibilidad de aplicar políticas diferentes por proyecto.
+* Escalabilidad hacia múltiples agentes especializados.
+
+---
+
+# Project Registry
+
+Para gestionar proyectos se ha añadido un registro global de proyectos.
+
+Responsabilidad:
+
+* Resolver qué proyecto se está indexando.
+* Asociar un proyecto con su colección Qdrant.
+* Mantener información operacional.
+
+Ejemplo:
+
+```json
+{
+  "id": "memory_service",
+  "name": "Local AI Memory Service",
+  "rootPath": "/Users/user/Public/memory-service",
+  "collection": "project_memory_service",
+  "lastIndexed": "2026-07-24",
+  "files": 60
+}
+```
+
+El flujo ahora es:
+
+```
+Directorio recibido
+
+        |
+        v
+
+ProjectResolver
+
+        |
+        v
+
+ProjectRegistry
+
+        |
+        v
+
+Colección Qdrant asociada
+```
+
+---
+
+# Nuevo payload vectorial
+
+Los vectores almacenados en Qdrant ahora contienen información contextual del proyecto.
+
+Ejemplo:
+
+```json
+{
+  "projectId": "memory_service",
+  "file": "src/indexer/index-project.ts",
+  "chunk": 0,
+  "language": "typescript",
+  "hash": "a83f91...",
+  "indexedAt": "2026-07-24T12:00:00Z"
+}
+```
+
+Esta información permite:
+
+* Saber de qué proyecto procede la memoria.
+* Localizar el archivo original.
+* Eliminar todos los chunks asociados.
+* Auditar el estado de la memoria.
+* Realizar limpieza automática.
+
+---
+
+# Indexación incremental por hash
+
+El indexador ya no procesa todos los archivos en cada ejecución.
+
+Cada archivo mantiene un registro:
+
+```json
+{
+  "src/indexer/index-project.ts": {
+    "hash": "a83f91...",
+    "chunks": 12,
+    "indexedAt": "2026-07-24"
+  }
+}
+```
+
+El flujo:
+
+```
+Archivo
+
+   |
+   v
+
+SHA-256
+
+   |
+   v
+
+Registry
+
+   |
+   +----------------+
+   |                |
+   v                v
+
+Sin cambios       Modificado
+
+Ignorar           Borrar antiguos
+                  Crear nuevos vectores
+```
+
+---
+
+# UUID determinista por chunk
+
+Cada fragmento utiliza UUID v5.
+
+Generación:
+
+```
+Archivo + número chunk
+
+        |
+        v
+
+UUID v5
+```
+
+Ejemplo:
+
+```
+src/app.ts
+chunk 0
+
+↓
+
+f59625c8-f19e-5513-a7c8-2a1ee066e44a
+```
+
+Ventajas:
+
+* El mismo contenido genera el mismo identificador.
+* Evita duplicados.
+* Permite actualizaciones seguras.
+* Facilita sincronización entre registry y Qdrant.
+
+---
+
+# Actualización de archivos modificados
+
+Cuando un archivo cambia:
+
+```
+Nuevo hash
+
+      !=
+
+Hash registrado
+```
+
+El sistema realiza:
+
+1. Eliminar vectores antiguos:
+
+```ts
+deleteFileVectors(
+  collection,
+  file
+)
+```
+
+2. Crear nuevos chunks.
+
+3. Generar embeddings.
+
+4. Guardar nuevos puntos en Qdrant.
+
+5. Actualizar registry.
+
+---
+
+# Limpieza automática de vectores huérfanos
+
+Se ha añadido un proceso de Garbage Collection para memoria vectorial.
+
+Objetivo:
+
+Eliminar vectores que pertenecen a archivos que ya no existen.
+
+Ejemplo:
+
+Antes:
+
+```
+Proyecto
+
+src/
+ ├── app.ts
+ └── users.ts
+```
+
+Qdrant:
+
+```
+app.ts
+users.ts
+```
+
+Después:
+
+```
+src/
+ └── app.ts
+```
+
+El sistema detecta:
+
+```
+users.ts
+```
+
+como memoria huérfana.
+
+---
+
+# Funcionamiento del Cleanup
+
+Nuevo componente:
+
+```
+src/indexer/
+
+cleanup.ts
+```
+
+Flujo:
+
+```
+Filesystem
+
+    |
+    v
+
+scanDirectory()
+
+    |
+    v
+
+Archivos actuales
+
+
+          compara
+
+
+Qdrant
+
+    |
+    v
+
+Archivos almacenados
+
+
+    |
+    v
+
+Detectar diferencias
+
+
+    |
+    v
+
+deleteFileVectors()
+```
+
+---
+
+# Prueba validada
+
+Se realizó una prueba completa:
+
+1. Crear archivo:
+
+```
+src/orphan-test.ts
+```
+
+2. Indexarlo:
+
+```
+Indexando: src/orphan-test.ts
+
+CHUNKS:
+src/orphan-test.ts 1
+
+UPLOAD VECTOR:
+src/orphan-test.ts
+```
+
+3. Eliminar físicamente el archivo.
+
+4. Ejecutar:
+
+```bash
+npm run cleanup .
+```
+
+Resultado:
+
+```
+Vectores huérfanos: 1
+
+Eliminando:
+src/orphan-test.ts
+
+Limpieza completada
+```
+
+Confirmando:
+
+* Detección correcta de archivos eliminados.
+* Consulta correcta a Qdrant.
+* Eliminación de vectores asociados.
+* Memoria sincronizada con el proyecto real.
+
+---
+
+# Estado actual del Indexador
+
+Actualmente dispone de:
+
+✅ Scanner modular
+✅ Loaders especializados
+✅ Chunking de documentos
+✅ Embeddings locales con Ollama
+✅ Persistencia en Qdrant
+✅ UUID v5 determinista
+✅ Registry incremental
+✅ Hash SHA-256 por archivo
+✅ Actualización selectiva
+✅ Separación por proyectos
+✅ Metadata contextual avanzada
+✅ Limpieza automática de vectores huérfanos
+
+---
+
+# Próximas mejoras
+
+## Registry operacional avanzado
+
+Añadir métricas:
+
+```json
+{
+  "vectors": 320,
+  "lastCleanup": "2026-07-24",
+  "deletedVectors": 4
+}
+```
+
+Permitirá conocer:
+
+* Estado de la memoria.
+* Número de vectores activos.
+* Historial de limpieza.
+* Salud del índice.
+
+---
+
+## Memoria por capas
+
+Evolución prevista:
+
+```
+Global Memory
+
+        |
+        v
+
+Project Memory
+
+        |
+        v
+
+Session Memory
+```
+
+Cada nivel tendrá diferente prioridad de recuperación.
+
+---
+
+## Agente con auto-memory
+
+El objetivo final:
+
+```
+Developer
+    |
+    v
+Continue Agent
+    |
+    v
+MCP
+    |
+    v
+Memory Service
+    |
+    v
+Qdrant
+```
+
+El agente podrá:
+
+* Detectar decisiones importantes.
+* Guardar conocimiento automáticamente.
+* Actualizar información existente.
+* Eliminar contexto obsoleto.
+* Mantener memoria continua del ecosistema técnico.
