@@ -1,5 +1,5 @@
 import { createEmbedding } from "../ai/ollama.service.js";
-import { saveMemory, searchMemory } from "../qdrant/qdrant.service.js";
+import { saveMemory, searchMemory, findSimilarMemory, updateMemory } from "../qdrant/qdrant.service.js";
 import type { Memory, MemoryType } from "./memory.types.js";
 import { randomUUID } from "node:crypto";
 
@@ -30,59 +30,65 @@ export interface RecallOptions {
  *
  */
 export async function store(memory: Memory) {
+  const now = new Date().toISOString();
 
-  const id =
-    memory.id ??
-    randomUUID();
-
-
-  console.log("STORE MEMORY:", memory);
-
-
-  const vector =
-    await createEmbedding(
-      memory.text,
-    );
-
-
-  console.log(
-    "VECTOR SIZE:",
-    vector.length,
-  );
-
-
-  const storedMemory: Memory = {
-
+  const enrichedMemory: Memory = {
     ...memory,
 
-    id,
+    id: randomUUID(),
 
-    createdAt:
-      memory.createdAt ??
-      new Date().toISOString(),
+    importance: memory.importance ?? 0.5,
 
+    confidence: memory.confidence ?? 0.8,
+
+    accessCount: 0,
+
+    createdAt: now,
+
+    updatedAt: now,
+
+    origin: memory.origin ?? "user",
   };
 
+  const vector = await createEmbedding(enrichedMemory.text);
+
+  const similar =
+  await findSimilarMemory(
+    vector,
+    enrichedMemory.project,
+  );
+
+  if (similar) {
+    const current = similar.payload;
+
+    await updateMemory(
+      similar.id,
+
+      {
+        accessCount: Number(current.accessCount ?? 0) + 1,
+
+        updatedAt: now,
+      },
+    );
+
+    return {
+      ...current,
+
+      id: similar.id,
+
+      updatedAt: now,
+    };
+  }
 
   await saveMemory(
-
-    id,
+    enrichedMemory.id!,
 
     vector,
 
-    storedMemory,
-
+    enrichedMemory,
   );
 
-
-  console.log(
-    "MEMORY SAVED:",
-    id,
-  );
-
-
-  return storedMemory;
-
+  return enrichedMemory;
 }
 
 /**
