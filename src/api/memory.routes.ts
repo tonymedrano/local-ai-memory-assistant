@@ -1,0 +1,17 @@
+import type { FastifyInstance } from "fastify";
+
+import { store, recall } from "../memory/memory.service.js";
+
+export async function memoryRoutes(app: FastifyInstance) {
+  app.post("/memory", async (request) => {
+    const memory = request.body as any;
+
+    return await store(memory);
+  });
+
+  app.post("/memory/search", async (request) => {
+    const body = request.body as any;
+
+    return await recall(body.query, body.options);
+  });
+}

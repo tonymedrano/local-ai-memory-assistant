@@ -3,8 +3,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const server = new McpServer({
-  name: "global-memory-test",
-  version: "1.0.1",
+  name: "global-memory",
+  version: "1.0.0",
 });
 
 server.tool(
