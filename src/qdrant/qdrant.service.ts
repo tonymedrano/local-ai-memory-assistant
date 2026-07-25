@@ -314,3 +314,85 @@ export async function updateMemory(
     throw new Error(await response.text());
   }
 }
+
+/**
+ * Busca memorias similares para procesos internos.
+ *
+ * Usado por:
+ *
+ * - deduplicación
+ * - consolidación
+ * - refuerzo de memoria
+ *
+ */
+export async function searchSimilarMemories(
+  vector: number[],
+  options?: SearchOptions,
+) {
+  const filter: any = {};
+
+  if (options?.project) {
+    filter.must ??= [];
+
+    filter.must.push({
+      key: "project",
+
+      match: {
+        value: options.project,
+      },
+    });
+  }
+
+  if (options?.type) {
+    filter.must ??= [];
+
+    filter.must.push({
+      key: "type",
+
+      match: {
+        value: options.type,
+      },
+    });
+  }
+
+  const response = await fetch(
+    `${baseUrl}/collections/${config.memoryCollection}/points/search`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        vector,
+
+        limit: 3,
+
+        with_payload: true,
+
+        score_threshold: 0.8,
+
+        ...(Object.keys(filter).length
+          ? {
+              filter,
+            }
+          : {}),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const data = await response.json();
+
+  return (data.result ?? []).map((item: any) => ({
+    id: item.id,
+
+    score: item.score,
+
+    ...(item.payload ?? {}),
+  }));
+}
