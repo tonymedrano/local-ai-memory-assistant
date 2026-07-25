@@ -1,28 +1,14 @@
-import { searchSimilarMemories } from "../qdrant/qdrant.service.js";
+import { v4 as uuid } from "uuid";
+
 import { createEmbedding } from "../ai/ollama.service.js";
-import type { Memory } from "./memory.types.js";
 
-export interface ConsolidationResult {
-  merged: boolean;
+import { saveMemory, searchSimilarMemories } from "../qdrant/qdrant.service.js";
 
-  memory?: Memory;
+import { MemoryType, type Memory } from "./memory.types.js";
 
-  removedIds?: string[];
-}
+const SIMILARITY_THRESHOLD = 0.9;
 
-/**
- * Consolida memorias similares.
- *
- * Responsabilidades:
- *
- * - Detectar duplicados semánticos
- * - Fusionar metadatos
- * - Incrementar relevancia
- *
- */
-export async function consolidateMemory(
-  memory: Memory,
-): Promise<ConsolidationResult> {
+export async function consolidateMemory(memory: Memory) {
   const vector = await createEmbedding(memory.text);
 
   const similar = await searchSimilarMemories(vector, {
@@ -30,32 +16,55 @@ export async function consolidateMemory(
     type: memory.type,
   });
 
-  if (!similar.length) {
+  const candidate = similar.find(
+    (item: any) => item.score >= SIMILARITY_THRESHOLD,
+  );
+
+  if (candidate) {
+    const existing = candidate;
+
+    const updated: Memory = {
+      ...existing,
+
+      importance: Math.max(existing.importance ?? 0, memory.importance ?? 0.5),
+
+      confidence: Math.min(1, (existing.confidence ?? 0.8) + 0.05),
+
+      accessCount: (existing.accessCount ?? 0) + 1,
+
+      updatedAt: new Date().toISOString(),
+    };
+
+    await saveMemory(existing.id, vector, updated);
+
     return {
-      merged: false,
+      action: "merged",
+      memory: updated,
     };
   }
 
-  const existing = similar[0];
+  const created: Memory = {
+    ...memory,
 
-  const consolidated: Memory = {
-    ...existing,
+    id: uuid(),
 
-    importance:
-      Math.max(existing.importance ?? 0, memory.importance ?? 0) + 0.1,
+    importance: memory.importance ?? 0.5,
 
-    confidence: Math.min(1, (existing.confidence ?? 0.5) + 0.1),
+    confidence: memory.confidence ?? 0.8,
 
-    accessCount: (existing.accessCount ?? 0) + 1,
+    accessCount: 0,
+
+    origin: memory.origin ?? "user",
+
+    createdAt: new Date().toISOString(),
 
     updatedAt: new Date().toISOString(),
   };
 
+  await saveMemory(created.id!, vector, created);
+
   return {
-    merged: true,
-
-    memory: consolidated,
-
-    removedIds: [memory.id!],
+    action: "created",
+    memory: created,
   };
 }
