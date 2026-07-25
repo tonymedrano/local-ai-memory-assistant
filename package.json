@@ -10,7 +10,8 @@
     "index": "tsx src/indexer/index-project.ts",
     "cleanup": "tsx src/indexer/run-cleanup.ts",
     "test:similarity": "tsx src/tests/test-consolidation.ts",
-    "test:consolidation": "tsx src/tests/test-memory-consolidation.ts"
+    "test:consolidation": "tsx src/tests/test-memory-consolidation.ts",
+    "test:score": "tsx src/tests/test-memory-score.ts"
   },
   "keywords": [],
   "author": "",
