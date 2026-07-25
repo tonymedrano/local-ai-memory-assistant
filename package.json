@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "index": "tsx src/indexer/index-project.ts",
-    "cleanup": "tsx src/indexer/run-cleanup.ts"
+    "cleanup": "tsx src/indexer/run-cleanup.ts",
+    "test:similarity": "tsx src/tests/test-consolidation.ts"
   },
   "keywords": [],
   "author": "",
