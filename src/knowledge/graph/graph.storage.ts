@@ -28,6 +28,8 @@ class GraphStorage {
   }
 
   load(): KnowledgeGraph {
+    console.log("[GraphStorage] FILE_PATH:", FILE_PATH);
+console.log("[GraphStorage] cwd:", process.cwd());
     const content = fs.readFileSync(FILE_PATH, "utf-8");
 
     return JSON.parse(content);

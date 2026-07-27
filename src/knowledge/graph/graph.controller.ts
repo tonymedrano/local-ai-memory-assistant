@@ -1,6 +1,14 @@
 import type { Request, Response } from "express";
 
-import { getGraph, getNode, getNeighbors, getStats } from "./graph.service.js";
+import {
+  getGraph,
+  getStats,
+  getNode,
+  getNeighbors,
+  getRelations,
+  getIncomingRelations,
+  findNodeByLabel,
+} from "./graph.service.js";
 
 interface Params {
   id: string;
@@ -22,4 +30,18 @@ export function neighbors(req: Request<Params>, res: Response) {
 
 export function stats(req: Request, res: Response) {
   res.json(getStats());
+}
+
+export function relations(req: Request<{ id: string }>, res: Response) {
+  res.json(getRelations(req.params.id));
+}
+
+export function incoming(req: Request<{ id: string }>, res: Response) {
+  res.json(getIncomingRelations(req.params.id));
+}
+
+export function search(req: Request<{ label: string }>, res: Response) {
+  const result = findNodeByLabel(req.params.label);
+
+  res.json(result ?? null);
 }

@@ -4,6 +4,19 @@ import { graphStorage } from "./graph.storage.js";
 class GraphRepository {
   private graph: KnowledgeGraph = graphStorage.load();
 
+  constructor() {
+
+    this.graph = graphStorage.load();
+
+    console.log(
+        "[GraphRepository] Loaded",
+        this.graph.nodes.length,
+        "nodes",
+        this.graph.edges.length,
+        "edges"
+    );
+}
+
   getGraph(): KnowledgeGraph {
     return this.graph;
   }

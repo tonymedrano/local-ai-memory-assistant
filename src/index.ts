@@ -11,6 +11,7 @@ import { addMemory, findMemory } from "./api/memory.controller.js";
 import { context } from "./api/memory.context.js";
 import { startScheduler } from "./jobs/index.js";
 import jobsRoutes from "./jobs-api/jobs.routes.js";
+import graphRoutes from "./knowledge/graph/graph.routes.js";
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.post("/memory/search", findMemory);
 app.post("/context", context);
 
 app.use("/jobs", jobsRoutes);
+
+app.use("/knowledge/graph", graphRoutes);
 
 Promise.all([initCollection(), initMemoryCollection()])
   .then(() => {
