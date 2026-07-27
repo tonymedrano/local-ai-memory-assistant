@@ -34,8 +34,35 @@ export function findByLabel(label: string) {
 export function getRelations(id: string) {
   const edges = graphRepository.getEdgesFrom(id);
 
-  return edges.map((edge) => ({
-    relation: edge.relation,
-    target: edge.target,
-  }));
+  return edges.map((edge) => {
+    const target = graphRepository.getNode(edge.target);
+
+    return {
+      relation: edge.relation,
+
+      target: target?.label ?? edge.target,
+
+      confidence: edge.confidence,
+    };
+  });
+}
+
+export function findNodeByLabel(label: string) {
+  return graphRepository.findByLabel(label);
+}
+
+export function getIncomingRelations(id: string) {
+  const edges = graphRepository.getEdgesTo(id);
+
+  return edges.map((edge) => {
+    const source = graphRepository.getNode(edge.source);
+
+    return {
+      relation: edge.relation,
+
+      source: source?.label ?? edge.source,
+
+      confidence: edge.confidence,
+    };
+  });
 }

@@ -1,14 +1,18 @@
-import { buildKnowledgeGraph } from "./graph.builder.js";
+import { findNodeByLabel, getRelations, getIncomingRelations } from "./graph.service.js";
 
-import { getStats, getGraph } from "./graph.service.js";
-import type { GraphInputMemory } from "./graph.types.js";
+console.log(
+    "Find Angular:",
+    findNodeByLabel("Angular")
+);
 
-const knowledge: GraphInputMemory[] = [];
 
-console.log("Building graph...");
+console.log(
+    "Angular relations:",
+    getRelations("angular")
+);
 
-buildKnowledgeGraph(knowledge);
 
-console.log(JSON.stringify(getGraph(), null, 2));
-
-console.log("Stats:", getStats());
+console.log(
+    "TypeScript incoming:",
+    getIncomingRelations("typescript")
+);

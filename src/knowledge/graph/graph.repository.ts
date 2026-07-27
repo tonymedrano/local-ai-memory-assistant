@@ -50,6 +50,10 @@ class GraphRepository {
     return this.graph.edges.filter((edge) => edge.source === nodeId);
   }
 
+  getEdgesTo(nodeId: string) {
+    return this.graph.edges.filter((edge) => edge.target === nodeId);
+  }
+
   clear() {
     this.graph = {
       nodes: [],
