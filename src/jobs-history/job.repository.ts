@@ -49,6 +49,18 @@ export class JobRepository {
     execution.error = error instanceof Error ? error.message : String(error);
   }
 
+  async getLatest(name?: string): Promise<JobExecution | undefined> {
+    const items = name
+      ? this.executions.filter((item) => item.name === name)
+      : this.executions;
+
+    return items.at(-1);
+  }
+
+  async clear(): Promise<void> {
+    this.executions = [];
+  }
+
   async getAll() {
     return this.executions;
   }

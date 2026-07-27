@@ -1,16 +1,14 @@
-import { JobRepository } from "../jobs-history/job.repository.js";
-
-const repository = new JobRepository();
+import { jobRepository } from "../jobs-history/job.repository.instance.js";
 
 export async function runJob(name: string, task: () => Promise<void>) {
-  const execution = await repository.start(name);
+  const execution = await jobRepository.start(name);
 
   try {
     await task();
 
-    await repository.complete(execution.id!);
+    await jobRepository.complete(execution.id!);
   } catch (error) {
-    await repository.fail(execution.id!, error);
+    await jobRepository.fail(execution.id!, error);
 
     throw error;
   }

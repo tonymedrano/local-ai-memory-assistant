@@ -12,7 +12,11 @@ export function startScheduler(): void {
    * Cada día a las 03:00
    */
   cron.schedule("0 3 * * *", async () => {
-    await lifecycleJob();
+    try {
+      await lifecycleJob();
+    } catch (error) {
+      console.error("[Scheduler] Lifecycle failed", error);
+    }
   });
 
   /**

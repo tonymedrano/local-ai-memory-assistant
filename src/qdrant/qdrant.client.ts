@@ -1,5 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { config } from "../config.js";
 
 export const qdrant = new QdrantClient({
-  url: "http://localhost:6333",
+  url: config.qdrantUrl,
 });
