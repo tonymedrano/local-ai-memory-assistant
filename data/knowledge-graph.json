@@ -41,6 +41,14 @@
       "relation": "uses",
       "confidence": 0.8,
       "createdAt": "2026-07-27T12:55:49.630Z"
+    },
+    {
+      "id": "typescript-uses-node",
+      "source": "typescript",
+      "target": "node.js",
+      "relation": "uses",
+      "confidence": 0.8,
+      "createdAt": "2026-07-27T14:07:53.023Z"
     }
   ]
 }

@@ -2,11 +2,20 @@ import { getGraph } from "../graph/graph.service.js";
 
 import { usesImpliesRequires } from "./inference.rules.js";
 
+import { inferTwoHopRequires } from "./multihop.rules.js";
+
 import type { DerivedKnowledge } from "./inference.types.js";
 
 import { inferenceRepository } from "./inference.repository.js";
 
-const rules = [usesImpliesRequires];
+const rules = [
+    usesImpliesRequires,
+    {
+        name: "two-hop-requires",
+        evaluate: () =>
+            inferTwoHopRequires()
+    }
+];
 
 export function runInference(): DerivedKnowledge[] {
   const graph = getGraph();

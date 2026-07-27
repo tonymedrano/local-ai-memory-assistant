@@ -18,5 +18,26 @@
       "node.js-uses-typescript"
     ],
     "createdAt": "2026-07-27T13:56:43.752Z"
+  },
+  {
+    "subject": "typescript",
+    "relation": "requires",
+    "object": "node.js",
+    "confidence": 0.72,
+    "source": [
+      "typescript-uses-node"
+    ],
+    "createdAt": "2026-07-27T14:07:53.024Z"
+  },
+  {
+    "subject": "angular",
+    "relation": "requires",
+    "object": "node.js",
+    "confidence": 0.6,
+    "source": [
+      "angular-uses-typescript",
+      "typescript-uses-node"
+    ],
+    "createdAt": "2026-07-27T14:07:53.024Z"
   }
 ]
