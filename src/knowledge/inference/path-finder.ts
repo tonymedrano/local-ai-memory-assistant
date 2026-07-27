@@ -3,7 +3,10 @@ import { getGraph } from "../graph/graph.service.js";
 export interface GraphPath {
   nodes: string[];
 
-  edges: string[];
+  edges: {
+    id: string;
+    confidence: number;
+  }[];
 }
 
 export function findTwoHopPaths(): GraphPath[] {
@@ -17,7 +20,16 @@ export function findTwoHopPaths(): GraphPath[] {
         paths.push({
           nodes: [first.source, first.target, second.target],
 
-          edges: [first.id, second.id],
+          edges: [
+            {
+              id: first.id,
+              confidence: first.confidence,
+            },
+            {
+              id: second.id,
+              confidence: second.confidence,
+            },
+          ],
         });
       }
     }

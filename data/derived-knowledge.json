@@ -33,7 +33,7 @@
     "subject": "angular",
     "relation": "requires",
     "object": "node.js",
-    "confidence": 0.6,
+    "confidence": 0.65,
     "source": [
       "angular-uses-typescript",
       "typescript-uses-node"

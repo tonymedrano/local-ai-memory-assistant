@@ -2,6 +2,8 @@ import { findTwoHopPaths } from "./path-finder.js";
 
 import type { DerivedKnowledge } from "./inference.types.js";
 
+import { propagateConfidence } from "./confidence.js";
+
 export function inferTwoHopRequires(): DerivedKnowledge[] {
   const paths = findTwoHopPaths();
 
@@ -13,9 +15,11 @@ export function inferTwoHopRequires(): DerivedKnowledge[] {
 
       object: path.nodes[2],
 
-      confidence: 0.6,
+      confidence: propagateConfidence(
+        path.edges.map((edge) => edge.confidence),
+      ),
 
-      source: path.edges,
+      source: path.edges.map((edge) => edge.id),
 
       createdAt: new Date().toISOString(),
     };
