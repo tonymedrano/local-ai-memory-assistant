@@ -13,6 +13,8 @@ export interface ResolutionScore {
 }
 
 export interface KnowledgeResolution {
+  id?: string;
+  
   conflictId?: string;
 
   subject: string;

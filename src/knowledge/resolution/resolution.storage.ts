@@ -12,6 +12,10 @@ class ResolutionStorage {
     this.load();
   }
 
+  private getId(resolution: KnowledgeResolution): string {
+    return [resolution.subject, resolution.object].join("-");
+  }
+
   private load() {
     if (!fs.existsSync(FILE_PATH)) {
       this.save();
@@ -33,9 +37,26 @@ class ResolutionStorage {
   }
 
   add(resolution: KnowledgeResolution) {
-    this.resolutions.push(resolution);
+    const key = this.getKey(resolution);
+
+    const index = this.resolutions.findIndex(
+      (item) => this.getKey(item) === key,
+    );
+
+    if (index >= 0) {
+      this.resolutions[index] = {
+        ...resolution,
+        createdAt: new Date().toISOString(),
+      };
+    } else {
+      this.resolutions.push(resolution);
+    }
 
     this.save();
+  }
+
+  private getKey(resolution: KnowledgeResolution): string {
+    return [resolution.subject, resolution.object].join(":");
   }
 
   getAll() {

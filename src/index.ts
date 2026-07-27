@@ -13,6 +13,7 @@ import { startScheduler } from "./jobs/index.js";
 import jobsRoutes from "./jobs-api/jobs.routes.js";
 import graphRoutes from "./knowledge/graph/graph.routes.js";
 import inferenceRoutes from "./knowledge/inference/inference.routes.js";
+import resolutionRoutes from "./knowledge/resolution/resolution.routes.js";
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use("/jobs", jobsRoutes);
 app.use("/knowledge/graph", graphRoutes);
 
 app.use("/knowledge/inference", inferenceRoutes);
+
+app.use("/knowledge/resolution", resolutionRoutes);
 
 Promise.all([initCollection(), initMemoryCollection()])
   .then(() => {
