@@ -17,15 +17,6 @@ console.log("\nAll knowledge:\n");
 
 console.log(JSON.stringify(await service.getKnowledge(), null, 2));
 
-console.log(
- "\nSearch:\n"
-);
+console.log("\nSearch:\n");
 
-
-console.log(
- JSON.stringify(
-  await service.searchKnowledge("unknown"),
-  null,
-  2
- )
-);
+console.log(JSON.stringify(await service.searchKnowledge("Angular"), null, 2));

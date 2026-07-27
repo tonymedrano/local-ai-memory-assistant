@@ -5,26 +5,42 @@ export type KnowledgeType =
   | "technology"
   | "preference";
 
+
+export type KnowledgeRelationType =
+  | "uses"
+  | "depends_on"
+  | "contains"
+  | "stores"
+  | "calls"
+  | "implements"
+  | "extends";
+
+
 export interface KnowledgeRelation {
-  source: string;
 
-  relation: string;
+  source:string;
 
-  target: string;
+  relation:KnowledgeRelationType;
+
+  target:string;
+
 }
 
+
 export interface KnowledgeItem {
-  id?: string;
 
-  type: KnowledgeType;
+  id?:string;
 
-  subject: string;
+  type:KnowledgeType;
 
-  content: string;
+  subject:string;
 
-  relations: KnowledgeRelation[];
+  content:string;
 
-  confidence: number;
+  relations:KnowledgeRelation[];
 
-  createdAt: Date;
+  confidence:number;
+
+  createdAt:Date;
+
 }
