@@ -10,6 +10,7 @@ import {
 import { addMemory, findMemory } from "./api/memory.controller.js";
 import { context } from "./api/memory.context.js";
 import { LifecycleScheduler } from "./lifecycle/lifecycle.scheduler.js";
+import { startScheduler } from "./jobs/index.js";
 
 const app = express();
 
@@ -29,6 +30,7 @@ Promise.all([initCollection(), initMemoryCollection()])
 
     const scheduler = new LifecycleScheduler();
     scheduler.start();
+    startScheduler();
   })
   .catch((error) => {
     console.error("Failed to initialize memory service:");
