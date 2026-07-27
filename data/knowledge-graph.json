@@ -1,15 +1,6 @@
 {
   "nodes": [
     {
-      "id": "angular",
-      "type": "technology",
-      "label": "Angular",
-      "metadata": {
-        "content": "Frontend framework"
-      },
-      "createdAt": "2026-07-27T12:55:49.630Z"
-    },
-    {
       "id": "typescript",
       "type": "concept",
       "label": "TypeScript",
@@ -23,12 +14,22 @@
         "content": "Backend runtime"
       },
       "createdAt": "2026-07-27T12:55:49.630Z"
+    },
+    {
+      "id": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+      "label": "Angular",
+      "type": "technology",
+      "createdAt": "2026-07-27T18:28:58.846Z",
+      "metadata": {
+        "confidence": 0.95,
+        "content": "Frontend framework"
+      }
     }
   ],
   "edges": [
     {
       "id": "angular-uses-typescript",
-      "source": "angular",
+      "source": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
       "target": "typescript",
       "relation": "uses",
       "confidence": 0.9,
@@ -52,7 +53,7 @@
     },
     {
       "id": "angular-not-uses-typescript",
-      "source": "angular",
+      "source": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
       "target": "typescript",
       "relation": "does-not-use",
       "confidence": 0.7,
