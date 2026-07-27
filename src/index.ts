@@ -12,6 +12,7 @@ import { context } from "./api/memory.context.js";
 import { startScheduler } from "./jobs/index.js";
 import jobsRoutes from "./jobs-api/jobs.routes.js";
 import graphRoutes from "./knowledge/graph/graph.routes.js";
+import inferenceRoutes from "./knowledge/inference/inference.routes.js";
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.post("/context", context);
 app.use("/jobs", jobsRoutes);
 
 app.use("/knowledge/graph", graphRoutes);
+
+app.use("/knowledge/inference", inferenceRoutes);
 
 Promise.all([initCollection(), initMemoryCollection()])
   .then(() => {

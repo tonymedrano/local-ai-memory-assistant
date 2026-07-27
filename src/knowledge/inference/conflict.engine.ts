@@ -11,6 +11,16 @@ const oppositeRelations: Record<string, string[]> = {
 export function detectConflicts(): Conflict[] {
   const graph = graphRepository.getGraph();
 
+  console.log(
+    "[ConflictDetection] edges:",
+    graph.edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        relation: edge.relation
+    }))
+);
+
   const conflicts: Conflict[] = [];
 
   for (const edge of graph.edges) {
