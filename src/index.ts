@@ -8,8 +8,8 @@ import {
 } from "./qdrant/qdrant.service.js";
 
 import { addMemory, findMemory } from "./api/memory.controller.js";
-
 import { context } from "./api/memory.context.js";
+import { LifecycleScheduler } from "./lifecycle/lifecycle.scheduler.js";
 
 const app = express();
 
@@ -26,6 +26,9 @@ Promise.all([initCollection(), initMemoryCollection()])
     app.listen(config.port, () => {
       console.log(`Memory service running on port ${config.port}`);
     });
+
+    const scheduler = new LifecycleScheduler();
+    scheduler.start();
   })
   .catch((error) => {
     console.error("Failed to initialize memory service:");
