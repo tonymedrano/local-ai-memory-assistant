@@ -1,0 +1,14 @@
+[
+  {
+    "subject": "angular",
+    "object": "typescript",
+    "accepted": "angular-uses-typescript",
+    "rejected": "angular-not-uses-typescript",
+    "decision": "keep",
+    "scores": [],
+    "reasoning": [
+      "Documentation has higher reliability"
+    ],
+    "createdAt": "2026-07-27T15:17:30.158Z"
+  }
+]
