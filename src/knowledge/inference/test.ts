@@ -1,5 +1,6 @@
 import {
-    runInference
+    runInference,
+    getDerivedKnowledge
 } from "./inference.engine.js";
 
 
@@ -12,11 +13,14 @@ const result =
     runInference();
 
 
+console.log(
+    "Angular requirements:"
+);
+
 
 console.log(
-    JSON.stringify(
-        result,
-        null,
-        2
+    getDerivedKnowledge(
+        "angular",
+        "requires"
     )
 );

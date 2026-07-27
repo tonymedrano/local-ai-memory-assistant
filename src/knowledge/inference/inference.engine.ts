@@ -4,6 +4,8 @@ import { usesImpliesRequires } from "./inference.rules.js";
 
 import type { DerivedKnowledge } from "./inference.types.js";
 
+import { inferenceRepository } from "./inference.repository.js";
+
 const rules = [usesImpliesRequires];
 
 export function runInference(): DerivedKnowledge[] {
@@ -17,5 +19,11 @@ export function runInference(): DerivedKnowledge[] {
     results.push(...derived);
   }
 
+  inferenceRepository.add(results);
+
   return results;
+}
+
+export function getDerivedKnowledge(subject: string, relation?: string) {
+  return inferenceRepository.find(subject, relation);
 }

@@ -1,0 +1,22 @@
+[
+  {
+    "subject": "angular",
+    "relation": "requires",
+    "object": "typescript",
+    "confidence": 0.81,
+    "source": [
+      "angular-uses-typescript"
+    ],
+    "createdAt": "2026-07-27T13:56:43.752Z"
+  },
+  {
+    "subject": "node.js",
+    "relation": "requires",
+    "object": "typescript",
+    "confidence": 0.72,
+    "source": [
+      "node.js-uses-typescript"
+    ],
+    "createdAt": "2026-07-27T13:56:43.752Z"
+  }
+]
