@@ -46,11 +46,11 @@ export class KnowledgeRepository {
   async update(
     id: string,
     changes: Partial<KnowledgeItem>,
-  ): Promise<KnowledgeItem | undefined> {
+  ): Promise<KnowledgeItem | null> {
     const index = this.items.findIndex((item) => item.id === id);
 
     if (index === -1) {
-      return undefined;
+      return null;
     }
 
     const updated = {

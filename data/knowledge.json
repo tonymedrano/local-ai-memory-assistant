@@ -1,20 +1,11 @@
 [
   {
+    "id": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
     "type": "technology",
     "subject": "Angular",
     "content": "Frontend framework",
-    "confidence": 1,
     "relations": [],
-    "createdAt": "2026-07-27T18:13:11.634Z",
-    "id": "0fd32eb1-0cf4-4e6f-9d1f-9cfac15feeb5"
-  },
-  {
-    "type": "technology",
-    "subject": "Angular",
-    "content": "Frontend framework",
-    "confidence": 1,
-    "relations": [],
-    "createdAt": "2026-07-27T18:13:51.201Z",
-    "id": "3c90a0ec-afab-4fbb-bf2d-6c843f646c37"
+    "confidence": 0.95,
+    "createdAt": "2026-07-27T18:28:58.846Z"
   }
 ]
