@@ -1,6 +1,11 @@
 import { createEmbedding } from "../ai/ollama.service.js";
-import { saveMemory, searchMemory, findSimilarMemory, updateMemory } from "../qdrant/qdrant.service.js";
-import type { Memory, MemoryType } from "./memory.types.js";
+import {
+  saveMemory,
+  searchMemory,
+  findSimilarMemory,
+  updateMemory,
+} from "../qdrant/qdrant.service.js";
+import type { Memory, MemoryType, RecallResult } from "./memory.types.js";
 import { randomUUID } from "node:crypto";
 
 /**
@@ -43,6 +48,10 @@ export async function store(memory: Memory) {
 
     accessCount: 0,
 
+    lastAccess: now,
+
+    archived: false,
+
     createdAt: now,
 
     updatedAt: now,
@@ -52,11 +61,7 @@ export async function store(memory: Memory) {
 
   const vector = await createEmbedding(enrichedMemory.text);
 
-  const similar =
-  await findSimilarMemory(
-    vector,
-    enrichedMemory.project,
-  );
+  const similar = await findSimilarMemory(vector, enrichedMemory.project);
 
   if (similar) {
     const current = similar.payload;
@@ -67,6 +72,10 @@ export async function store(memory: Memory) {
       {
         accessCount: Number(current.accessCount ?? 0) + 1,
 
+        importance: Math.min(Number(current.importance ?? 0.5) + 0.1, 10),
+
+        lastAccess: now,
+
         updatedAt: now,
       },
     );
@@ -75,6 +84,8 @@ export async function store(memory: Memory) {
       ...current,
 
       id: similar.id,
+
+      accessCount: Number(current.accessCount ?? 0) + 1,
 
       updatedAt: now,
     };
@@ -107,16 +118,29 @@ export async function store(memory: Memory) {
  * relacionados
  *
  */
-export async function recall(
-  query: string,
-
-  options?: RecallOptions,
-) {
+export async function recall(query: string, options?: RecallOptions) {
   const vector = await createEmbedding(query);
 
-  return await searchMemory(
-    vector,
+  const results = await searchMemory(vector, options);
 
-    options,
-  );
+  for (const memory of results) {
+    await updateMemory(
+      memory.id,
+
+      {
+        accessCount: Number(memory.payload.accessCount ?? 0) + 1,
+
+        importance: Math.min(
+          Number(memory.payload.importance ?? 0.5) + 0.05,
+          10,
+        ),
+
+        lastAccess: new Date().toISOString(),
+
+        updatedAt: new Date().toISOString(),
+      },
+    );
+  }
+
+  return results.filter((memory: RecallResult) => memory.payload.archived !== true);
 }
