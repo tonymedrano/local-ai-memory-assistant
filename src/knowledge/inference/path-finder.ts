@@ -5,6 +5,7 @@ export interface GraphPath {
 
   edges: {
     id: string;
+    relation: string;
     confidence: number;
   }[];
 }
@@ -14,8 +15,18 @@ export function findTwoHopPaths(): GraphPath[] {
 
   const paths: GraphPath[] = [];
 
+  const allowedRelations = ["uses", "depends_on", "requires"];
+
   for (const first of graph.edges) {
+    if (!allowedRelations.includes(first.relation)) {
+      continue;
+    }
+
     for (const second of graph.edges) {
+      if (!allowedRelations.includes(second.relation)) {
+        continue;
+      }
+
       if (first.target === second.source && first.source !== second.target) {
         paths.push({
           nodes: [first.source, first.target, second.target],
@@ -23,10 +34,13 @@ export function findTwoHopPaths(): GraphPath[] {
           edges: [
             {
               id: first.id,
+              relation: first.relation,
               confidence: first.confidence,
             },
+
             {
               id: second.id,
+              relation: second.relation,
               confidence: second.confidence,
             },
           ],

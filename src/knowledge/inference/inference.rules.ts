@@ -13,12 +13,24 @@ export const usesImpliesRequires: InferenceRule = {
         continue;
       }
 
+      const subjectNode = graph.nodes.find(
+        (node: any) => node.id === edge.source,
+      );
+
+      const objectNode = graph.nodes.find(
+        (node: any) => node.id === edge.target,
+      );
+
       results.push({
         subject: edge.source,
+
+        subjectLabel: subjectNode?.label ?? edge.source,
 
         relation: "requires",
 
         object: edge.target,
+
+        objectLabel: objectNode?.label ?? edge.target,
 
         confidence: Number((edge.confidence * 0.9).toFixed(2)),
 
