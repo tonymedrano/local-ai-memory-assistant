@@ -17,6 +17,8 @@ export enum MemoryType {
 }
 
 export interface Memory {
+  knowledgeExtracted?: boolean;
+
   id?: string;
 
   text: string;
@@ -91,4 +93,18 @@ export interface RecallResult {
 
     [key: string]: unknown;
   };
+}
+
+export interface MemoryItem {
+
+  id:string;
+
+  text:string;
+
+  importance:number;
+
+  createdAt:string;
+
+  knowledgeExtracted?:boolean;
+
 }

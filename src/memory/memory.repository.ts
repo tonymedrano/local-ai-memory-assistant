@@ -1,5 +1,5 @@
 import { qdrant } from "../qdrant/qdrant.client.js";
-import type { Memory } from "./memory.types.js";
+import type { Memory, MemoryItem } from "./memory.types.js";
 
 const COLLECTION = "contextual_memory";
 
@@ -24,6 +24,7 @@ export class MemoryRepository {
 
           payload: {
             ...memory,
+            knowledgeExtracted: memory.knowledgeExtracted ?? false,
           },
         },
       ],
@@ -70,6 +71,44 @@ export class MemoryRepository {
 
       payload: {
         ...payload,
+
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  }
+
+  async findPendingKnowledgeExtraction(): Promise<MemoryItem[]> {
+    const result = await qdrant.scroll(COLLECTION, {
+      limit: 1000,
+
+      with_payload: true,
+    });
+
+    return result.points
+      .filter((point) => point.payload && !point.payload.knowledgeExtracted)
+      .map((point) => {
+        const payload = point.payload as unknown as Memory;
+
+        return {
+          id: String(point.id),
+
+          text: payload.text,
+
+          importance: payload.importance ?? 0,
+
+          createdAt: payload.createdAt ?? new Date().toISOString(),
+
+          knowledgeExtracted: payload.knowledgeExtracted,
+        };
+      });
+  }
+
+  async markKnowledgeExtracted(id: string) {
+    await qdrant.setPayload(COLLECTION, {
+      points: [id],
+
+      payload: {
+        knowledgeExtracted: true,
 
         updatedAt: new Date().toISOString(),
       },
