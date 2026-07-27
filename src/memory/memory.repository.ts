@@ -23,7 +23,7 @@ export class MemoryRepository {
           vector,
 
           payload: {
-            ...memory
+            ...memory,
           },
         },
       ],
@@ -64,7 +64,7 @@ export class MemoryRepository {
     return memory;
   }
 
-  async update(id: string | number, payload: Partial<Memory>) {
+  async update(id: string | number, payload: Record<string, unknown>) {
     await qdrant.setPayload(COLLECTION, {
       points: [id],
 
@@ -74,6 +74,16 @@ export class MemoryRepository {
         updatedAt: new Date().toISOString(),
       },
     });
+  }
+
+  async getAll() {
+    const result = await qdrant.scroll(COLLECTION, {
+      limit: 1000,
+
+      with_payload: true,
+    });
+
+    return result.points;
   }
 
   async delete(id: string | number) {
