@@ -8,8 +8,9 @@ import {
 } from "./qdrant/qdrant.service.js";
 
 import { addMemory, findMemory } from "./api/memory.controller.js";
-
 import { context } from "./api/memory.context.js";
+import { startScheduler } from "./jobs/index.js";
+import jobsRoutes from "./jobs-api/jobs.routes.js";
 
 const app = express();
 
@@ -21,11 +22,15 @@ app.post("/memory/search", findMemory);
 
 app.post("/context", context);
 
+app.use("/jobs", jobsRoutes);
+
 Promise.all([initCollection(), initMemoryCollection()])
   .then(() => {
     app.listen(config.port, () => {
       console.log(`Memory service running on port ${config.port}`);
     });
+
+    startScheduler();
   })
   .catch((error) => {
     console.error("Failed to initialize memory service:");

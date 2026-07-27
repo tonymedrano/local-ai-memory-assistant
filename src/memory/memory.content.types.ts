@@ -1,37 +1,41 @@
 export type MemoryType =
-    | "decision"
-    | "solution"
-    | "fact"
-    | "preference"
-    | "conversation";
-
+  | "decision"
+  | "solution"
+  | "fact"
+  | "preference"
+  | "conversation";
 
 export interface MemoryMetadata {
+  project?: string;
 
-    project?: string;
+  projectId?: string;
 
-    type:MemoryType;
+  type: MemoryType;
 
-    importance:number;
+  importance: number;
 
-    tags:string[];
+  tags: string[];
 
-    source?:{
-        file?:string;
-        line?:number;
-    };
+  source?: {
+    file?: string;
+    line?: number;
+  };
 
-    createdAt:string;
+  createdAt: string;
+
+  updatedAt: string;
+
+  accesses: number;
+
+  lastAccess: string;
+
+  archived: boolean;
 }
 
-
-
 export interface Memory {
+  id: string;
 
-    id:string;
+  content: string;
 
-    content:string;
-
-    metadata:MemoryMetadata;
-
+  metadata: MemoryMetadata;
 }

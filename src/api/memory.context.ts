@@ -11,7 +11,7 @@ export async function context(req: Request, res: Response) {
 
   const results = await recall(query);
 
-  const points = results.result ?? [];
+  const points = results ?? [];
 
   const content = points
     .map((item: any) => `- ${item.payload?.text}`)

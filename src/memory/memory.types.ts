@@ -1,61 +1,52 @@
 // src/memory/memory.types.ts
 
 export enum MemoryType {
-  FACT = "fact",
 
   DECISION = "decision",
 
+  SOLUTION = "solution",
+
+  FACT = "fact",
+
+  PREFERENCE = "preference",
+
+  CONVERSATION = "conversation",
+
   CODE = "code",
 
-  DOCUMENTATION = "documentation",
-
-  PROJECT = "project",
 }
 
 export interface Memory {
   id?: string;
 
-  // Contenido principal de la memoria
   text: string;
 
-  // Categoría de memoria
-  type: MemoryType;
-
-  // Proyecto asociado
   project?: string;
 
-  // Etiquetas para filtrado
-  tags?: string[];
+  type?: MemoryType;
 
-  // Peso de relevancia
   importance?: number;
 
-  // Confianza del sistema
   confidence?: number;
 
-  // Número de veces recuperada
   accessCount?: number;
 
-  // Último acceso
-  lastAccessed?: string;
+  lastAccess?: string;
 
-  // Origen de la memoria
-  origin?: "user" | "system" | "indexer";
+  archived?: boolean;
 
-  // Origen técnico de la información
+  createdAt?: string;
+
+  updatedAt?: string;
+
+  origin?: string;
+
+  tags?: string[];
+
   source?: {
     file?: string;
     line?: number;
   };
-
-  // Fecha creación
-  createdAt?: string;
-
-  // Última actualización
-  updatedAt?: string;
-
-  // Caducidad opcional
-  expiresAt?: string;
 }
 
 export interface MemoryContext {
@@ -66,4 +57,38 @@ export interface MemoryContext {
   query: string;
 
   memories: Memory[];
+}
+
+export interface MemoryPayload {
+  projectId?: string;
+
+  content: string;
+
+  importance: number;
+
+  accesses: number;
+
+  lastAccess: string;
+
+  archived: boolean;
+
+  createdAt: string;
+
+  updatedAt: string;
+
+  [key: string]: unknown;
+}
+
+export interface RecallResult {
+  id: string;
+
+  payload: {
+    archived?: boolean;
+
+    accessCount?: number;
+
+    importance?: number;
+
+    [key: string]: unknown;
+  };
 }
