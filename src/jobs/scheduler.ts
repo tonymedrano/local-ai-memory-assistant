@@ -5,6 +5,7 @@ import { cleanupJob } from "./cleanup.job.js";
 import { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
 import { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
 import { relearningJob } from "./relearning.job.js";
+import { inferenceJob } from "./inference.job.js";
 
 export function startScheduler(): void {
   console.log("[Scheduler] Starting...");
@@ -58,6 +59,19 @@ export function startScheduler(): void {
       await relearningJob();
     } catch (error) {
       console.error("[Scheduler] Relearning failed", error);
+    }
+  });
+
+  /**
+   * Inference
+   *
+   * Cada día 06:00
+   */
+  cron.schedule("0 6 * * *", async () => {
+    try {
+      await inferenceJob();
+    } catch (error) {
+      console.error("[Scheduler] Inference failed", error);
     }
   });
 

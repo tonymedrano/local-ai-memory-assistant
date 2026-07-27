@@ -2,6 +2,8 @@ import type { Explanation } from "./explanation.types.js";
 
 import { inferenceRepository } from "./inference.repository.js";
 
+import { graphRepository } from "../graph/graph.repository.js";
+
 export function explain(
   subject: string,
   relation: string,
@@ -15,19 +17,39 @@ export function explain(
     return null;
   }
 
+  const subjectLabel = derived.subjectLabel ?? subject;
+
+  const objectLabel = derived.objectLabel ?? object;
+
+  const evidence = derived.source.map((edgeId) => {
+    const edge = graphRepository.getGraph().edges.find((e) => e.id === edgeId);
+
+    if (!edge) {
+      return edgeId;
+    }
+
+    const source = graphRepository.getNode(edge.source);
+
+    const target = graphRepository.getNode(edge.target);
+
+    return `${source?.label ?? edge.source} ${edge.relation} ${target?.label ?? edge.target}`;
+  });
+
   return {
-    subject: derived.subject,
+    subject: subjectLabel,
 
     relation: derived.relation,
 
-    object: derived.object,
+    object: objectLabel,
 
-    conclusion: `${derived.subject} ${derived.relation} ${derived.object}`,
+    conclusion: `${subjectLabel} ${relation} ${objectLabel}`,
 
     reasoning: [
-      "Derived from knowledge graph relation",
+      "Derived from knowledge graph relations",
 
       "Applied inference rule: uses-implies-requires",
+
+      ...evidence.map((item) => `Evidence: ${item}`),
     ],
 
     evidence: derived.source,
