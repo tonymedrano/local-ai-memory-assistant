@@ -1,8 +1,5 @@
 import type { Memory } from "../memory/memory.types.js";
-import { decreaseImportance } from "./importance.js";
 
-export async function decay(memories: Memory[]) {
-  for (const memory of memories) {
-    decreaseImportance(memory);
-  }
+export function decreaseImportance(memory: Memory) {
+  memory.importance = Math.max((memory.importance ?? 0.5) - 0.02, 0);
 }

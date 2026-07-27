@@ -1,5 +1,10 @@
+import type { Memory } from "../memory/memory.types.js";
+
 const DAYS = 180;
 
-if (memory.importance < 0.5 && daysWithoutAccess > DAYS) {
-  memory.archived = true;
+export function shouldArchive(
+  memory: Memory,
+  daysWithoutAccess: number,
+): boolean {
+  return (memory.importance ?? 0) < 0.5 && daysWithoutAccess > DAYS;
 }

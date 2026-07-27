@@ -1,11 +1,20 @@
 // src/memory/memory.types.ts
 
-export type MemoryType =
-  | "decision"
-  | "solution"
-  | "fact"
-  | "preference"
-  | "conversation";
+export enum MemoryType {
+
+  DECISION = "decision",
+
+  SOLUTION = "solution",
+
+  FACT = "fact",
+
+  PREFERENCE = "preference",
+
+  CONVERSATION = "conversation",
+
+  CODE = "code",
+
+}
 
 export interface Memory {
   id?: string;
