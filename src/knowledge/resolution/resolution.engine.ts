@@ -1,6 +1,7 @@
 import type { KnowledgeResolution } from "./resolution.types.js";
 import { compareConfidence } from "./confidence.resolver.js";
 import { rankEvidence } from "./evidence.ranker.js";
+import { decideResolution } from "./decision.engine.js";
 
 export function resolveConflict(conflict: {
   subject: string;
@@ -30,6 +31,8 @@ export function resolveConflict(conflict: {
     },
   ]);
 
+  const decision = decideResolution(scores);
+
   const winner = compareConfidence(scores);
 
   return {
@@ -39,7 +42,7 @@ export function resolveConflict(conflict: {
 
     accepted: winner?.knowledgeId,
 
-    decision: winner ? "keep" : "uncertain",
+    ...decision,
 
     scores,
 
