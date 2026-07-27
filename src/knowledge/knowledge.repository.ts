@@ -27,4 +27,8 @@ export class KnowledgeRepository {
   async delete(id: string): Promise<void> {
     this.items = this.items.filter((item) => item.id !== id);
   }
+
+  async replaceAll(items: KnowledgeItem[]): Promise<void> {
+    this.items = items;
+  }
 }

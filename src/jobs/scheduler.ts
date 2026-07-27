@@ -3,6 +3,7 @@ import cron from "node-cron";
 import { lifecycleJob } from "./lifecycle.job.js";
 import { cleanupJob } from "./cleanup.job.js";
 import { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
+import { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
 
 export function startScheduler(): void {
   console.log("[Scheduler] Starting...");
@@ -30,6 +31,19 @@ export function startScheduler(): void {
       await knowledgeExtractionJob();
     } catch (error) {
       console.error("[Scheduler] Knowledge extraction failed", error);
+    }
+  });
+
+  /**
+   * Knowledge Consolidation
+   *
+   * Cada día a las 05:00
+   */
+  cron.schedule("0 5 * * *", async () => {
+    try {
+      await knowledgeConsolidationJob();
+    } catch (error) {
+      console.error("[Scheduler] Knowledge consolidation failed", error);
     }
   });
 
