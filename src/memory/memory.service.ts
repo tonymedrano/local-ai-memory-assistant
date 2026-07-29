@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { Memory, MemoryType } from "./memory.types.js";
 
 import { MemoryRepository } from "./memory.repository.js";
+import type { QdrantScoredPoint } from "./qdrant.types.js";
 
 const repository = new MemoryRepository();
 
@@ -77,7 +78,7 @@ export async function recall(
   query: string,
 
   options?: RecallOptions,
-) {
+): Promise<QdrantScoredPoint[]> {
   const vector = await createEmbedding(query);
 
   const results = await repository.search(
