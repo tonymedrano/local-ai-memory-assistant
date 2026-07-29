@@ -2,12 +2,33 @@ import { FeedbackRepository } from "./feedback.repository.js";
 import type { ContextFeedback } from "./feedback.types.js";
 
 import { memoryRepository } from "../../memory/memory.repository.instance.js";
+import { learningService } from "../../core/container.js";
+import { LearningEventType } from "../../learning/learning.types.js";
 
 const repository = new FeedbackRepository();
 
 export class FeedbackService {
-  create(feedback: ContextFeedback) {
-    return repository.save(feedback);
+  async create(feedback: ContextFeedback) {
+    const saved = await repository.save(feedback);
+
+    for (const memoryId of feedback.memories) {
+      const currentScore = 0;
+
+      await learningService.recordEvent({
+        memoryId,
+
+        event:
+          feedback.feedback === "positive"
+            ? LearningEventType.ANSWER_ACCEPTED
+            : LearningEventType.ANSWER_REJECTED,
+
+        query: feedback.query,
+
+        currentScore,
+      });
+    }
+
+    return saved;
   }
 
   getAll() {
@@ -69,13 +90,17 @@ export class FeedbackService {
 
     await memoryRepository.update(memoryId, {
       importance: newImportance,
+
       updatedAt: new Date().toISOString(),
     });
 
     return {
       memoryId,
+
       previous: currentImportance,
+
       updated: newImportance,
+
       score,
     };
   }

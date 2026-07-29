@@ -34,5 +34,15 @@
     "scoreAfter": 1,
     "weight": 0.2,
     "createdAt": "2026-07-29T13:34:01.517Z"
+  },
+  {
+    "id": "b1372829-200b-4a22-acc0-e595d71e0b3a",
+    "memoryId": "2b19c4a1-e9e8-419a-bbcf-3632f89e596a",
+    "event": "answer_accepted",
+    "query": "Angular federation",
+    "scoreBefore": 0,
+    "scoreAfter": 0.2,
+    "weight": 0.2,
+    "createdAt": "2026-07-29T14:16:47.877Z"
   }
 ]

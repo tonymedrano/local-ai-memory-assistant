@@ -17,6 +17,7 @@ import resolutionRoutes from "./knowledge/resolution/resolution.routes.js";
 import feedbackRoutes from "./knowledge/feedback/feedback.routes.js";
 import { initLearning } from "./core/container.js";
 import { memoryIntelligenceRouter } from "./intelligence/index.js";
+import feedbackRouter from "./context/feedback/feedback.controller.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/knowledge/inference", inferenceRoutes);
 app.use("/knowledge/resolution", resolutionRoutes);
 app.use("/knowledge/feedback", feedbackRoutes);
 app.use(memoryIntelligenceRouter);
+app.use(feedbackRouter);
 
 Promise.all([initCollection(), initMemoryCollection(), initLearning()])
   .then(() => {
