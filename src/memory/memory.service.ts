@@ -19,28 +19,18 @@ export async function store(memory: Memory) {
 
   const enrichedMemory: Memory = {
     ...memory,
-
     id: randomUUID(),
-
     importance: memory.importance ?? 0.5,
-
     confidence: memory.confidence ?? 0.8,
-
     accessCount: 0,
-
     lastAccess: now,
-
     archived: false,
-
     createdAt: now,
-
     updatedAt: now,
-
     origin: memory.origin ?? "user",
   };
 
   const vector = await createEmbedding(enrichedMemory.text);
-
   const similar = await repository.findSimilar(vector, enrichedMemory.project);
 
   if (similar) {
@@ -48,23 +38,17 @@ export async function store(memory: Memory) {
 
     await repository.update(
       similar.id,
-
       {
         accessCount: Number(current.accessCount ?? 0) + 1,
-
         importance: Math.min(Number(current.importance ?? 0.5) + 0.1, 10),
-
         lastAccess: now,
-
         updatedAt: now,
       },
     );
 
     return {
       ...current,
-
       id: similar.id,
-
       updatedAt: now,
     };
   }
@@ -83,10 +67,8 @@ export async function recall(
 
   const results = await repository.search(
     vector,
-
     {
       project: options?.project,
-
       type: options?.type,
     },
   );
@@ -96,12 +78,9 @@ export async function recall(
 
     await repository.update(
       memory.id,
-
       {
         accessCount: Number(payload.accessCount ?? 0) + 1,
-
         importance: Math.min(Number(payload.importance ?? 0.5) + 0.05, 10),
-
         lastAccess: new Date().toISOString(),
       },
     );
