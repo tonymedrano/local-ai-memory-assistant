@@ -55,7 +55,7 @@ export class FeedbackService {
       return null;
     }
 
-    const currentImportance = Number(memory.payload?.importance ?? 0.5);
+    const currentImportance = Number(memory.importance ?? 0.5);
 
     let newImportance = currentImportance;
 

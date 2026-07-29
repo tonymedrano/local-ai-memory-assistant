@@ -65,4 +65,8 @@ export class LearningService {
   getLearningScore(memoryId: string) {
     return this.calculateLearningScore(memoryId);
   }
+
+  getEvents(memoryId: string) {
+    return this.repository.findByMemory(memoryId);
+  }
 }

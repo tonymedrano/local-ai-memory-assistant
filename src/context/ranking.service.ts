@@ -1,18 +1,14 @@
-import { LearningService } from "../learning/learning.service.js";
+import { learningService } from "../core/container.js";
 import type { RankingFactors, RankingResult } from "./ranking.types.js";
-
 export class RankingService {
-  constructor(private learningService: LearningService) {}
-
   rank(
     memoryId: string,
     factors: Omit<RankingFactors, "learning">,
   ): RankingResult {
-    const learning = this.learningService.getLearningScore(memoryId);
+    const learning = learningService.getLearningScore(memoryId);
 
     const rankingFactors = {
       ...factors,
-
       learning,
     };
 

@@ -1,16 +1,6 @@
 import { runJob } from "./job.runner.js";
-
-import { MemoryRepository } from "../memory/memory.repository.js";
-
-import { LearningRepository } from "../learning/learning.repository.js";
-
-import { LearningService } from "../learning/learning.service.js";
-
-const memoryRepository = new MemoryRepository();
-
-const learningRepository = new LearningRepository();
-
-const learningService = new LearningService(learningRepository);
+import { memoryRepository } from "../core/container.js";
+import { learningService } from "../core/container.js";
 
 export async function contextLearningJob() {
   await runJob(

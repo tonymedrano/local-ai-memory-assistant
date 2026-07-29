@@ -1,0 +1,38 @@
+[
+  {
+    "id": "d639e9c3-fcb8-4efa-8dc8-6b6eb94b2fc8",
+    "memoryId": "2b19c4a1-e9e8-419a-bbcf-3632f89e596a",
+    "event": "context_used",
+    "scoreBefore": 0.7,
+    "scoreAfter": 0.7999999999999999,
+    "weight": 0.1,
+    "createdAt": "2026-07-29T13:27:38.355Z"
+  },
+  {
+    "id": "b930fcc5-892a-4161-ae4c-3602b5529b56",
+    "memoryId": "2b19c4a1-e9e8-419a-bbcf-3632f89e596a",
+    "event": "answer_accepted",
+    "scoreBefore": 0.8,
+    "scoreAfter": 1,
+    "weight": 0.2,
+    "createdAt": "2026-07-29T13:27:38.355Z"
+  },
+  {
+    "id": "f3ec5191-266c-45c1-9cf6-4d1c856111bd",
+    "memoryId": "2b19c4a1-e9e8-419a-bbcf-3632f89e596a",
+    "event": "context_used",
+    "scoreBefore": 0.7,
+    "scoreAfter": 0.7999999999999999,
+    "weight": 0.1,
+    "createdAt": "2026-07-29T13:34:01.517Z"
+  },
+  {
+    "id": "9463babe-89c3-498b-95d6-7fee70c8ea50",
+    "memoryId": "2b19c4a1-e9e8-419a-bbcf-3632f89e596a",
+    "event": "answer_accepted",
+    "scoreBefore": 0.8,
+    "scoreAfter": 1,
+    "weight": 0.2,
+    "createdAt": "2026-07-29T13:34:01.517Z"
+  }
+]

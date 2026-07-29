@@ -21,7 +21,7 @@ learning.recordEvent({
   currentScore: 0.8,
 });
 
-const ranking = new RankingService(learning);
+const ranking = new RankingService();
 
 console.log(
   ranking.rank(memoryId, {

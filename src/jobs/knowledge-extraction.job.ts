@@ -1,11 +1,9 @@
 import { runJob } from "./job.runner.js";
 
 import { KnowledgeService } from "../knowledge/knowledge.service.js";
-import { MemoryRepository } from "../memory/memory.repository.js";
+import { memoryRepository } from "../core/container.js";
 
 const knowledgeService = new KnowledgeService();
-
-const memoryRepository = new MemoryRepository();
 
 export async function knowledgeExtractionJob() {
   await runJob(

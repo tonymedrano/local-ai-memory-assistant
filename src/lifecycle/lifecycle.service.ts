@@ -1,18 +1,13 @@
-import { MemoryRepository } from "../memory/memory.repository.js";
+import { memoryRepository } from "../core/container.js";
 
-const repository = new MemoryRepository();
+const repository = memoryRepository;
 
 interface LifecyclePayload {
   importance?: number;
-
   accessCount?: number;
-
   lastAccess?: string;
-
   createdAt?: string;
-
   archived?: boolean;
-
   [key: string]: unknown;
 }
 

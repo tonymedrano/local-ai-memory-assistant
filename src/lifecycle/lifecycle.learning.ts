@@ -1,16 +1,13 @@
-import { LearningService } from "../learning/learning.service.js";
-
+import { learningService } from "../core/container.js";
 import type { Memory } from "../memory/memory.types.js";
 
 export class LifecycleLearning {
-  constructor(private learningService: LearningService) {}
-
   apply(memory: Memory) {
     if (!memory.id) {
       return memory;
     }
 
-    const learning = this.learningService.getLearningScore(memory.id);
+    const learning = learningService.getLearningScore(memory.id);
 
     const importance = memory.importance ?? 0.5;
 

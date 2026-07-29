@@ -115,19 +115,33 @@ export class MemoryRepository {
     });
   }
 
-  async getAll() {
+  async getAll(): Promise<Memory[]> {
     const result = await qdrant.scroll(COLLECTION, {
       limit: 1000,
 
       with_payload: true,
     });
 
-    return result.points;
+    return result.points.map((point) => {
+      const payload = point.payload as unknown as Memory;
+
+      return {
+        ...payload,
+
+        id: String(point.id),
+      };
+    });
   }
 
   async delete(id: string | number) {
     await qdrant.delete(COLLECTION, {
       points: [id],
     });
+  }
+
+  async findById(id: string) {
+    const memories = await this.getAll();
+
+    return memories.find((memory) => memory.id === id);
   }
 }
