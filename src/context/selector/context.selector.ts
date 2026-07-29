@@ -10,12 +10,9 @@ export class ContextSelector {
           memories: context.memories.filter(
             (memory) => memory.item.type === MemoryType.DECISION,
           ),
-
           knowledge: context.knowledge,
           inference: [],
-          explanations: context.explanations.filter((explanation) =>
-            explanation.conclusion.toLowerCase().includes("qdrant"),
-          ),
+          explanations: [],
         };
 
       case "architecture":
