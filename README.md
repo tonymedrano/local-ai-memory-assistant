@@ -1,1849 +1,234 @@
-# Local AI Memory Assistant
+# Memory Service
 
-## Objetivo del proyecto
+An intelligent memory system for AI assistants that goes beyond traditional Retrieval-Augmented Generation (RAG).
 
-Este proyecto tiene como objetivo crear un asistente de inteligencia artificial local para desarrollo de software con memoria persistente.
-
-La idea es disponer de una alternativa privada a los asistentes cloud, utilizando modelos locales capaces de entender proyectos, recordar decisiones técnicas y recuperar información relevante cuando sea necesaria.
-
-El sistema combina un modelo LLM local con una arquitectura RAG (Retrieval Augmented Generation), donde la información se almacena como memoria vectorial y se recupera mediante búsquedas semánticas.
-
-## ¿Qué se pretende conseguir?
-
-- Tener un asistente de programación completamente local.
-- Permitir que la IA recuerde la arquitectura y decisiones de los proyectos.
-- Evitar repetir contexto cada vez que se inicia una conversación.
-- Mantener la información privada en el equipo local.
-- Crear una base extensible para agentes inteligentes especializados.
-
-## Arquitectura
-
-El sistema utiliza:
-
-- **Continue** como interfaz de agente dentro de VS Code.
-- **Ollama** para ejecutar modelos LLM localmente.
-- **Qwen 2.5 Coder** como modelo especializado en programación.
-- **MCP (Model Context Protocol)** como capa de comunicación entre el agente y las herramientas.
-- **Memory Service** como servicio propio de gestión de memoria.
-- **Qdrant** como base de datos vectorial.
-- **nomic-embed-text** para generar embeddings locales.
-
-![Arquitectura](memory_service_architecture.png)
-
-## Funcionamiento
-
-Cuando el usuario realiza una consulta sobre un proyecto:
-
-1. El agente analiza la petición.
-2. Decide si necesita información almacenada.
-3. Ejecuta la herramienta MCP `search_memory`.
-4. El Memory Service consulta Qdrant.
-5. Se recupera la información relevante.
-6. El modelo genera una respuesta utilizando ese contexto.
-
-## Visión futura
-
-El proyecto evolucionará hacia un sistema de memoria avanzada capaz de:
-
-- Guardar nuevas decisiones automáticamente.
-- Mantener memoria por proyecto.
-- Clasificar información por tecnologías y arquitectura.
-- Actualizar conocimientos existentes.
-- Crear agentes especializados para diferentes tareas.
-
-El objetivo final es construir un asistente de desarrollo local, privado y personalizado que conozca el ecosistema técnico del usuario y pueda colaborar de forma continua en sus proyectos.
-
-Sistema de memoria local para asistentes de programación usando:
-
-- Continue IDE Agent
-- Ollama (LLM local)
-- Qwen 2.5 Coder
-- MCP (Model Context Protocol)
-- Memory Service propio con Node.js + TypeScript
-- Qdrant Vector Database
-- Embeddings locales con `nomic-embed-text`
-
-El objetivo es disponer de un asistente tipo Copilot local con memoria persistente sobre proyectos, arquitectura, decisiones técnicas y documentación.
+The project combines semantic memory, knowledge extraction, knowledge graphs, inference, adaptive ranking and continuous learning to build a memory that improves over time.
 
 ---
 
-# Arquitectura
+# Vision
 
-```text
-                    Continue IDE
-                         |
-                         |
-                    Agent Mode
-                         |
-                         |
-                MCP global-memory
-                         |
-              search_memory tool
-                         |
-                         |
-              Memory Service API
-              localhost:3000
-                         |
-                         |
-                 Vector Search
-                    Qdrant
-                         |
-                         |
-              nomic-embed-text
-                         |
-                         |
-                 Stored Memories
-```
+Traditional RAG systems retrieve documents based only on semantic similarity.
+
+Memory Service introduces long-term memory, knowledge consolidation and learning mechanisms so that every interaction can improve future responses.
+
+The system is designed as an independent service that can be integrated with LLMs, IDE assistants, MCP servers or autonomous AI agents.
 
 ---
 
-# Componentes
+# Main Features
 
-## 1. Continue
+## Memory Management
 
-Continue es el cliente AI integrado en Visual Studio Code.
-
-Responsabilidades:
-
-- Ejecutar modelos locales
-- Gestionar herramientas MCP
-- Ejecutar Agent Mode
-- Inyectar contexto recuperado desde memoria
-
-Configuración:
-
-```text
-~/.continue/config.yaml
-```
+* Semantic memory storage
+* Vector search with Qdrant
+* Context retrieval
+* Memory importance
+* Confidence scoring
+* Memory lifecycle management
+* Automatic archiving
+* Cleanup jobs
 
 ---
 
-# 2. Ollama
+## Context Intelligence
 
-Servidor local de modelos:
-
-```text
-http://localhost:11434
-```
-
-## Modelos utilizados
-
-### Programación
-
-```text
-qwen2.5-coder:14b
-```
-
-Uso:
-
-- Chat
-- Análisis de código
-- Refactorización
-- Edición
+* Context Builder
+* Context ranking
+* Adaptive ranking
+* Context quality evaluation
+* Prompt optimization
+* Context compression
 
 ---
 
-### Autocomplete
+## Knowledge Engine
 
-```text
-qwen2.5-coder:7b
-```
-
-Uso:
-
-- Autocompletado rápido estilo Copilot
-
----
-
-### Documentación
-
-```text
-qwen2.5:14b
-```
-
-Uso:
-
-- README
-- Manuales
-- Documentación técnica
+* Knowledge extraction
+* Knowledge consolidation
+* Knowledge graph
+* Knowledge inference
+* Multi-hop reasoning
+* Explanation engine
+* Conflict detection
+* Conflict resolution
+* Relearning
 
 ---
 
-# 3. Qdrant
+## Learning System
 
-Base de datos vectorial local.
+The system continuously learns from interactions.
 
-Responsabilidades:
+Learning signals include:
 
-- Guardar embeddings
-- Buscar información semánticamente
-- Recuperar memorias relevantes
+* Context usage
+* Accepted answers
+* Rejected answers
+* User corrections
+* Feedback events
 
-
-Ejemplo:
-
-Consulta:
-
-```text
-Angular Native Federation
-```
-
-Resultado:
-
-```text
-El proyecto usa Angular Native Federation con microfrontends y Angular Material.
-
-El proyecto Angular usa Native Federation con un shell llamado sp-shell.
-```
+Every interaction contributes to future ranking decisions.
 
 ---
 
-# 4. Memory Service
+## Memory Intelligence
 
-Servicio propio encargado de conectar:
+Each memory contains dynamic intelligence information.
 
-```text
-MCP <-> Qdrant
-```
-
-Ubicación:
-
-```text
-/Users/user-name/Public/memory-service
-```
-
-Tecnologías:
-
-- Node.js
-- TypeScript
-- Express
-- Qdrant Client
-
-Puerto:
-
-```text
-3000
-```
-
----
-
-# API
-
-## Buscar memoria
-
-Endpoint:
-
-```http
-POST http://localhost:3000/context
-```
-
-Body:
+Example:
 
 ```json
 {
-  "query": "Angular Native Federation"
-}
-```
-
-Respuesta:
-
-```json
-[
-  {
-    "name": "Global Memory",
-    "description": "Qdrant local memory",
-    "content": "- El proyecto usa Angular Native Federation..."
-  }
-]
-```
-
----
-
-# MCP Server
-
-Archivo:
-
-```text
-src/mcp/server.ts
-```
-
-Servidor MCP:
-
-```text
-global-memory
-```
-
-Herramienta disponible:
-
-```text
-search_memory
-```
-
-Continue la identifica como:
-
-```text
-global_memory_search_memory
-```
-
----
-
-# Flujo completo
-
-```text
-Usuario
-  |
-  v
-Continue Agent
-  |
-  v
-Qwen 2.5 Coder
-  |
-  v
-Decide usar herramienta MCP
-  |
-  v
-global_memory_search_memory
-  |
-  v
-MCP server.ts
-  |
-  v
-POST /context
-  |
-  v
-Memory Service
-  |
-  v
-Qdrant Vector Search
-  |
-  v
-Memoria recuperada
-  |
-  v
-Respuesta final del modelo
-```
-
----
-
-# Configuración Continue
-
-Archivo:
-
-```text
-~/.continue/config.yaml
-```
-
-Configuración actual:
-
-```yaml
-name: Main Config
-version: 1.0.0
-schema: v1
-
-models:
-
-  - name: Qwen 2.5 Coder 14B
-    provider: ollama
-    model: qwen2.5-coder:14b
-    apiBase: http://localhost:11434
-    roles:
-      - chat
-      - edit
-      - apply
-
-  - name: Qwen 2.5 Coder 7B Autocomplete
-    provider: ollama
-    model: qwen2.5-coder:7b
-    apiBase: http://localhost:11434
-    roles:
-      - autocomplete
-
-  - name: Qwen 2.5 14B Documentation
-    provider: ollama
-    model: qwen2.5:14b
-    apiBase: http://localhost:11434
-    roles:
-      - chat
-
-
-mcpServers:
-
-  - name: global-memory
-    command: npx
-    args:
-      - tsx
-      - /Users/user-name/Public/memory-service/src/mcp/server.ts
-```
-
----
-
-# Ejecutar Memory Service
-
-Entrar:
-
-```bash
-cd /Users/user-name/Public/memory-service
-```
-
-Ejecutar:
-
-```bash
-npm run dev
-```
-
-Resultado esperado:
-
-```text
-Memory service running on port 3000
-```
-
----
-
-# Ejecutar MCP manualmente
-
-Prueba:
-
-```bash
-cd /Users/user-name/Public/memory-service
-
-npx tsx src/mcp/server.ts
-```
-
-Resultado:
-
-```text
-MCP server starting
-```
-
----
-
-# Pruebas realizadas
-
-## Qdrant
-
-Comprobación:
-
-```bash
-curl http://localhost:6333
-```
-
-Respuesta:
-
-```json
-{
-  "title": "qdrant - vector search engine",
-  "version": "1.18.3"
-}
-```
-
----
-
-## Memory Service
-
-Prueba:
-
-```bash
-curl -X POST http://localhost:3000/context \
--H "Content-Type: application/json" \
--d '{"query":"Angular Native Federation"}'
-```
-
-Resultado:
-
-```text
-Memoria global:
-
-- El proyecto usa Angular Native Federation con microfrontends y Angular Material
-- El proyecto Angular usa Native Federation con un shell llamado sp-shell
-```
-
----
-
-# Problemas solucionados
-
-## Qdrant Point ID
-
-Error:
-
-```text
-value angular-federation-001 is not a valid point ID
-```
-
-Solución:
-
-Usar:
-
-- UUID
-- Integer
-
-Ejemplo:
-
-```text
-7e5b00ce-9a75-4743-b1ee-23ac7614c3
-```
-
----
-
-## results.map is not a function
-
-Problema:
-
-La respuesta de Qdrant era:
-
-```json
-{
-  "result": []
-}
-```
-
-Solución:
-
-```typescript
-const points = results.result ?? [];
-```
-
----
-
-## MCP Schema error
-
-Error:
-
-```text
-Schema is missing a method literal
-```
-
-Solución:
-
-Actualizar el uso de:
-
-```typescript
-server.tool()
-```
-
-con el SDK MCP actual.
-
----
-
-## MCP Connection closed
-
-Causa:
-
-Configuración incorrecta del arranque MCP.
-
-Solución:
-
-Configurar correctamente:
-
-```yaml
-command
-args
-```
-
-en Continue.
-
----
-
-# Estado actual
-
-## Funcionando
-
-✅ Ollama local  
-✅ Qwen 2.5 Coder  
-✅ Continue Agent  
-✅ MCP Server  
-✅ Memory Service  
-✅ Qdrant  
-✅ Búsqueda semántica  
-✅ Recuperación de contexto  
-✅ Respuestas usando memoria global  
-
----
-
-# Próximas mejoras
-
-## 1. Save Memory Tool
-
-Añadir:
-
-```text
-global_memory_save_memory
-```
-
-Permitir:
-
-```text
-Usuario:
-Hemos decidido usar Native Federation
-
-       |
-       v
-
-Guardar memoria
-
-       |
-       v
-
-Qdrant
-```
-
----
-
-## 2. Metadata avanzada
-
-Actualmente:
-
-```json
-{
-  "text": "Angular Native Federation"
-}
-```
-
-Mejor:
-
-```json
-{
-  "text": "Angular Native Federation",
-  "project": "sp-shell",
-  "type": "architecture",
-  "technology": [
-    "Angular",
-    "Native Federation"
-  ],
-  "createdAt": "2026-07-22"
-}
-```
-
----
-
-## 3. Memoria por proyecto
-
-Separar:
-
-```text
-Global Memory
-
-Project Memory
-
-Session Memory
-```
-
----
-
-## 4. Auto-memory
-
-Permitir que el agente:
-
-- Detecte decisiones importantes
-- Guarde información automáticamente
-- Actualice memorias existentes
-- Elimine información obsoleta
-
----
-
-# Resultado final
-
-Se ha construido una base de asistente local de desarrollo con:
-
-- LLM local
-- Memoria persistente
-- Vector Database
-- MCP Tools
-- Integración con VS Code
-
-Una alternativa privada y extensible a asistentes cloud.
-
-
-# Scripts de arranque Docker
-
-El proyecto dispone de scripts para facilitar el uso del entorno Docker en desarrollo y producción.
-
-Estructura:
-
-```text
-scripts/
-├── dev.sh        # Arranque entorno desarrollo
-├── prod.sh       # Arranque entorno producción
-├── stop.sh       # Detener servicios
-└── status.sh     # Ver estado del sistema
-```
-
----
-
-# Preparación inicial
-
-Dar permisos de ejecución:
-
-```bash
-chmod +x scripts/*.sh
-```
-
----
-
-# Desarrollo
-
-Para trabajar modificando código:
-
-```bash
-./scripts/dev.sh
-```
-
-Este modo utiliza:
-
-- `Dockerfile.dev`
-- `docker-compose.dev.yml`
-- `npm run dev`
-- Hot reload con `tsx watch`
-
-Flujo:
-
-```text
-Código fuente
-     |
-     ↓
-src/*.ts
-
-     |
-     ↓
-
-Docker Volume
-
-     |
-     ↓
-
-tsx watch
-
-     |
-     ↓
-
-Memory Service actualizado
-```
-
-Ventajas:
-
-- No es necesario reconstruir la imagen.
-- Los cambios se reflejan automáticamente.
-- Ideal para desarrollo y debugging.
-
----
-
-# Producción
-
-Para ejecutar la versión preparada para producción:
-
-```bash
-./scripts/prod.sh
-```
-
-Equivalente a:
-
-```bash
-docker compose up -d --build
-```
-
-Este modo utiliza:
-
-- `Dockerfile`
-- `docker-compose.yml`
-- TypeScript compilado
-- Node.js ejecutando `/dist`
-
-Flujo:
-
-```text
-src/*.ts
-
-     |
-     ↓
-
-npm run build
-
-     |
-     ↓
-
-dist/*.js
-
-     |
-     ↓
-
-node dist/index.js
-```
-
-Ventajas:
-
-- Imagen optimizada.
-- Sin TypeScript en ejecución.
-- Entorno reproducible.
-- Preparado para despliegue.
-
----
-
-# Detener servicios
-
-Para detener Docker:
-
-```bash
-./scripts/stop.sh
-```
-
-Equivalente:
-
-```bash
-docker compose down
-docker compose -f docker-compose.dev.yml down
-```
-
-Los datos persistentes de Qdrant se mantienen.
-
----
-
-# Estado del sistema
-
-Comprobar servicios:
-
-```bash
-./scripts/status.sh
-```
-
-Comprueba:
-
-- Ollama
-- Memory Service
-- Qdrant
-- Contenedores Docker
-
-
-Ejemplo:
-
-```text
-=======================================
- Local AI Memory Assistant
- Estado del sistema
-=======================================
-
-▶ Ollama
-✓ Running
-
-▶ Memory Service
-✓ Running
-
-▶ Qdrant
-✓ Running
-
-
-Docker:
-
-NAME              STATUS
-memory-service    Up
-qdrant            Up
-```
-
----
-
-# Servicios disponibles
-
-| Servicio | Puerto | Descripción |
-|---|---|---|
-| Ollama | 11434 | Modelos LLM locales |
-| Memory Service | 3000 | API de memoria MCP |
-| Qdrant | 6333 | Base de datos vectorial |
-
----
-
-# Flujo recomendado
-
-## Desarrollo diario
-
-```bash
-./scripts/dev.sh
-```
-
-Modificar código:
-
-```text
-src/
-```
-
-Probar con:
-
-```text
-Continue Agent + MCP
-```
-
----
-
-## Preparar versión producción
-
-```bash
-./scripts/prod.sh
-```
-
----
-
-## Revisar estado
-
-```bash
-./scripts/status.sh
-```
-
----
-
-## Finalizar sesión
-
-```bash
-./scripts/stop.sh
-```
-
----
-
-# Resumen de comandos
-
-| Acción | Comando |
-|-|-|
-| Desarrollo | `./scripts/dev.sh` |
-| Producción | `./scripts/prod.sh` |
-| Estado | `./scripts/status.sh` |
-| Detener | `./scripts/stop.sh` |
-| Logs | `docker compose logs -f` |
-| Reconstruir | `docker compose up -d --build` |
-
-
-
-# Local AI Memory Indexer
-
-## Descripción
-
-El **Local AI Memory Indexer** es el componente encargado de convertir un proyecto local (código, documentación y archivos de conocimiento) en una memoria vectorial consultable mediante Qdrant.
-
-El sistema implementa un pipeline RAG (**Retrieval Augmented Generation**) completamente local:
-
-```
-Proyecto
-   |
-   ▼
-Scanner de archivos
-   |
-   ▼
-Loaders
-   |
-   ▼
-Chunking
-   |
-   ▼
-Embeddings con Ollama
-   |
-   ▼
-Qdrant Vector Database
-```
-
-El objetivo es permitir que un modelo local pueda recuperar información relevante del proyecto sin necesidad de volver a analizar todos los archivos.
-
----
-
-# Arquitectura del Indexador
-
-La estructura actual:
-
-```
-src/
-└── indexer/
-    |
-    ├── index-project.ts
-    ├── scanner.ts
-    ├── chunker.ts
-    ├── embedder.ts
-    ├── uploader.ts
-    ├── hash.ts
-    ├── registry.ts
-    |
-    └── loaders/
-        |
-        ├── filesystem.loader.ts
-        ├── markdown.loader.ts
-        ├── json.loader.ts
-        ├── pdf.loader.ts
-        └── git.loader.ts
-```
-
----
-
-# Flujo de indexación
-
-Cuando se ejecuta:
-
-```bash
-npm run index .
-```
-
-el sistema realiza las siguientes operaciones:
-
-## 1. Escaneo del proyecto
-
-El scanner recorre el directorio indicado buscando archivos compatibles.
-
-Ejemplos:
-
-```
-.ts
-.js
-.md
-.json
-.dart
-.txt
-.pdf
-```
-
-Se ignoran carpetas que no aportan conocimiento:
-
-```
-node_modules
-.git
-dist
-build
-.vscode
-```
-
-Ejemplo:
-
-```
-Proyecto
- |
- ├── src/app.ts        ✔
- ├── README.md         ✔
- ├── package.json      ✔
- ├── node_modules      ✘
- └── dist              ✘
-```
-
----
-
-# 2. Carga de documentos
-
-Cada tipo de archivo utiliza un loader especializado.
-
-Ejemplo:
-
-```
-filesystem.loader.ts
-
-archivo
-  |
-  ▼
-texto plano
-```
-
-Actualmente soporta:
-
-| Loader | Tipo |
-|-|-|
-| filesystem.loader | Archivos generales |
-| markdown.loader | Documentación Markdown |
-| json.loader | Configuraciones JSON |
-| pdf.loader | Documentos PDF |
-| git.loader | Historial Git |
-
-La arquitectura permite añadir nuevos loaders sin modificar el núcleo del indexador.
-
----
-
-# 3. División en chunks
-
-Los documentos grandes no se almacenan completos.
-
-Ejemplo:
-
-```
-context.ts
-
-        |
-        ▼
-
-Chunk 0
-Chunk 1
-Chunk 2
-Chunk 3
-```
-
-Cada fragmento contiene una parte independiente del conocimiento.
-
-Ventajas:
-
-- búsquedas más precisas
-- menor consumo de contexto
-- recuperación más relevante
-
----
-
-# 4. Generación de embeddings
-
-Cada chunk se convierte en un vector mediante Ollama.
-
-Modelo utilizado:
-
-```
-nomic-embed-text
-```
-
-Flujo:
-
-```
-Texto
-
-"Angular usa Native Federation"
-
-        |
-        ▼
-
-Embedding
-
-[
- 0.023,
- -0.152,
- 0.881,
- ...
-]
-
-        |
-        ▼
-
-Qdrant
-```
-
-Los embeddings se generan localmente sin enviar información a servicios externos.
-
----
-
-# 5. Almacenamiento en Qdrant
-
-Cada vector se almacena junto con metadatos.
-
-Ejemplo:
-
-```json
-{
-  "file": "src/routes/context.ts",
-  "chunk": 4,
-  "type": "filesystem"
-}
-```
-
-Los metadatos permiten saber:
-
-- qué archivo originó el conocimiento
-- qué fragmento corresponde
-- qué tipo de documento era
-
----
-
-# IDs persistentes con UUID v5
-
-Qdrant requiere que cada punto tenga un identificador válido.
-
-Inicialmente se utilizaban rutas:
-
-```
-src/app.ts-0
-```
-
-pero Qdrant solo acepta:
-
-- números
-- UUID
-
-La solución implementada utiliza UUID v5:
-
-```
-archivo + número de chunk
-
-        |
-        ▼
-
-UUID determinista
-```
-
-Ejemplo:
-
-```
-src/app.ts chunk 2
-
-↓
-
-550e8400-e29b-41d4-a716-446655440000
-```
-
-Ventaja:
-
-El mismo archivo y chunk siempre generan el mismo ID.
-
-Esto permite actualizar información sin duplicarla.
-
----
-
-# Reindexación incremental
-
-El indexador mantiene un registro local:
-
-```
-.indexer-registry.json
-```
-
-Ejemplo:
-
-```json
-{
-  "src/app.ts": {
-    "hash": "a83f91...",
-    "chunks": 8,
-    "indexedAt": "2026-07-24"
+  "importance": 1.0,
+  "confidence": 0.9,
+  "learning": {
+    "score": 0.8,
+    "events": 5,
+    "positiveSignals": 5,
+    "negativeSignals": 0
   }
 }
 ```
 
-Cada archivo tiene asociado un hash SHA-256.
-
 ---
 
-# Detección de cambios
-
-Cada ejecución compara:
+# Architecture
 
 ```
-Archivo actual
-      |
-      ▼
-SHA-256
-
-      |
-      ▼
-
-Registry anterior
-```
-
-Casos posibles:
-
-## Archivo sin cambios
-
-```
-hash actual
-     =
-hash guardado
-
-Resultado:
-
-No hacer nada
+                     Client
+                        │
+                        ▼
+                Context Builder
+                        │
+                        ▼
+                 Ranking Engine
+                        │
+                        ▼
+                 Memory Service
+      ┌─────────────────┼─────────────────┐
+      │                 │                 │
+      ▼                 ▼                 ▼
+   Memories        Knowledge         Learning
+      │                 │                 │
+      ▼                 ▼                 ▼
+    Qdrant        Knowledge Graph    Feedback
 ```
 
 ---
 
-## Archivo modificado
+# Background Jobs
 
-```
-hash actual
-     !=
-hash guardado
+The service executes scheduled jobs automatically.
 
-Resultado:
+Current jobs include:
 
-1. Eliminar vectores antiguos
-2. Crear nuevos embeddings
-3. Actualizar Qdrant
-4. Actualizar registry
-```
+* Lifecycle Manager
+* Cleanup
+* Knowledge Extraction
+* Knowledge Consolidation
+* Relearning
+* Context Learning
 
----
-
-## Archivo nuevo
-
-```
-No existe en registry
-
-Resultado:
-
-1. Leer archivo
-2. Crear chunks
-3. Generar embeddings
-4. Guardar en Qdrant
-5. Añadir registry
-```
+These jobs keep the memory healthy without user intervention.
 
 ---
 
-# Limpieza de vectores huérfanos
+# Adaptive Memory Loop
 
-El sistema también detecta archivos eliminados.
+The system continuously improves itself.
 
-Ejemplo:
+```
+Query
+   │
+   ▼
+Context Builder
+   │
+   ▼
+Ranking
+   │
+   ▼
+LLM Response
+   │
+   ▼
+User Feedback
+   │
+   ▼
+Learning Engine
+   │
+   ▼
+Ranking improves
+```
 
-Antes:
+This creates a persistent feedback loop where successful memories become easier to retrieve over time.
+
+---
+
+# Technology Stack
+
+* Node.js
+* TypeScript
+* Express
+* Qdrant
+* Ollama
+* Docker
+
+---
+
+# Project Structure
 
 ```
 src/
- |
- ├── app.ts
- └── users.ts
-```
-
-Registry:
-
-```json
-{
- "app.ts": {},
- "users.ts": {}
-}
-```
-
-Después:
-
-```
-src/
- |
- └── app.ts
-```
-
-El indexador detecta:
-
-```
-users.ts
-```
-
-ya no existe.
-
-Entonces:
-
-```
-Eliminar vectores de Qdrant
-
-        +
-
-Eliminar entrada del registry
-```
-
-Evita mantener información obsoleta.
-
----
-
-# Estado actual del sistema
-
-Actualmente el indexador dispone de:
-
-- ✅ Escaneo automático de proyectos
-- ✅ Arquitectura modular de loaders
-- ✅ Procesamiento de documentos
-- ✅ División en chunks
-- ✅ Embeddings locales con Ollama
-- ✅ Persistencia vectorial en Qdrant
-- ✅ IDs deterministas
-- ✅ Reindexación incremental
-- ✅ Actualización de archivos modificados
-- ✅ Limpieza de vectores eliminados
-
----
-
-# Próximas mejoras
-
-## Separación por proyectos
-
-Actualmente toda la información está en:
-
-```
-global_memory
-```
-
-La siguiente evolución será separar conocimiento:
-
-```
-Qdrant
-
-├── angular-project
-├── flutter-project
-├── memory-service
-└── documentation
-```
-
-permitiendo búsquedas específicas:
-
-```
-Buscar solo en proyecto Angular
+├── api/
+├── context/
+├── intelligence/
+├── jobs/
+├── knowledge/
+├── learning/
+├── lifecycle/
+├── memory/
+├── qdrant/
+└── ranking/
 ```
 
 ---
 
-## Integración MCP
+# Current Status
 
-El siguiente objetivo será exponer estas capacidades mediante MCP:
+Implemented:
 
-```
-VS Code / Continue
-          |
-          ▼
-      MCP Server
-          |
-          ▼
-   Memory Service
-          |
-          ▼
-       Qdrant
-```
+* Memory storage
+* Semantic search
+* Context Builder
+* Ranking Engine
+* Lifecycle Manager
+* Knowledge Extraction
+* Knowledge Consolidation
+* Knowledge Graph
+* Inference Engine
+* Explanation Engine
+* Conflict Detection
+* Conflict Resolution
+* Relearning
+* Context Learning
+* Adaptive Feedback
+* Memory Intelligence
 
-permitiendo que el asistente pueda consultar y actualizar la memoria directamente desde el entorno de desarrollo.
+In Progress:
 
-
-
-
-# Actualización: Memoria vectorial por proyecto e Indexación incremental avanzada
-
-## Nueva arquitectura de almacenamiento
-
-El sistema ha evolucionado desde una única colección global hacia una arquitectura de memoria separada por proyectos.
-
-Anteriormente:
-
-```
-Qdrant
-
-└── global_memory
-```
-
-Ahora:
-
-```
-Qdrant
-
-├── project_memory_service
-├── project_angular_kpi
-├── project_flutter_ohms
-└── otros proyectos
-```
-
-Cada proyecto mantiene su propia colección vectorial.
-
-Ventajas:
-
-* Separación completa de conocimiento.
-* Menos ruido en las búsquedas.
-* Contexto más relevante para el agente.
-* Posibilidad de aplicar políticas diferentes por proyecto.
-* Escalabilidad hacia múltiples agentes especializados.
+* Hybrid retrieval
+* Memory compression
+* Temporal reasoning
+* Advanced adaptive ranking
 
 ---
 
-# Project Registry
-
-Para gestionar proyectos se ha añadido un registro global de proyectos.
-
-Responsabilidad:
-
-* Resolver qué proyecto se está indexando.
-* Asociar un proyecto con su colección Qdrant.
-* Mantener información operacional.
-
-Ejemplo:
-
-```json
-{
-  "id": "memory_service",
-  "name": "Local AI Memory Service",
-  "rootPath": "/Users/user/Public/memory-service",
-  "collection": "project_memory_service",
-  "lastIndexed": "2026-07-24",
-  "files": 60
-}
-```
-
-El flujo ahora es:
-
-```
-Directorio recibido
-
-        |
-        v
-
-ProjectResolver
-
-        |
-        v
-
-ProjectRegistry
-
-        |
-        v
-
-Colección Qdrant asociada
-```
-
----
-
-# Nuevo payload vectorial
-
-Los vectores almacenados en Qdrant ahora contienen información contextual del proyecto.
-
-Ejemplo:
-
-```json
-{
-  "projectId": "memory_service",
-  "file": "src/indexer/index-project.ts",
-  "chunk": 0,
-  "language": "typescript",
-  "hash": "a83f91...",
-  "indexedAt": "2026-07-24T12:00:00Z"
-}
-```
-
-Esta información permite:
-
-* Saber de qué proyecto procede la memoria.
-* Localizar el archivo original.
-* Eliminar todos los chunks asociados.
-* Auditar el estado de la memoria.
-* Realizar limpieza automática.
-
----
-
-# Indexación incremental por hash
-
-El indexador ya no procesa todos los archivos en cada ejecución.
-
-Cada archivo mantiene un registro:
-
-```json
-{
-  "src/indexer/index-project.ts": {
-    "hash": "a83f91...",
-    "chunks": 12,
-    "indexedAt": "2026-07-24"
-  }
-}
-```
-
-El flujo:
-
-```
-Archivo
-
-   |
-   v
-
-SHA-256
-
-   |
-   v
-
-Registry
-
-   |
-   +----------------+
-   |                |
-   v                v
-
-Sin cambios       Modificado
-
-Ignorar           Borrar antiguos
-                  Crear nuevos vectores
-```
-
----
-
-# UUID determinista por chunk
-
-Cada fragmento utiliza UUID v5.
-
-Generación:
-
-```
-Archivo + número chunk
-
-        |
-        v
-
-UUID v5
-```
-
-Ejemplo:
-
-```
-src/app.ts
-chunk 0
-
-↓
-
-f59625c8-f19e-5513-a7c8-2a1ee066e44a
-```
-
-Ventajas:
-
-* El mismo contenido genera el mismo identificador.
-* Evita duplicados.
-* Permite actualizaciones seguras.
-* Facilita sincronización entre registry y Qdrant.
-
----
-
-# Actualización de archivos modificados
-
-Cuando un archivo cambia:
-
-```
-Nuevo hash
-
-      !=
-
-Hash registrado
-```
-
-El sistema realiza:
-
-1. Eliminar vectores antiguos:
-
-```ts
-deleteFileVectors(
-  collection,
-  file
-)
-```
-
-2. Crear nuevos chunks.
-
-3. Generar embeddings.
-
-4. Guardar nuevos puntos en Qdrant.
-
-5. Actualizar registry.
-
----
-
-# Limpieza automática de vectores huérfanos
-
-Se ha añadido un proceso de Garbage Collection para memoria vectorial.
-
-Objetivo:
-
-Eliminar vectores que pertenecen a archivos que ya no existen.
-
-Ejemplo:
-
-Antes:
-
-```
-Proyecto
-
-src/
- ├── app.ts
- └── users.ts
-```
-
-Qdrant:
-
-```
-app.ts
-users.ts
-```
-
-Después:
-
-```
-src/
- └── app.ts
-```
-
-El sistema detecta:
-
-```
-users.ts
-```
-
-como memoria huérfana.
-
----
-
-# Funcionamiento del Cleanup
-
-Nuevo componente:
-
-```
-src/indexer/
-
-cleanup.ts
-```
-
-Flujo:
-
-```
-Filesystem
-
-    |
-    v
-
-scanDirectory()
-
-    |
-    v
-
-Archivos actuales
-
-
-          compara
-
-
-Qdrant
-
-    |
-    v
-
-Archivos almacenados
-
-
-    |
-    v
-
-Detectar diferencias
-
-
-    |
-    v
-
-deleteFileVectors()
-```
-
----
-
-# Prueba validada
-
-Se realizó una prueba completa:
-
-1. Crear archivo:
-
-```
-src/orphan-test.ts
-```
-
-2. Indexarlo:
-
-```
-Indexando: src/orphan-test.ts
-
-CHUNKS:
-src/orphan-test.ts 1
-
-UPLOAD VECTOR:
-src/orphan-test.ts
-```
-
-3. Eliminar físicamente el archivo.
-
-4. Ejecutar:
-
-```bash
-npm run cleanup .
-```
-
-Resultado:
-
-```
-Vectores huérfanos: 1
-
-Eliminando:
-src/orphan-test.ts
-
-Limpieza completada
-```
-
-Confirmando:
-
-* Detección correcta de archivos eliminados.
-* Consulta correcta a Qdrant.
-* Eliminación de vectores asociados.
-* Memoria sincronizada con el proyecto real.
-
----
-
-# Estado actual del Indexador
-
-Actualmente dispone de:
-
-✅ Scanner modular
-✅ Loaders especializados
-✅ Chunking de documentos
-✅ Embeddings locales con Ollama
-✅ Persistencia en Qdrant
-✅ UUID v5 determinista
-✅ Registry incremental
-✅ Hash SHA-256 por archivo
-✅ Actualización selectiva
-✅ Separación por proyectos
-✅ Metadata contextual avanzada
-✅ Limpieza automática de vectores huérfanos
-
----
-
-# Próximas mejoras
-
-## Registry operacional avanzado
-
-Añadir métricas:
-
-```json
-{
-  "vectors": 320,
-  "lastCleanup": "2026-07-24",
-  "deletedVectors": 4
-}
-```
-
-Permitirá conocer:
-
-* Estado de la memoria.
-* Número de vectores activos.
-* Historial de limpieza.
-* Salud del índice.
-
----
-
-## Memoria por capas
-
-Evolución prevista:
-
-```
-Global Memory
-
-        |
-        v
-
-Project Memory
-
-        |
-        v
-
-Session Memory
-```
-
-Cada nivel tendrá diferente prioridad de recuperación.
-
----
-
-## Agente con auto-memory
-
-El objetivo final:
-
-```
-Developer
-    |
-    v
-Continue Agent
-    |
-    v
-MCP
-    |
-    v
-Memory Service
-    |
-    v
-Qdrant
-```
-
-El agente podrá:
-
-* Detectar decisiones importantes.
-* Guardar conocimiento automáticamente.
-* Actualizar información existente.
-* Eliminar contexto obsoleto.
-* Mantener memoria continua del ecosistema técnico.
+# Long-Term Goal
+
+Build an AI memory system capable of:
+
+* remembering previous interactions,
+* consolidating knowledge,
+* learning from experience,
+* improving retrieval quality over time,
+* supporting autonomous AI agents with persistent long-term memory.
