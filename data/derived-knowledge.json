@@ -1,0 +1,51 @@
+[
+  {
+    "subject": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+    "subjectLabel": "Angular",
+    "relation": "requires",
+    "object": "typescript",
+    "objectLabel": "TypeScript",
+    "confidence": 0.81,
+    "source": [
+      "angular-uses-typescript"
+    ],
+    "createdAt": "2026-07-27T19:25:51.201Z"
+  },
+  {
+    "subject": "node.js",
+    "subjectLabel": "Node.js",
+    "relation": "requires",
+    "object": "typescript",
+    "objectLabel": "TypeScript",
+    "confidence": 0.72,
+    "source": [
+      "node.js-uses-typescript"
+    ],
+    "createdAt": "2026-07-27T19:25:51.201Z"
+  },
+  {
+    "subject": "typescript",
+    "subjectLabel": "TypeScript",
+    "relation": "requires",
+    "object": "node.js",
+    "objectLabel": "Node.js",
+    "confidence": 0.72,
+    "source": [
+      "typescript-uses-node"
+    ],
+    "createdAt": "2026-07-27T19:25:51.201Z"
+  },
+  {
+    "subject": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+    "subjectLabel": "Angular",
+    "relation": "requires",
+    "object": "node.js",
+    "objectLabel": "Node.js",
+    "confidence": 0.65,
+    "source": [
+      "angular-uses-typescript",
+      "typescript-uses-node"
+    ],
+    "createdAt": "2026-07-27T19:25:51.201Z"
+  }
+]

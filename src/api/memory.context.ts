@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 
-import { retrieveMemoryContext } from "../memory/memory-retrieval.service.js";
+import { recall } from "../memory/memory.service.js";
 
 export async function context(req: Request, res: Response) {
   const query = req.body.query ?? "";
@@ -9,10 +9,12 @@ export async function context(req: Request, res: Response) {
     return res.json([]);
   }
 
-  const context = await retrieveMemoryContext("memory-service", query);
+  const results = await recall(query);
 
-  const content = context.memories
-    .map((memory) => `- ${memory.text}`)
+  const points = results ?? [];
+
+  const content = points
+    .map((item: any) => `- ${item.payload?.text}`)
     .join("\n");
 
   return res.json([

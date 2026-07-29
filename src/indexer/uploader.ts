@@ -51,9 +51,10 @@ export interface VectorPayload extends Record<string, unknown> {
 }
 
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { config } from "../config.js";
 
 const client = new QdrantClient({
-  url: "http://localhost:6333",
+  url: config.qdrantUrl,
 
   checkCompatibility: false,
 });
