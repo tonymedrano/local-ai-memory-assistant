@@ -11,42 +11,52 @@ server.tool(
   "search_memory",
   "Search global project memory",
   {
-    query: z.string()
+    query: z.string(),
   },
   async ({ query }) => {
-
     console.error("MCP search_memory:", query);
 
-    const response = await fetch(
-      "http://localhost:3000/context",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          query
-        })
-      }
-    );
+    const response = await fetch("http://localhost:3000/context", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+      }),
+    });
 
     console.error("memory-service status:", response.status);
 
     const data = await response.json();
 
+    if (!response.ok) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Memory service error: ${response.status}`,
+          },
+        ],
+      };
+    }
+
     return {
       content: [
         {
           type: "text",
-          text: JSON.stringify(data)
-        }
-      ]
+          text: data.content ?? "",
+        },
+      ],
     };
-  }
+  },
 );
 
 const transport = new StdioServerTransport();
 
 await server.connect(transport);
 
-console.error("Global Memory MCP ready");
+console.error(
+  "[global-memory] MCP READY - tools:",
+  ["search_memory"],
+);

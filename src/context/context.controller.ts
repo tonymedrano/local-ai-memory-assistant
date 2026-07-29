@@ -6,15 +6,20 @@ export async function context(req: Request, res: Response) {
   const query = req.body.query ?? "";
 
   if (!query) {
-    return res.json({
-      memories: [],
-      knowledge: [],
-      inference: [],
-      explanations: [],
+    return res.status(400).json({
+      error: "Query required",
     });
   }
 
-  const result = await buildContext(query);
+  try {
+    const result = await buildContext(query);
 
-  return res.json(result);
+    return res.json(result);
+  } catch (error) {
+    console.error("[ContextController]", error);
+
+    return res.status(500).json({
+      error: "Context generation failed",
+    });
+  }
 }
