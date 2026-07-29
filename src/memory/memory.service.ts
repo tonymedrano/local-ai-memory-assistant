@@ -3,9 +3,12 @@ import { randomUUID } from "node:crypto";
 
 import type { Memory, MemoryType } from "./memory.types.js";
 
-import { MemoryRepository } from "./memory.repository.js";
+import type { QdrantScoredPoint } from "./qdrant.types.js";
 
-const repository = new MemoryRepository();
+import { memoryRepository } 
+from "./memory.repository.instance.js";
+
+const repository = memoryRepository;
 
 export interface RecallOptions {
   project?: string;
@@ -18,52 +21,33 @@ export async function store(memory: Memory) {
 
   const enrichedMemory: Memory = {
     ...memory,
-
     id: randomUUID(),
-
     importance: memory.importance ?? 0.5,
-
     confidence: memory.confidence ?? 0.8,
-
     accessCount: 0,
-
     lastAccess: now,
-
     archived: false,
-
     createdAt: now,
-
     updatedAt: now,
-
     origin: memory.origin ?? "user",
   };
 
   const vector = await createEmbedding(enrichedMemory.text);
-
   const similar = await repository.findSimilar(vector, enrichedMemory.project);
 
   if (similar) {
     const current = similar.payload ?? {};
 
-    await repository.update(
-      similar.id,
-
-      {
-        accessCount: Number(current.accessCount ?? 0) + 1,
-
-        importance: Math.min(Number(current.importance ?? 0.5) + 0.1, 10),
-
-        lastAccess: now,
-
-        updatedAt: now,
-      },
-    );
+    await repository.update(similar.id, {
+      accessCount: Number(current.accessCount ?? 0) + 1,
+      importance: Math.min(Number(current.importance ?? 0.5) + 0.1, 10),
+      lastAccess: now,
+      updatedAt: now,
+    });
 
     return {
       ...current,
-
       id: similar.id,
-
       updatedAt: now,
     };
   }
@@ -77,33 +61,22 @@ export async function recall(
   query: string,
 
   options?: RecallOptions,
-) {
+): Promise<QdrantScoredPoint[]> {
   const vector = await createEmbedding(query);
 
-  const results = await repository.search(
-    vector,
-
-    {
-      project: options?.project,
-
-      type: options?.type,
-    },
-  );
+  const results = await repository.search(vector, {
+    project: options?.project,
+    type: options?.type,
+  });
 
   for (const memory of results) {
     const payload = memory.payload ?? {};
 
-    await repository.update(
-      memory.id,
-
-      {
-        accessCount: Number(payload.accessCount ?? 0) + 1,
-
-        importance: Math.min(Number(payload.importance ?? 0.5) + 0.05, 10),
-
-        lastAccess: new Date().toISOString(),
-      },
-    );
+    await repository.update(memory.id, {
+      accessCount: Number(payload.accessCount ?? 0) + 1,
+      importance: Math.min(Number(payload.importance ?? 0.5) + 0.05, 10),
+      lastAccess: new Date().toISOString(),
+    });
   }
 
   return results.filter((memory) => memory.payload?.archived !== true);

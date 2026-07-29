@@ -27,7 +27,7 @@ export async function knowledgeConsolidationJob() {
       await knowledgeRepository.replaceAll(
         consolidated.map((item) => ({
           ...item,
-          createdAt: new Date(),
+          createdAt: item.createdAt,
         })),
       );
 

@@ -1,6 +1,8 @@
 import type { KnowledgeItem } from "./knowledge.types.js";
 
 export interface ConsolidatedKnowledge {
+  id: string;
+
   type: KnowledgeItem["type"];
 
   subject: string;
@@ -10,6 +12,8 @@ export interface ConsolidatedKnowledge {
   relations: KnowledgeItem["relations"];
 
   confidence: number;
+
+  createdAt: Date;
 }
 
 export class KnowledgeConsolidator {
@@ -30,7 +34,9 @@ export class KnowledgeConsolidator {
   }
 
   private merge(items: KnowledgeItem[]): ConsolidatedKnowledge {
-    const first = items[0];
+    const best = items.reduce((current, item) =>
+      item.confidence > current.confidence ? item : current,
+    );
 
     const contents = items
       .map((item) => item.content)
@@ -38,26 +44,26 @@ export class KnowledgeConsolidator {
 
     const relations = items.flatMap((item) => item.relations);
 
-    const confidence = Math.min(
-      1,
-      Number(
-        (
-          items.reduce((sum, item) => sum + item.confidence, 0) / items.length +
-          0.1
-        ).toFixed(2),
-      ),
+    const confidence = Number(
+      Math.min(
+        1,
+        Math.max(...items.map((item) => item.confidence)) + 0.05,
+      ).toFixed(2),
+    );
+
+    const createdAt = items.reduce(
+      (oldest, item) => (item.createdAt < oldest ? item.createdAt : oldest),
+      best.createdAt,
     );
 
     return {
-      type: first.type,
-
-      subject: first.subject,
-
+      id: best.id ?? crypto.randomUUID(),
+      type: best.type,
+      subject: best.subject,
       content: contents.join(". "),
-
       relations,
-
       confidence,
+      createdAt,
     };
   }
 }

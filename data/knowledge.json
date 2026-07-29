@@ -1,0 +1,11 @@
+[
+  {
+    "id": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+    "type": "technology",
+    "subject": "Angular",
+    "content": "Frontend framework",
+    "relations": [],
+    "confidence": 0.95,
+    "createdAt": "2026-07-27T18:28:58.846Z"
+  }
+]

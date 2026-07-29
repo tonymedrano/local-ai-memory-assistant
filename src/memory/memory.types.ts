@@ -1,7 +1,6 @@
 // src/memory/memory.types.ts
 
 export enum MemoryType {
-
   DECISION = "decision",
 
   SOLUTION = "solution",
@@ -13,7 +12,6 @@ export enum MemoryType {
   CONVERSATION = "conversation",
 
   CODE = "code",
-
 }
 
 export interface Memory {
@@ -96,15 +94,13 @@ export interface RecallResult {
 }
 
 export interface MemoryItem {
+  id: string;
 
-  id:string;
+  text: string;
 
-  text:string;
+  importance: number;
 
-  importance:number;
+  createdAt: string;
 
-  createdAt:string;
-
-  knowledgeExtracted?:boolean;
-
+  knowledgeExtracted?: boolean;
 }

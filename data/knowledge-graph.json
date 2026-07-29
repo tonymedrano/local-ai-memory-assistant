@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "id": "typescript",
+      "type": "concept",
+      "label": "TypeScript",
+      "createdAt": "2026-07-27T12:55:49.630Z"
+    },
+    {
+      "id": "node.js",
+      "type": "technology",
+      "label": "Node.js",
+      "metadata": {
+        "content": "Backend runtime"
+      },
+      "createdAt": "2026-07-27T12:55:49.630Z"
+    },
+    {
+      "id": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+      "label": "Angular",
+      "type": "technology",
+      "createdAt": "2026-07-27T18:28:58.846Z",
+      "metadata": {
+        "confidence": 0.95,
+        "content": "Frontend framework"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "angular-uses-typescript",
+      "source": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+      "target": "typescript",
+      "relation": "uses",
+      "confidence": 0.9,
+      "createdAt": "2026-07-27T12:55:49.630Z"
+    },
+    {
+      "id": "node.js-uses-typescript",
+      "source": "node.js",
+      "target": "typescript",
+      "relation": "uses",
+      "confidence": 0.8,
+      "createdAt": "2026-07-27T12:55:49.630Z"
+    },
+    {
+      "id": "typescript-uses-node",
+      "source": "typescript",
+      "target": "node.js",
+      "relation": "uses",
+      "confidence": 0.8,
+      "createdAt": "2026-07-27T14:07:53.023Z"
+    },
+    {
+      "id": "angular-not-uses-typescript",
+      "source": "f15b71fb-4286-4d38-a0c0-e2961be552e1",
+      "target": "typescript",
+      "relation": "does-not-use",
+      "confidence": 0.7,
+      "createdAt": "2026-07-27T14:19:38.428Z"
+    }
+  ]
+}

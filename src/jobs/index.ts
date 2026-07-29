@@ -7,3 +7,7 @@ export { cleanupJob } from "./cleanup.job.js";
 export { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
 
 export { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
+
+export { relearningJob } from "./relearning.job.js";
+
+export { contextLearningJob } from "./context-learning.job.js";

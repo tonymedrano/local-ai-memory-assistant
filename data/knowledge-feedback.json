@@ -1,0 +1,10 @@
+[
+  {
+    "knowledgeId": "angular-uses-typescript",
+    "action": "boost",
+    "previousConfidence": 0.8,
+    "newConfidence": 0.9,
+    "reason": "Accepted by resolution engine",
+    "createdAt": "2026-07-27T15:41:42.606Z"
+  }
+]

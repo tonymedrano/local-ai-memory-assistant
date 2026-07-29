@@ -4,6 +4,9 @@ import { lifecycleJob } from "./lifecycle.job.js";
 import { cleanupJob } from "./cleanup.job.js";
 import { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
 import { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
+import { relearningJob } from "./relearning.job.js";
+import { inferenceJob } from "./inference.job.js";
+import { contextLearningJob } from "./context-learning.job.js";
 
 export function startScheduler(): void {
   console.log("[Scheduler] Starting...");
@@ -44,6 +47,40 @@ export function startScheduler(): void {
       await knowledgeConsolidationJob();
     } catch (error) {
       console.error("[Scheduler] Knowledge consolidation failed", error);
+    }
+  });
+
+  cron.schedule("30 5 * * *", async () => {
+    try {
+      await contextLearningJob();
+    } catch (error) {
+      console.error("[Scheduler] context learning job failed", error);
+    }
+  });
+
+  /**
+   * Knowledge Relearning
+   *
+   * Cada día a las 06:00
+   */
+  cron.schedule("0 6 * * *", async () => {
+    try {
+      await relearningJob();
+    } catch (error) {
+      console.error("[Scheduler] Relearning failed", error);
+    }
+  });
+
+  /**
+   * Inference
+   *
+   * Cada día 06:00
+   */
+  cron.schedule("0 6 * * *", async () => {
+    try {
+      await inferenceJob();
+    } catch (error) {
+      console.error("[Scheduler] Inference failed", error);
     }
   });
 

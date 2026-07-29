@@ -1,0 +1,13 @@
+[
+  {
+    "subject": "angular",
+    "object": "typescript",
+    "decision": "keep",
+    "accepted": "cf843b6b-8f82-4ccf-b308-b06cedb38122",
+    "scores": [],
+    "reasoning": [
+      "Accepted after conflict resolution"
+    ],
+    "createdAt": "2026-07-27T17:50:04.835Z"
+  }
+]
