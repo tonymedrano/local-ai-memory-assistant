@@ -1,16 +1,19 @@
 import { LearningRepository } from "../learning/learning.repository.js";
-
 import { LearningService } from "../learning/learning.service.js";
-
-export const learningRepository = new LearningRepository();
-
-export const learningService = new LearningService(learningRepository);
 
 import { MemoryRepository } from "../memory/memory.repository.js";
 
+import { KeywordIndex } from "../retrieval/index/keyword.index.js";
+import { KeywordIndexLoader } from "../retrieval/index/keyword.index.loader.js";
 
-export const memoryRepository =
-    new MemoryRepository();
+export const learningRepository = new LearningRepository();
+export const learningService = new LearningService(learningRepository);
+export const memoryRepository = new MemoryRepository();
+export const keywordIndex = new KeywordIndex();
+export const keywordIndexLoader = new KeywordIndexLoader(
+  memoryRepository,
+  keywordIndex,
+);
 
 export async function initLearning() {
   await learningRepository.init();

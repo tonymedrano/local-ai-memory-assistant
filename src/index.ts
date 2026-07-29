@@ -15,7 +15,7 @@ import graphRoutes from "./knowledge/graph/graph.routes.js";
 import inferenceRoutes from "./knowledge/inference/inference.routes.js";
 import resolutionRoutes from "./knowledge/resolution/resolution.routes.js";
 import feedbackRoutes from "./knowledge/feedback/feedback.routes.js";
-import { initLearning } from "./core/container.js";
+import { initLearning, keywordIndexLoader } from "./core/container.js";
 import { memoryIntelligenceRouter } from "./intelligence/index.js";
 import feedbackRouter from "./context/feedback/feedback.controller.js";
 
@@ -34,7 +34,8 @@ app.use(memoryIntelligenceRouter);
 app.use(feedbackRouter);
 
 Promise.all([initCollection(), initMemoryCollection(), initLearning()])
-  .then(() => {
+  .then(async () => {
+    await keywordIndexLoader.load();
     app.listen(config.port, () => {
       console.log(`Memory service running on port ${config.port}`);
     });
