@@ -9,7 +9,7 @@ import { KeywordRetriever } from "./keyword/keyword.retriever.js";
 
 import { HybridRetriever } from "./hybrid/hybrid.retriever.js";
 
-import { MockReranker } from "./reranker.service.js";
+import { EmbeddingReranker } from "./reranker/embedding.reranker.js";
 import { RetrievalPipeline } from "./pipeline/retrieval.pipeline.js";
 
 async function main() {
@@ -26,7 +26,7 @@ async function main() {
     keywordRetriever,
   );
 
-  const reranker = new MockReranker();
+  const reranker = new EmbeddingReranker();
 
   const pipeline = new RetrievalPipeline(hybridRetriever, reranker);
 
