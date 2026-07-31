@@ -18,7 +18,6 @@ export class QualityScoringService {
 
       return {
         ...result,
-
         qualityScore,
       };
     });
@@ -31,7 +30,7 @@ export class QualityScoringService {
 
     const confidence = clamp(memory.confidence ?? 0.5);
 
-    const importance = clamp(memory.importance ?? 0.5);
+    const importance = this.normalizeImportance(memory.importance);
 
     const freshness = this.calculateFreshness(memory.createdAt);
 
@@ -48,17 +47,11 @@ export class QualityScoringService {
 
     return {
       relevance,
-
       confidence,
-
       importance,
-
       freshness,
-
       diversity,
-
       redundancyPenalty,
-
       finalScore,
     };
   }
@@ -71,5 +64,11 @@ export class QualityScoringService {
     const ageDays = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24);
 
     return clamp(1 / (1 + ageDays / 365));
+  }
+
+  private normalizeImportance(value?: number): number {
+    if (value === undefined) return 0.5;
+
+    return clamp(value / 3);
   }
 }

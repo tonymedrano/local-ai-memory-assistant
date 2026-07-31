@@ -4,6 +4,7 @@ import type { Reranker } from "../reranker.types.js";
 
 import { QualityScoringService } from "../quality/quality.service.js";
 import { DiversityService } from "../quality/diversity.service.js";
+import { DuplicateDetector } from "../quality/duplicate/duplicate.detector.js";
 
 import type {
   RetrievalRequest,
@@ -15,6 +16,7 @@ export class RetrievalPipeline {
     private readonly hybridRetriever: HybridRetriever,
     private readonly reranker: Reranker,
     private readonly qualityScoring: QualityScoringService,
+    private readonly duplicateDetector: DuplicateDetector,
     private readonly diversityService: DiversityService,
   ) {}
 
@@ -30,9 +32,12 @@ export class RetrievalPipeline {
     // Quality scoring
     const qualityRanked = await this.qualityScoring.score(ranked);
 
+    // Duplicate detection
+    const unique = await this.duplicateDetector.removeDuplicates(qualityRanked);
+
     // Diversity filtering
     const diverse = await this.diversityService.filter(
-      qualityRanked,
+      unique.results,
       request.limit ?? 5,
     );
 
@@ -53,6 +58,8 @@ export class RetrievalPipeline {
         averageConfidence: this.average(
           diverse.map((item) => item.qualityScore.confidence),
         ),
+
+        duplicatesRemoved: unique.duplicatesRemoved,
       },
     };
   }

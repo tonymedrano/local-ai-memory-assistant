@@ -16,7 +16,5 @@ export interface RetrievalQualitySummary {
   averageScore: number;
   averageRelevance: number;
   averageConfidence: number;
-  diversity?: number;
-  redundancy?: number;
-  compressionRatio?: number;
+  duplicatesRemoved?: number;
 }

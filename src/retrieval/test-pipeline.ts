@@ -14,6 +14,7 @@ import { RetrievalPipeline } from "./pipeline/retrieval.pipeline.js";
 import { DiversityService } from "./quality/diversity.service.js";
 import { QualityScoringService } from "./quality/quality.service.js";
 import { TextSimilarityService } from "./quality/text-similarity.service.js";
+import { DuplicateDetector } from "./quality/duplicate/duplicate.detector.js";
 
 async function main() {
   const repository = new MemoryRepository();
@@ -35,6 +36,7 @@ async function main() {
     hybridRetriever,
     reranker,
     new QualityScoringService(),
+    new DuplicateDetector(new TextSimilarityService()),
     new DiversityService(new TextSimilarityService()),
   );
 
