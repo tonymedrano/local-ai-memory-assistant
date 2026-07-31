@@ -11,6 +11,12 @@ export interface SearchOptions {
   type?: string;
 }
 
+export interface MemorySearchResult {
+  id: string | number;
+  score: number;
+  payload: Memory;
+}
+
 export class MemoryRepository {
   async save(id: string, vector: number[], memory: Memory) {
     await qdrant.upsert(COLLECTION, {
@@ -31,14 +37,23 @@ export class MemoryRepository {
     });
   }
 
-  async search(vector: number[], options?: SearchOptions) {
-    return qdrant.search(COLLECTION, {
+  async search(
+    vector: number[],
+    options?: SearchOptions,
+  ): Promise<MemorySearchResult[]> {
+    const results = await qdrant.search(COLLECTION, {
       vector,
-
       limit: options?.limit ?? 5,
-
       with_payload: true,
     });
+
+    return results.map((result) => ({
+      ...result,
+      payload: {
+        ...(result.payload as unknown as Memory),
+        id: String(result.id),
+      },
+    }));
   }
 
   async findSimilar(vector: number[], project?: string) {
