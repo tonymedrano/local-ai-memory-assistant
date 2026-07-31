@@ -11,6 +11,9 @@ import { HybridRetriever } from "./hybrid/hybrid.retriever.js";
 
 import { EmbeddingReranker } from "./reranker/embedding.reranker.js";
 import { RetrievalPipeline } from "./pipeline/retrieval.pipeline.js";
+import { DiversityService } from "./quality/diversity.service.js";
+import { QualityScoringService } from "./quality/quality.service.js";
+import { TextSimilarityService } from "./quality/text-similarity.service.js";
 
 async function main() {
   const repository = new MemoryRepository();
@@ -28,7 +31,12 @@ async function main() {
 
   const reranker = new EmbeddingReranker();
 
-  const pipeline = new RetrievalPipeline(hybridRetriever, reranker);
+  const pipeline = new RetrievalPipeline(
+    hybridRetriever,
+    reranker,
+    new QualityScoringService(),
+    new DiversityService(new TextSimilarityService()),
+  );
 
   const result = await pipeline.retrieve({
     query: "Angular Native Federation",

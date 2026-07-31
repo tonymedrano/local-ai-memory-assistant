@@ -9,4 +9,14 @@ export interface RetrievalRequest {
 export interface RetrievalPipelineResult {
   memories: RankedResult[];
   elapsedMs: number;
+  quality?: RetrievalQualitySummary;
+}
+
+export interface RetrievalQualitySummary {
+  averageScore: number;
+  averageRelevance: number;
+  averageConfidence: number;
+  diversity?: number;
+  redundancy?: number;
+  compressionRatio?: number;
 }
