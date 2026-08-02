@@ -36,12 +36,10 @@ export const keywordIndexLoader = new KeywordIndexLoader(
 );
 
 
-
-const repository = new MemoryRepository();
 const embeddingService = new EmbeddingService();
 
 const vectorRetriever = new VectorRetriever(
-  repository,
+  memoryRepository,
   embeddingService,
 );
 

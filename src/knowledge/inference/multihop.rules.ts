@@ -17,9 +17,9 @@ export function inferTwoHopRequires(): DerivedKnowledge[] {
 
     const objectId = path.nodes[2];
 
-    const subjectNode = graph.nodes.find((node) => node.id === subjectId);
+    const subjectNode = graph.nodes.find((node: any) => node.id === subjectId);
 
-    const objectNode = graph.nodes.find((node) => node.id === objectId);
+    const objectNode = graph.nodes.find((node: any) => node.id === objectId);
 
     return {
       subject: subjectId,
