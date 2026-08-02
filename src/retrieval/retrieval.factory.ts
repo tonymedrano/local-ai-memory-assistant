@@ -14,23 +14,29 @@ import { TextSimilarityService } from "./quality/text-similarity.service.js";
 import { KeywordIndex } from "./index/keyword.index.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
+import { GraphRetriever } from "./graph/graph.retriever.js";
 
 export function createRetrievalPipeline() {
   const repository = new MemoryRepository();
 
   const keywordIndex = new KeywordIndex();
 
-  const vectorRetriever = new VectorRetriever(
-    repository,
-    new EmbeddingService(),
-  );
 
   const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
 
-  const hybridRetriever = new HybridRetriever(
-    vectorRetriever,
-    keywordRetriever,
-  );
+
+ const vectorRetriever = new VectorRetriever(
+     repository,
+     new EmbeddingService(),
+   );
+  
+   const graphRetriever = new GraphRetriever();
+ 
+   const hybridRetriever = new HybridRetriever(
+     vectorRetriever,
+     keywordRetriever,
+     graphRetriever,
+   );
 
   return new RetrievalPipeline(
     hybridRetriever,

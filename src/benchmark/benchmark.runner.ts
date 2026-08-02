@@ -5,6 +5,7 @@ import type { BenchmarkReport } from "./benchmark.types.js";
 import type { RetrievalPipeline } from "../retrieval/pipeline/retrieval.pipeline.js";
 
 import { evaluate } from "./evaluator.js";
+import { extractResults } from "./sources/source.extractor.js";
 
 export async function runBenchmark(
   pipeline: RetrievalPipeline,
@@ -21,7 +22,9 @@ export async function runBenchmark(
 
     const latency = performance.now() - start;
 
-    const retrieved = response.memories.map((item) => item.memory.text);
+    const extracted = extractResults(response);
+
+    const retrieved = extracted.map((item) => item.text);
 
     results.push(evaluate(test, retrieved, latency));
   }

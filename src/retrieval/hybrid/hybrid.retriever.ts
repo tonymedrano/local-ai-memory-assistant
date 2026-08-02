@@ -2,20 +2,23 @@ import { KeywordRetriever } from "../keyword/keyword.retriever.js";
 import { VectorRetriever } from "../vector/vector.retriever.js";
 import { ReciprocalRankFusion } from "./rrf.js";
 import type { RetrievalResult } from "../types.js";
+import type { GraphRetriever } from "../graph/graph.retriever.js";
 export class HybridRetriever {
   private readonly fusion = new ReciprocalRankFusion();
 
   constructor(
-    private readonly vectorRetriever: VectorRetriever,
-    private readonly keywordRetriever: KeywordRetriever,
+    private vector: VectorRetriever,
+    private keyword: KeywordRetriever,
+    private graph: GraphRetriever,
   ) {}
 
-  async search(query: string): Promise<RetrievalResult[]> {
-    const [vectorResults, keywordResults] = await Promise.all([
-      this.vectorRetriever.search(query),
-      this.keywordRetriever.search(query),
+  async search(query: string) {
+    const [vector, keyword, graph] = await Promise.all([
+      this.vector.search(query),
+      this.keyword.search(query),
+      this.graph.search(query),
     ]);
 
-    return this.fusion.fuse(vectorResults, keywordResults);
+    return [...vector, ...keyword, ...graph];
   }
 }

@@ -1,7 +1,7 @@
 export interface BenchmarkCase {
   query: string;
-  expectedMemoryIds?: string[];
-  expectedTexts?: string[];
+  expectedTexts: string[];
+  expectedSources?: string[];
 }
 
 export interface BenchmarkResult {

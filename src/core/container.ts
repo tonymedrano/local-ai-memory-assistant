@@ -18,6 +18,10 @@ import { TextSimilarityService } from "../retrieval/quality/text-similarity.serv
 import { EmbeddingReranker } from "../retrieval/reranker/embedding.reranker.js";
 import { VectorRetriever } from "../retrieval/vector/vector.retriever.js";
 
+
+import { EmbeddingService } from "../embedding/embedding.service.js";
+import { GraphRetriever } from "../retrieval/graph/graph.retriever.js";
+
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
 export const dashboardService = new DashboardService(metricsService);
@@ -31,34 +35,34 @@ export const keywordIndexLoader = new KeywordIndexLoader(
   keywordIndex,
 );
 
-const vectorRetriever = new VectorRetriever();
-
-const keywordRetriever =
-  new KeywordRetriever(
-    keywordIndex,
-    memoryRepository,
-  );
-
-const hybridRetriever =
-  new HybridRetriever(
-    vectorRetriever,
-    keywordRetriever,
-  );
 
 
-export const retrievalPipeline =
-  new RetrievalPipeline(
-    hybridRetriever,
-    new EmbeddingReranker(),
-    new QualityScoringService(),
-    new DuplicateDetector(
-      new TextSimilarityService(),
-    ),
-    new DiversityService(
-      new TextSimilarityService(),
-    ),
-    metricsService,
-  );
+const repository = new MemoryRepository();
+const embeddingService = new EmbeddingService();
+
+const vectorRetriever = new VectorRetriever(
+  repository,
+  embeddingService,
+);
+
+const graphRetriever = new GraphRetriever();
+
+const keywordRetriever = new KeywordRetriever(keywordIndex, memoryRepository);
+
+const hybridRetriever = new HybridRetriever(
+  vectorRetriever,
+  keywordRetriever,
+  graphRetriever,
+);
+
+export const retrievalPipeline = new RetrievalPipeline(
+  hybridRetriever,
+  new EmbeddingReranker(),
+  new QualityScoringService(),
+  new DuplicateDetector(new TextSimilarityService()),
+  new DiversityService(new TextSimilarityService()),
+  metricsService,
+);
 
 export async function initLearning() {
   await learningRepository.init();

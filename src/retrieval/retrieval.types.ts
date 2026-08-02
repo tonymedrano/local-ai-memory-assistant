@@ -20,3 +20,9 @@ export interface RetrievalQualitySummary {
   averageConfidence: number;
   duplicatesRemoved?: number;
 }
+
+export type RetrievalSource =
+  | "vector"
+  | "keyword"
+  | "graph"
+  | "hybrid";

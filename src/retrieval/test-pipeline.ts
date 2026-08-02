@@ -15,19 +15,27 @@ import { DiversityService } from "./quality/diversity.service.js";
 import { QualityScoringService } from "./quality/quality.service.js";
 import { TextSimilarityService } from "./quality/text-similarity.service.js";
 import { DuplicateDetector } from "./quality/duplicate/duplicate.detector.js";
+import { GraphRetriever } from "./graph/graph.retriever.js";
+import { EmbeddingService } from "../embedding/embedding.service.js";
 
 async function main() {
   const repository = new MemoryRepository();
 
   const keywordIndex = new KeywordIndex();
 
-  const vectorRetriever = new VectorRetriever();
+  const vectorRetriever = new VectorRetriever(
+    repository,
+    new EmbeddingService(),
+  );
 
   const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
+
+  const graphRetriever = new GraphRetriever();
 
   const hybridRetriever = new HybridRetriever(
     vectorRetriever,
     keywordRetriever,
+    graphRetriever,
   );
 
   const reranker = new EmbeddingReranker();
