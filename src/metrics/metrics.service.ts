@@ -31,40 +31,46 @@ export class MetricsService {
       };
     }
 
-    const latencies = traces.map((t) => t.totalDuration).sort((a, b) => a - b);
+    const latencies = traces
+      .map((trace) => trace.totalDuration)
+      .sort((a, b) => a - b);
 
     const stageMap = new Map<string, number[]>();
 
     for (const trace of traces) {
       for (const step of trace.steps) {
-        if (!stageMap.has(step.name)) {
-          stageMap.set(step.name, []);
-        }
+        const durations = stageMap.get(step.name);
 
-        stageMap.get(step.name)!.push(step.duration);
+        if (durations) {
+          durations.push(step.duration);
+        } else {
+          stageMap.set(step.name, [step.duration]);
+        }
       }
     }
 
-    const stageStats: StageMetric[] = [];
-
-    for (const [name, values] of stageMap) {
-      stageStats.push({
+    const stageStats: StageMetric[] = Array.from(stageMap.entries()).map(
+      ([name, values]) => ({
         name,
         averageDuration: this.round(this.average(values)),
         minDuration: this.round(Math.min(...values)),
         maxDuration: this.round(Math.max(...values)),
         executions: values.length,
-      });
-    }
+      }),
+    );
 
+    // Ordenar por coste para detectar cuellos de botella
     stageStats.sort((a, b) => b.averageDuration - a.averageDuration);
 
     return {
       totalQueries: traces.length,
+
       averageLatency: this.round(this.average(latencies)),
+
       p50: this.percentile(latencies, 50),
       p90: this.percentile(latencies, 90),
       p99: this.percentile(latencies, 99),
+
       stageStats,
     };
   }

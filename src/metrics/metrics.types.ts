@@ -22,3 +22,9 @@ export interface MetricsRepository {
   getAll(): Promise<TraceResult[]>;
   clear(): Promise<void>;
 }
+
+interface StoredStageMetric {
+  name: string;
+  duration: number;
+  order: number;
+}
