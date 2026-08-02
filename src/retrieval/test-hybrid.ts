@@ -8,6 +8,7 @@ import { KeywordIndexLoader } from "./index/keyword.index.loader.js";
 import { GraphRetriever } from "./graph/graph.retriever.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
+import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 
 await new KeywordIndexLoader(memoryRepository, keywordIndex).load();
 
@@ -18,19 +19,22 @@ const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
 
 const graphRetriever = new GraphRetriever();
 
-const hybridRetriever = new HybridRetriever(
-  vectorRetriever,
-  keywordRetriever,
-  graphRetriever,
-);
+const graphEvidenceRetriever = new GraphEvidenceRetriever();
+  
+  const hybridRetriever = new HybridRetriever(
+    vectorRetriever,
+    keywordRetriever,
+    graphRetriever,
+    graphEvidenceRetriever,
+  );
 
 const results = await hybridRetriever.search("Angular TypeScript");
 
 console.table(
   results.map((r) => ({
-    id: r.memory.id,
-    text: r.memory.text,
-    score: r.score,
     source: r.source,
+    originalSources: r.originalSources?.join(", "),
+    score: r.score.toFixed(3),
+    text: r.memory.text,
   })),
 );

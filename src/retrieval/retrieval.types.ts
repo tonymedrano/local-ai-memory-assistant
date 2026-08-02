@@ -25,4 +25,5 @@ export type RetrievalSource =
   | "vector"
   | "keyword"
   | "graph"
+  | "graph-evidence"
   | "hybrid";

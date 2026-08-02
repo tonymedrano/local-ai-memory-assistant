@@ -17,6 +17,7 @@ import { TextSimilarityService } from "./quality/text-similarity.service.js";
 import { DuplicateDetector } from "./quality/duplicate/duplicate.detector.js";
 import { GraphRetriever } from "./graph/graph.retriever.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
+import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 
 async function main() {
   const repository = new MemoryRepository();
@@ -32,11 +33,14 @@ async function main() {
 
   const graphRetriever = new GraphRetriever();
 
-  const hybridRetriever = new HybridRetriever(
-    vectorRetriever,
-    keywordRetriever,
-    graphRetriever,
-  );
+  const graphEvidenceRetriever = new GraphEvidenceRetriever();
+    
+    const hybridRetriever = new HybridRetriever(
+      vectorRetriever,
+      keywordRetriever,
+      graphRetriever,
+      graphEvidenceRetriever,
+    );
 
   const reranker = new EmbeddingReranker();
 

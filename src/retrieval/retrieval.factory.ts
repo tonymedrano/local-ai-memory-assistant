@@ -15,6 +15,7 @@ import { KeywordIndex } from "./index/keyword.index.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphRetriever } from "./graph/graph.retriever.js";
+import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 
 export function createRetrievalPipeline() {
   const repository = new MemoryRepository();
@@ -32,11 +33,14 @@ export function createRetrievalPipeline() {
   
    const graphRetriever = new GraphRetriever();
  
-   const hybridRetriever = new HybridRetriever(
-     vectorRetriever,
-     keywordRetriever,
-     graphRetriever,
-   );
+  const graphEvidenceRetriever = new GraphEvidenceRetriever();
+  
+  const hybridRetriever = new HybridRetriever(
+    vectorRetriever,
+    keywordRetriever,
+    graphRetriever,
+    graphEvidenceRetriever,
+  );
 
   return new RetrievalPipeline(
     hybridRetriever,

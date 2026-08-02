@@ -18,9 +18,9 @@ import { TextSimilarityService } from "../retrieval/quality/text-similarity.serv
 import { EmbeddingReranker } from "../retrieval/reranker/embedding.reranker.js";
 import { VectorRetriever } from "../retrieval/vector/vector.retriever.js";
 
-
 import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphRetriever } from "../retrieval/graph/graph.retriever.js";
+import { GraphEvidenceRetriever } from "../retrieval/graph/graph.evidence.retriever.js";
 
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
@@ -35,22 +35,20 @@ export const keywordIndexLoader = new KeywordIndexLoader(
   keywordIndex,
 );
 
-
 const embeddingService = new EmbeddingService();
 
-const vectorRetriever = new VectorRetriever(
-  memoryRepository,
-  embeddingService,
-);
+const vectorRetriever = new VectorRetriever(memoryRepository, embeddingService);
 
 const graphRetriever = new GraphRetriever();
+const graphEvidenceRetriever = new GraphEvidenceRetriever();
 
 const keywordRetriever = new KeywordRetriever(keywordIndex, memoryRepository);
 
-const hybridRetriever = new HybridRetriever(
+export const hybridRetriever = new HybridRetriever(
   vectorRetriever,
   keywordRetriever,
   graphRetriever,
+  graphEvidenceRetriever,
 );
 
 export const retrievalPipeline = new RetrievalPipeline(
