@@ -1,4 +1,5 @@
 import type { RankedResult } from "./reranker.types.js";
+import type { TraceResult } from "../profiling/profiling.types.js";
 
 export interface RetrievalRequest {
   query: string;
@@ -9,6 +10,7 @@ export interface RetrievalRequest {
 export interface RetrievalPipelineResult {
   memories: RankedResult[];
   elapsedMs: number;
+  trace?: TraceResult;
   quality?: RetrievalQualitySummary;
 }
 
