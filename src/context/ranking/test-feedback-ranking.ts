@@ -1,5 +1,5 @@
 import { FeedbackService } from "../feedback/feedback.service.js";
-import { FeedbackBooster } from "./feedback.booster.js";
+import { FeedbackBooster } from "../adaptive/feedback.booster.js";
 
 const feedback = new FeedbackService();
 
