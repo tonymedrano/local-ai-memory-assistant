@@ -7,6 +7,7 @@ import { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
 import { relearningJob } from "./relearning.job.js";
 import { inferenceJob } from "./inference.job.js";
 import { contextLearningJob } from "./context-learning.job.js";
+import { trainingJob } from "./training.job.js";
 
 export function startScheduler(): void {
   console.log("[Scheduler] Starting...");
@@ -91,6 +92,19 @@ export function startScheduler(): void {
    */
   cron.schedule("0 4 * * 0", async () => {
     await cleanupJob();
+  });
+
+  /**
+   * LTR Training
+   *
+   * Cada día a las 05:45
+   */
+  cron.schedule("45 5 * * *", async () => {
+    try {
+      await trainingJob();
+    } catch (error) {
+      console.error("[Scheduler] LTR training failed", error);
+    }
   });
 
   console.log("[Scheduler] Running.");

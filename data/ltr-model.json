@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "trainedAt": "2026-08-04T15:36:29.994Z",
-  "samples": 43,
+  "trainedAt": "2026-08-04T16:03:11.076Z",
+  "samples": 44,
   "weights": {
-    "semantic": 0.50783,
-    "bm25": 0.20696,
-    "importance": 0.10609,
-    "confidence": 0.10696,
-    "freshness": 0.05783,
-    "graphEvidence": 0.033479999999999996,
-    "accessCount": 0.01261,
-    "diversity": 0.015219999999999997,
+    "semantic": 0.514094,
+    "bm25": 0.21252800000000002,
+    "importance": 0.110962,
+    "confidence": 0.112528,
+    "freshness": 0.064094,
+    "graphEvidence": 0.036264,
+    "accessCount": 0.014698000000000001,
+    "diversity": 0.019396,
     "duplicatePenalty": -0.1
   }
 }
