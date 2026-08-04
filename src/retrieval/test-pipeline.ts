@@ -15,20 +15,40 @@ import { DiversityService } from "./quality/diversity.service.js";
 import { QualityScoringService } from "./quality/quality.service.js";
 import { TextSimilarityService } from "./quality/text-similarity.service.js";
 import { DuplicateDetector } from "./quality/duplicate/duplicate.detector.js";
+import { GraphRetriever } from "./graph/graph.retriever.js";
+import { EmbeddingService } from "../embedding/embedding.service.js";
+import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
+import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
+import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
 async function main() {
   const repository = new MemoryRepository();
 
   const keywordIndex = new KeywordIndex();
 
-  const vectorRetriever = new VectorRetriever();
+  const vectorRetriever = new VectorRetriever(
+    repository,
+    new EmbeddingService(),
+  );
 
   const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
 
-  const hybridRetriever = new HybridRetriever(
+  const graphRetriever = new GraphRetriever();
+
+  const fusion = new WeightedReciprocalRankFusion();
+  const semanticReranker = new SemanticReranker();
+  const graphEvidenceRetriever = new GraphEvidenceRetriever();
+
+ const hybridRetriever = new HybridRetriever(
     vectorRetriever,
     keywordRetriever,
+    graphRetriever,
+    graphEvidenceRetriever,
+    fusion,
+    semanticReranker,
   );
+
+ 
 
   const reranker = new EmbeddingReranker();
 

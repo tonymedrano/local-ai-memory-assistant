@@ -11,6 +11,9 @@ import type {
   RetrievalPipelineResult,
 } from "../retrieval.types.js";
 
+import { Profiler } from "../../profiling/profiler.js";
+import type { MetricsService } from "../../metrics/metrics.service.js";
+
 export class RetrievalPipeline {
   constructor(
     private readonly hybridRetriever: HybridRetriever,
@@ -18,33 +21,54 @@ export class RetrievalPipeline {
     private readonly qualityScoring: QualityScoringService,
     private readonly duplicateDetector: DuplicateDetector,
     private readonly diversityService: DiversityService,
+    private readonly metricsService?: MetricsService,
   ) {}
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
     const start = Date.now();
 
+    const profiler = new Profiler();
+
     // Hybrid Retrieval
-    const candidates = await this.hybridRetriever.search(request.query);
+    const candidates = await profiler.trace("Hybrid Retrieval", () =>
+      this.hybridRetriever.search(request.query),
+    );
 
     // Reranking
-    const ranked = await this.reranker.rerank(request.query, candidates);
+    const ranked = await profiler.trace("Reranking", () =>
+      this.reranker.rerank(request.query, candidates),
+    );
 
     // Quality scoring
-    const qualityRanked = await this.qualityScoring.score(ranked);
+    const qualityRanked = await profiler.trace("Quality Scoring", () =>
+      this.qualityScoring.score(ranked),
+    );
 
     // Duplicate detection
-    const unique = await this.duplicateDetector.removeDuplicates(qualityRanked);
+    const unique = await profiler.trace("Duplicate Detection", () =>
+      this.duplicateDetector.removeDuplicates(qualityRanked),
+    );
 
     // Diversity filtering
-    const diverse = await this.diversityService.filter(
-      unique.results,
-      request.limit ?? 5,
+    const diverse = await profiler.trace("Diversity Filtering", () =>
+      this.diversityService.filter(unique.results, request.limit ?? 5),
     );
+
+    // Temporal: imprimir el perfil mientras desarrollamos
+    console.table(profiler.summary());
+
+    const trace = profiler.export(request.query);
+
+    if (this.metricsService) {
+      await this.metricsService.record(trace);
+    }
 
     return {
       memories: diverse,
 
       elapsedMs: Date.now() - start,
+
+      trace: profiler.export(request.query),
 
       quality: {
         averageScore: this.average(
