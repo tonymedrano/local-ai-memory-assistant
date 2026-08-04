@@ -4,8 +4,11 @@ import { ContextSelector } from "./selector/context.selector.js";
 import { ContextCompressor } from "./compression/context.compressor.js";
 import { ContextPromptBuilder } from "./prompt/context.prompt.builder.js";
 import type { ContextResult } from "./context.types.js";
+import { retrievalPipeline } from "../core/container.js";
 
-const builder = new ContextBuilder();
+const builder = new ContextBuilder(
+  retrievalPipeline,
+);
 const intentDetector = new IntentDetector();
 const selector = new ContextSelector();
 const compressor = new ContextCompressor();

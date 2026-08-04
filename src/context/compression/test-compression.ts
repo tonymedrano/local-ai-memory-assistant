@@ -1,8 +1,11 @@
+import { retrievalPipeline } from "../../core/container.js";
 import { ContextBuilder } from "../context.builder.js";
 
 import { ContextCompressor } from "./context.compressor.js";
 
-const builder = new ContextBuilder();
+const builder = new ContextBuilder(
+  retrievalPipeline,
+);
 const compressor = new ContextCompressor();
 const context = await builder.build("Angular TypeScript");
 

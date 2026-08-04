@@ -43,6 +43,8 @@ export interface Memory {
 
   tags?: string[];
 
+  metadata?: Record<string, unknown>;
+
   source?: {
     file?: string;
     line?: number;

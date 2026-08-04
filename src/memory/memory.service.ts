@@ -1,15 +1,12 @@
-import { createEmbedding } from "../ai/ollama.service.js";
 import { randomUUID } from "node:crypto";
 
+import { createEmbedding } from "../ai/ollama.service.js";
 import type { Memory, MemoryType } from "./memory.types.js";
-
-import type { QdrantScoredPoint } from "./qdrant.types.js";
-
-import { memoryRepository } 
-from "./memory.repository.instance.js";
+import { memoryRepository } from "./memory.repository.instance.js";
+import { keywordIndex } from "../retrieval/index/keyword.index.instance.js";
+import type { MemorySearchResult } from "./memory.repository.js";
 
 const repository = memoryRepository;
-
 export interface RecallOptions {
   project?: string;
 
@@ -45,11 +42,15 @@ export async function store(memory: Memory) {
       updatedAt: now,
     });
 
-    return {
+    const updatedMemory: Memory = {
       ...current,
       id: similar.id,
       updatedAt: now,
-    };
+    } as Memory;
+
+    keywordIndex.add(updatedMemory);
+
+    return updatedMemory;
   }
 
   await repository.save(enrichedMemory.id!, vector, enrichedMemory);
@@ -61,7 +62,7 @@ export async function recall(
   query: string,
 
   options?: RecallOptions,
-): Promise<QdrantScoredPoint[]> {
+): Promise<MemorySearchResult[]> {
   const vector = await createEmbedding(query);
 
   const results = await repository.search(vector, {
