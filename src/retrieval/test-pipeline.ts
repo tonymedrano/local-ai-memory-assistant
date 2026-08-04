@@ -21,6 +21,10 @@ import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
 import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
+import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
+import { LinearModel } from "../ltr/model/linear.model.js";
+import { LearningRanker } from "../ltr/ranking/learning.ranker.js";
+
 async function main() {
   const repository = new MemoryRepository();
 
@@ -39,7 +43,7 @@ async function main() {
   const semanticReranker = new SemanticReranker();
   const graphEvidenceRetriever = new GraphEvidenceRetriever();
 
- const hybridRetriever = new HybridRetriever(
+  const hybridRetriever = new HybridRetriever(
     vectorRetriever,
     keywordRetriever,
     graphRetriever,
@@ -48,9 +52,22 @@ async function main() {
     semanticReranker,
   );
 
- 
-
   const reranker = new EmbeddingReranker();
+
+  const learningRanker = new LearningRanker(
+    new FeatureExtractor(),
+    new LinearModel({
+      semantic: 0.35,
+      bm25: 0.2,
+      importance: 0.15,
+      confidence: 0.1,
+      freshness: 0.1,
+      graphEvidence: 0.05,
+      accessCount: 0.03,
+      diversity: 0.02,
+      duplicatePenalty: -0.1,
+    }),
+  );
 
   const pipeline = new RetrievalPipeline(
     hybridRetriever,
@@ -58,6 +75,8 @@ async function main() {
     new QualityScoringService(),
     new DuplicateDetector(new TextSimilarityService()),
     new DiversityService(new TextSimilarityService()),
+    undefined,
+    learningRanker,
   );
 
   const result = await pipeline.retrieve({

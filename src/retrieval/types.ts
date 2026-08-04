@@ -4,7 +4,14 @@ export type RetrievalSource = "vector" | "keyword" | "graph" | "graph-evidence"|
 
 export interface RetrievalResult {
   memory: Memory;
-  score: number; 
+  score: number;
   source: RetrievalSource;
+
+  semanticScore?: number;
+  keywordScore?: number;
+  graphScore?: number;
+  diversityScore?: number;
+  duplicatePenalty?: number;
+
   originalSources?: RetrievalSource[];
 }

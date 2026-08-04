@@ -1,0 +1,1 @@
+// Content for trainer.ts will go here

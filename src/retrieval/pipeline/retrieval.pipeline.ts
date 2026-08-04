@@ -13,6 +13,7 @@ import type {
 
 import { Profiler } from "../../profiling/profiler.js";
 import type { MetricsService } from "../../metrics/metrics.service.js";
+import type { LearningRanker } from "../../ltr/index.js";
 
 export class RetrievalPipeline {
   constructor(
@@ -22,6 +23,7 @@ export class RetrievalPipeline {
     private readonly duplicateDetector: DuplicateDetector,
     private readonly diversityService: DiversityService,
     private readonly metricsService?: MetricsService,
+    private readonly learningRanker?: LearningRanker,
   ) {}
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
@@ -45,16 +47,23 @@ export class RetrievalPipeline {
     );
 
     // Duplicate detection
+    // Duplicate detection
     const unique = await profiler.trace("Duplicate Detection", () =>
       this.duplicateDetector.removeDuplicates(qualityRanked),
     );
 
     // Diversity filtering
-    const diverse = await profiler.trace("Diversity Filtering", () =>
+    let finalResults = await profiler.trace("Diversity Filtering", () =>
       this.diversityService.filter(unique.results, request.limit ?? 5),
     );
 
-    // Temporal: imprimir el perfil mientras desarrollamos
+    // Learning To Rank
+    if (this.learningRanker) {
+      finalResults = await profiler.trace("LTR Ranking", () =>
+        Promise.resolve(this.learningRanker!.rank(finalResults)),
+      );
+    }
+
     console.table(profiler.summary());
 
     const trace = profiler.export(request.query);
@@ -64,23 +73,23 @@ export class RetrievalPipeline {
     }
 
     return {
-      memories: diverse,
+      memories: finalResults,
 
       elapsedMs: Date.now() - start,
 
-      trace: profiler.export(request.query),
+      trace,
 
       quality: {
         averageScore: this.average(
-          diverse.map((item) => item.qualityScore.finalScore),
+          finalResults.map((item) => item.qualityScore.finalScore),
         ),
 
         averageRelevance: this.average(
-          diverse.map((item) => item.qualityScore.relevance),
+          finalResults.map((item) => item.qualityScore.relevance),
         ),
 
         averageConfidence: this.average(
-          diverse.map((item) => item.qualityScore.confidence),
+          finalResults.map((item) => item.qualityScore.confidence),
         ),
 
         duplicatesRemoved: unique.duplicatesRemoved,

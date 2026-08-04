@@ -24,6 +24,10 @@ import { GraphEvidenceRetriever } from "../retrieval/graph/graph.evidence.retrie
 import { WeightedReciprocalRankFusion } from "../retrieval/hybrid/weighted.rrf.js";
 import { SemanticReranker } from "../retrieval/reranking/semantic.reranker.js";
 
+import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
+import { LinearModel } from "../ltr/model/linear.model.js";
+import { LearningRanker } from "../ltr/ranking/learning.ranker.js";
+
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
 export const dashboardService = new DashboardService(metricsService);
@@ -58,6 +62,21 @@ export const hybridRetriever = new HybridRetriever(
   reranker,
 );
 
+const learningRanker = new LearningRanker(
+  new FeatureExtractor(),
+  new LinearModel({
+    semantic: 0.35,
+    bm25: 0.20,
+    importance: 0.15,
+    confidence: 0.10,
+    freshness: 0.10,
+    graphEvidence: 0.05,
+    accessCount: 0.03,
+    diversity: 0.02,
+    duplicatePenalty: -0.10,
+  }),
+);
+
 export const retrievalPipeline = new RetrievalPipeline(
   hybridRetriever,
   new EmbeddingReranker(),
@@ -65,6 +84,7 @@ export const retrievalPipeline = new RetrievalPipeline(
   new DuplicateDetector(new TextSimilarityService()),
   new DiversityService(new TextSimilarityService()),
   metricsService,
+  learningRanker
 );
 
 export async function initLearning() {
