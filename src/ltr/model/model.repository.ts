@@ -4,14 +4,18 @@ import path from "node:path";
 import type { StoredModel } from "./model.types.js";
 
 export class ModelRepository {
-  private readonly file = path.join(process.cwd(), "data", "ltr-model.json");
+  private static readonly FILE_PATH = path.join(
+    process.cwd(),
+    "data",
+    "ltr-model.json",
+  );
 
   load(): StoredModel | null {
-    if (!fs.existsSync(this.file)) {
+    if (!fs.existsSync(ModelRepository.FILE_PATH)) {
       return null;
     }
 
-    const content = fs.readFileSync(this.file, "utf8");
+    const content = fs.readFileSync(ModelRepository.FILE_PATH, "utf8");
 
     if (!content.trim()) {
       return null;
@@ -21,22 +25,26 @@ export class ModelRepository {
   }
 
   save(model: StoredModel): void {
-    const directory = path.dirname(this.file);
+    const directory = path.dirname(ModelRepository.FILE_PATH);
 
     if (!fs.existsSync(directory)) {
       fs.mkdirSync(directory, { recursive: true });
     }
 
-    fs.writeFileSync(this.file, JSON.stringify(model, null, 2), "utf8");
+    fs.writeFileSync(
+      ModelRepository.FILE_PATH,
+      JSON.stringify(model, null, 2),
+      "utf8",
+    );
   }
 
   exists(): boolean {
-    return fs.existsSync(this.file);
+    return fs.existsSync(ModelRepository.FILE_PATH);
   }
 
   delete(): void {
     if (this.exists()) {
-      fs.unlinkSync(this.file);
+      fs.unlinkSync(ModelRepository.FILE_PATH);
     }
   }
 }

@@ -6,4 +6,4 @@ export * from "./model/index.js";
 
 export * from "./ranking/index.js";
 
-export * from "./trainer/index.js";
+export * from "./training/index.js";

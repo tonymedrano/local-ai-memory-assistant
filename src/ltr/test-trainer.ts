@@ -1,5 +1,5 @@
 import { LinearModel } from "./model/linear.model.js";
-import { Trainer } from "./trainer/trainer.js";
+import { Trainer } from "./training/trainer.js";
 
 const model = new LinearModel({
   semantic: 0.35,

@@ -1,3 +1,5 @@
+
+
 export interface LinearWeights {
   semantic: number;
   bm25: number;
@@ -16,3 +18,4 @@ export interface StoredModel {
   samples: number;
   weights: LinearWeights;
 }
+

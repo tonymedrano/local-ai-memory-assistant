@@ -36,3 +36,15 @@ export interface FeatureInput {
   memory: Memory;
   metrics?: FeatureMetrics;
 }
+
+export interface FeatureVector {
+  semantic: number;
+  bm25: number;
+  importance: number;
+  confidence: number;
+  freshness: number;
+  graphEvidence: number;
+  accessCount: number;
+  diversity: number;
+  duplicatePenalty: number;
+}

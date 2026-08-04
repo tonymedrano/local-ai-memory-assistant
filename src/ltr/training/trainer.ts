@@ -16,11 +16,9 @@ export class Trainer {
   }
 
   train(example: TrainingExample): void {
-    const prediction =
-      this.model.predict(example.features);
+    const prediction = this.model.predict(example.features);
 
-    const error =
-      example.target - prediction;
+    const error = example.target - prediction;
 
     const weights = this.model.getWeights();
 
@@ -28,9 +26,7 @@ export class Trainer {
       ...weights,
     };
 
-    for (const key of Object.keys(
-      weights,
-    ) as (keyof typeof weights)[]) {
+    for (const key of Object.keys(weights) as (keyof typeof weights)[]) {
       updated[key] =
         weights[key] +
         this.learningRate *
