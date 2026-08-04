@@ -24,6 +24,7 @@ import { SemanticReranker } from "./reranking/semantic.reranker.js";
 import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
 import { LinearModel } from "../ltr/model/linear.model.js";
 import { LearningRanker } from "../ltr/ranking/learning.ranker.js";
+import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
 
 async function main() {
   const repository = new MemoryRepository();
@@ -54,7 +55,22 @@ async function main() {
 
   const reranker = new EmbeddingReranker();
 
-  const learningRanker = new LearningRanker(
+  /* const learningRanker = new LearningRanker(
+    new FeatureExtractor(),
+    new LinearModel({
+      semantic: 0.35,
+      bm25: 0.2,
+      importance: 0.15,
+      confidence: 0.1,
+      freshness: 0.1,
+      graphEvidence: 0.05,
+      accessCount: 0.03,
+      diversity: 0.02,
+      duplicatePenalty: -0.1,
+    }),
+  ); */
+
+  const ltrRanker = new LTRRanker(
     new FeatureExtractor(),
     new LinearModel({
       semantic: 0.35,
@@ -71,12 +87,11 @@ async function main() {
 
   const pipeline = new RetrievalPipeline(
     hybridRetriever,
+    ltrRanker,
     reranker,
     new QualityScoringService(),
     new DuplicateDetector(new TextSimilarityService()),
     new DiversityService(new TextSimilarityService()),
-    undefined,
-    learningRanker,
   );
 
   const result = await pipeline.retrieve({

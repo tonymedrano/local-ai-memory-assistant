@@ -43,6 +43,8 @@ import { TrainingService } from "../ltr/training/training.service.js";
 import { FeedbackCollector } from "../ltr/feedback/feedback.collector.js";
 import { FeedbackService } from "../ltr/feedback/feedback.service.js";
 
+import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
+
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
 export const dashboardService = new DashboardService(metricsService);
@@ -96,6 +98,11 @@ const model = new LinearModel(
   storedModel?.weights ?? DEFAULT_WEIGHTS,
 );
 
+export const ltrRanker = new LTRRanker(
+  new FeatureExtractor(),
+  model,
+);
+
 export const learningRanker = new LearningRanker(new FeatureExtractor(), model);
 
 export const feedbackService = new FeedbackService(feedbackRepository);
@@ -116,12 +123,13 @@ export const trainingService = new TrainingService(
 
 export const retrievalPipeline = new RetrievalPipeline(
   hybridRetriever,
+  ltrRanker,
   new EmbeddingReranker(),
   new QualityScoringService(),
   new DuplicateDetector(new TextSimilarityService()),
   new DiversityService(new TextSimilarityService()),
   metricsService,
-  learningRanker,
+ // learningRanker,
   feedbackCollector,
 );
 
