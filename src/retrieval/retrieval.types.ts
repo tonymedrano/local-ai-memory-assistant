@@ -1,5 +1,6 @@
 import type { RankedResult } from "./reranker.types.js";
 import type { TraceResult } from "../profiling/profiling.types.js";
+import type { Memory } from "../memory/memory.types.js";
 
 export interface RetrievalRequest {
   query: string;
@@ -27,3 +28,14 @@ export type RetrievalSource =
   | "graph"
   | "graph-evidence"
   | "hybrid";
+
+export interface RetrievalResult {
+    memory: Memory;
+    score: number;
+    source: RetrievalSource;
+    semanticScore?: number;
+    keywordScore?: number;
+    graphScore?: number;
+    diversityScore?: number;
+    duplicatePenalty?: number;
+}
