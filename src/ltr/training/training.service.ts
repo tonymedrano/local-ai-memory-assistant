@@ -14,7 +14,13 @@ export class TrainingService {
   train(): void {
     const feedback = this.feedbackRepository.findAll();
 
-    if (feedback.length === 0) {
+    const MIN_SAMPLES = 10;
+
+    if (feedback.length < MIN_SAMPLES) {
+      console.log(
+        `[LTR] Not enough feedback samples: ${feedback.length}/${MIN_SAMPLES}`,
+      );
+
       return;
     }
 
