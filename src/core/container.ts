@@ -40,6 +40,9 @@ import { LearningRanker } from "../ltr/ranking/learning.ranker.js";
 import { FeedbackRepository } from "../ltr/feedback/feedback.repository.js";
 import { TrainingService } from "../ltr/training/training.service.js";
 
+import { FeedbackCollector } from "../ltr/feedback/feedback.collector.js";
+import { FeedbackService } from "../ltr/feedback/feedback.service.js";
+
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
 export const dashboardService = new DashboardService(metricsService);
@@ -89,9 +92,18 @@ export const modelRepository = new ModelRepository();
 
 const storedModel = modelRepository.load();
 
-const model = new LinearModel(storedModel?.weights ?? DEFAULT_WEIGHTS);
+const model = new LinearModel(
+  storedModel?.weights ?? DEFAULT_WEIGHTS,
+);
 
 export const learningRanker = new LearningRanker(new FeatureExtractor(), model);
+
+export const feedbackService = new FeedbackService(feedbackRepository);
+
+export const feedbackCollector = new FeedbackCollector(
+  feedbackService,
+  new FeatureExtractor(),
+);
 
 export const trainingService = new TrainingService(
   feedbackRepository,
@@ -110,6 +122,7 @@ export const retrievalPipeline = new RetrievalPipeline(
   new DiversityService(new TextSimilarityService()),
   metricsService,
   learningRanker,
+  feedbackCollector,
 );
 
 /* -------------------------------------------------------------------------- */

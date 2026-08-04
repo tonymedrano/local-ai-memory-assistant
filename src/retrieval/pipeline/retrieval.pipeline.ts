@@ -13,7 +13,7 @@ import type {
 
 import { Profiler } from "../../profiling/profiler.js";
 import type { MetricsService } from "../../metrics/metrics.service.js";
-import type { LearningRanker } from "../../ltr/index.js";
+import type { FeedbackCollector, LearningRanker } from "../../ltr/index.js";
 
 export class RetrievalPipeline {
   constructor(
@@ -24,6 +24,7 @@ export class RetrievalPipeline {
     private readonly diversityService: DiversityService,
     private readonly metricsService?: MetricsService,
     private readonly learningRanker?: LearningRanker,
+    private readonly feedbackCollector?: FeedbackCollector,
   ) {}
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
@@ -56,6 +57,8 @@ export class RetrievalPipeline {
     let finalResults = await profiler.trace("Diversity Filtering", () =>
       this.diversityService.filter(unique.results, request.limit ?? 5),
     );
+
+    this.feedbackCollector?.resultReturned(request.query, finalResults);
 
     // Learning To Rank
     if (this.learningRanker) {
