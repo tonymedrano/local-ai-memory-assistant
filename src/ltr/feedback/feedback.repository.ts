@@ -1,16 +1,31 @@
-import type { Feedback } from './feedback.types.js';
+import { randomUUID } from "crypto";
+
+import type { RankingFeedback } from "./feedback.types.js";
 
 export class FeedbackRepository {
-  private feedbacks: Feedback[] = [];
+  private items: RankingFeedback[] = [];
 
-  addFeedback(feedback: Feedback): void {
-    this.feedbacks.push(feedback);
+  save(feedback: Omit<RankingFeedback, "id" | "createdAt">): RankingFeedback {
+    const item: RankingFeedback = {
+      id: randomUUID(),
+      ...feedback,
+      createdAt: new Date(),
+    };
+
+    this.items.push(item);
+
+    return item;
   }
 
-  getFeedbackById(id: string): Feedback | undefined {
-    return this.feedbacks.find(f => f.id === id);
+  findAll(): RankingFeedback[] {
+    return this.items;
   }
 
-  // ... other methods ...
+  clear(): void {
+    this.items = [];
+  }
 
+  count(): number {
+    return this.items.length;
+  }
 }

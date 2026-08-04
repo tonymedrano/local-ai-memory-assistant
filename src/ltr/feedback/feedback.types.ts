@@ -1,10 +1,17 @@
-// Types for feedback module
+import type { FeatureVector } from "../features/feature.types.js";
 
-export interface Feedback {
-  id: string;
-  userId: string;
-  content: string;
-  createdAt: Date;
+export enum FeedbackType {
+  CLICK = "click",
+  ACCEPT = "accept",
+  REJECT = "reject",
 }
 
-// ... other types ...
+export interface RankingFeedback {
+  id: string;
+  query: string;
+  memoryId: string;
+  type: FeedbackType;
+  signal: number;
+  features: FeatureVector;
+  createdAt: Date;
+}

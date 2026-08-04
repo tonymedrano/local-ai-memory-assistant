@@ -2,7 +2,7 @@ import type { FeatureVector } from "../features/feature.types.js";
 import type { LinearWeights } from "./model.types.js";
 
 export class LinearModel {
-  constructor(private readonly weights: LinearWeights) {}
+  constructor(private weights: LinearWeights) {}
 
   predict(features: FeatureVector): number {
     return (
@@ -18,7 +18,15 @@ export class LinearModel {
     );
   }
 
-  getWeights(): LinearWeights {
-    return { ...this.weights };
+  getWeights() {
+    return {
+      ...this.weights,
+    };
+  }
+
+  setWeights(weights: typeof this.weights) {
+    this.weights = {
+      ...weights,
+    };
   }
 }
