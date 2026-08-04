@@ -1,17 +1,5 @@
 import type { Memory } from "../../memory/memory.types.js";
 
-export interface FeatureVector {
-  semantic: number;
-  bm25: number;
-  importance: number;
-  confidence: number;
-  freshness: number;
-  graphEvidence: number;
-  accessCount: number;
-  diversity: number;
-  duplicatePenalty: number;
-}
-
 export interface RankedFeatures {
   memoryId: string;
   features: FeatureVector;
@@ -23,6 +11,9 @@ export interface FeatureMetrics {
   graphEvidence?: number;
   diversity?: number;
   duplicatePenalty?: number;
+
+  // LTR feedback signal
+  feedbackScore?: number;
 }
 
 export interface TrainingExample {
@@ -38,6 +29,7 @@ export interface FeatureInput {
 }
 
 export interface FeatureVector {
+
   semantic: number;
   bm25: number;
   importance: number;
@@ -47,4 +39,37 @@ export interface FeatureVector {
   accessCount: number;
   diversity: number;
   duplicatePenalty: number;
+
+  // LTR v2 features (optional during migration)
+  feedbackScore?: number;
+  retrievalFrequency?: number;
+  ageScore?: number;
+}
+
+export interface LTRFeatures {
+  // Retrieval
+  vectorScore: number;
+  keywordScore: number;
+  hybridScore: number;
+
+  // Memory quality
+  importance: number;
+  confidence: number;
+
+  // Temporal
+  freshness: number;
+
+  // Usage
+  accessCount: number;
+  accessFrequency: number;
+
+  // Learning
+  feedbackScore: number;
+
+  // Knowledge
+  graphScore: number;
+
+  // Penalties
+  duplicatePenalty: number;
+  redundancyPenalty: number;
 }
