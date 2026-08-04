@@ -9,6 +9,8 @@ import { GraphRetriever } from "./graph/graph.retriever.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
+import { SemanticReranker } from "./reranking/semantic.reranker.js";
+import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
 
 await new KeywordIndexLoader(memoryRepository, keywordIndex).load();
 
@@ -19,14 +21,18 @@ const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
 
 const graphRetriever = new GraphRetriever();
 
+const fusion = new WeightedReciprocalRankFusion();
+const semanticReranker = new SemanticReranker();
 const graphEvidenceRetriever = new GraphEvidenceRetriever();
-  
-  const hybridRetriever = new HybridRetriever(
-    vectorRetriever,
-    keywordRetriever,
-    graphRetriever,
-    graphEvidenceRetriever,
-  );
+
+const hybridRetriever = new HybridRetriever(
+  vectorRetriever,
+  keywordRetriever,
+  graphRetriever,
+  graphEvidenceRetriever,
+  fusion,
+  semanticReranker,
+);
 
 const results = await hybridRetriever.search("Angular TypeScript");
 

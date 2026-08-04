@@ -16,30 +16,34 @@ import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphRetriever } from "./graph/graph.retriever.js";
 import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
+import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
+import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
 export function createRetrievalPipeline() {
   const repository = new MemoryRepository();
 
   const keywordIndex = new KeywordIndex();
 
-
   const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
 
+  const vectorRetriever = new VectorRetriever(
+    repository,
+    new EmbeddingService(),
+  );
 
- const vectorRetriever = new VectorRetriever(
-     repository,
-     new EmbeddingService(),
-   );
-  
-   const graphRetriever = new GraphRetriever();
- 
+  const graphRetriever = new GraphRetriever();
+
+  const fusion = new WeightedReciprocalRankFusion();
+  const semanticReranker = new SemanticReranker();
   const graphEvidenceRetriever = new GraphEvidenceRetriever();
-  
+
   const hybridRetriever = new HybridRetriever(
     vectorRetriever,
     keywordRetriever,
     graphRetriever,
     graphEvidenceRetriever,
+    fusion,
+    semanticReranker,
   );
 
   return new RetrievalPipeline(

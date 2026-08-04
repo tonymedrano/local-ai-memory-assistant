@@ -5,15 +5,16 @@ import type { RetrievalResult } from "../types.js";
 import { WeightedReciprocalRankFusion } from "./weighted.rrf.js";
 import type { SemanticQuery } from "../expansion/semantic.types.js";
 import type { GraphEvidenceRetriever } from "../graph/graph.evidence.retriever.js";
+import { SemanticReranker } from "../reranking/semantic.reranker.js";
 
 export class HybridRetriever {
-  private readonly fusion = new WeightedReciprocalRankFusion();
-
   constructor(
     private readonly vector: VectorRetriever,
     private readonly keyword: KeywordRetriever,
     private readonly graph: GraphRetriever,
     private readonly graphEvidence: GraphEvidenceRetriever,
+    private readonly fusion: WeightedReciprocalRankFusion,
+    private readonly reranker: SemanticReranker,
   ) {}
 
   async search(
@@ -31,11 +32,13 @@ export class HybridRetriever {
         this.graphEvidence.search(expandedQuery),
       ]);
 
-    return this.fusion.fuse(
-      vectorResults,
-      keywordResults,
-      graphResults,
-      evidenceResults,
+    const fused = this.fusion.fuse(vectorResults, keywordResults, graphResults, evidenceResults);
+
+    return this.reranker.rerank(
+      fused,
+      semantic?.expandedTerms.map((item) =>
+        typeof item === "string" ? item : item.term,
+      ),
     );
   }
 }

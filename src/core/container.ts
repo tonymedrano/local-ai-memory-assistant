@@ -21,6 +21,8 @@ import { VectorRetriever } from "../retrieval/vector/vector.retriever.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphRetriever } from "../retrieval/graph/graph.retriever.js";
 import { GraphEvidenceRetriever } from "../retrieval/graph/graph.evidence.retriever.js";
+import { WeightedReciprocalRankFusion } from "../retrieval/hybrid/weighted.rrf.js";
+import { SemanticReranker } from "../retrieval/reranking/semantic.reranker.js";
 
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
@@ -44,11 +46,16 @@ const graphEvidenceRetriever = new GraphEvidenceRetriever();
 
 const keywordRetriever = new KeywordRetriever(keywordIndex, memoryRepository);
 
+const fusion = new WeightedReciprocalRankFusion();
+const reranker = new SemanticReranker();
+
 export const hybridRetriever = new HybridRetriever(
   vectorRetriever,
   keywordRetriever,
   graphRetriever,
   graphEvidenceRetriever,
+  fusion,
+  reranker,
 );
 
 export const retrievalPipeline = new RetrievalPipeline(

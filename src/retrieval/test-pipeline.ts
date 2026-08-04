@@ -18,6 +18,8 @@ import { DuplicateDetector } from "./quality/duplicate/duplicate.detector.js";
 import { GraphRetriever } from "./graph/graph.retriever.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
+import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
+import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
 async function main() {
   const repository = new MemoryRepository();
@@ -33,14 +35,20 @@ async function main() {
 
   const graphRetriever = new GraphRetriever();
 
+  const fusion = new WeightedReciprocalRankFusion();
+  const semanticReranker = new SemanticReranker();
   const graphEvidenceRetriever = new GraphEvidenceRetriever();
-    
-    const hybridRetriever = new HybridRetriever(
-      vectorRetriever,
-      keywordRetriever,
-      graphRetriever,
-      graphEvidenceRetriever,
-    );
+
+ const hybridRetriever = new HybridRetriever(
+    vectorRetriever,
+    keywordRetriever,
+    graphRetriever,
+    graphEvidenceRetriever,
+    fusion,
+    semanticReranker,
+  );
+
+ 
 
   const reranker = new EmbeddingReranker();
 
