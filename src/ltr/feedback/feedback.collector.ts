@@ -1,6 +1,6 @@
 import { FeatureExtractor } from "../features/feature.extractor.js";
 
-import type { RetrievalResult } from "../../retrieval/types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 import { FeedbackService } from "./feedback.service.js";
 import { FeedbackType } from "./feedback.types.js";
