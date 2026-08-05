@@ -1,16 +1,7 @@
+import { DEFAULT_WEIGHTS } from "./model/default-weights.js";
 import { LinearModel } from "./model/linear.model.js";
 
-const model = new LinearModel({
-  semantic: 0.4,
-  bm25: 0.2,
-  importance: 0.1,
-  confidence: 0.1,
-  freshness: 0.05,
-  graphEvidence: 0.1,
-  accessCount: 0.02,
-  diversity: 0.03,
-  duplicatePenalty: -0.2,
-});
+const model = new LinearModel(DEFAULT_WEIGHTS);
 
 const memories = [
   {

@@ -10,4 +10,8 @@ export const DEFAULT_WEIGHTS: LinearWeights = {
   accessCount: 0.03,
   diversity: 0.02,
   duplicatePenalty: -0.10,
+
+  feedbackScore: 0.05,
+  retrievalFrequency: 0.03,
+  ageScore: 0.02,
 };

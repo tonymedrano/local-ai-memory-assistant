@@ -1,5 +1,6 @@
 import type { FeatureVector } from "../features/feature.types.js";
 import type { LinearWeights, StoredModel } from "../model/model.types.js";
+import { GradientOptimizer } from "./gradient.optimizer.js";
 import { LearningRate } from "./online.learning-rate.js";
 
 export class OnlineOptimizer {
@@ -25,15 +26,12 @@ export class OnlineOptimizer {
 
     const lr = this.learningRate.get(step);
 
-    const weights: LinearWeights = { ...model.weights };
-
-    (Object.keys(weights) as Array<keyof LinearWeights>).forEach((key) => {
-      const feature = features[key] ?? 0;
-
-      const updated = weights[key] + lr * error * feature;
-
-      weights[key] = this.clamp(updated);
-    });
+    const weights = GradientOptimizer.updateWeights(
+      model.weights,
+      features,
+      error,
+      lr,
+    );
 
     return {
       ...model,

@@ -1,9 +1,7 @@
 import { LinearModel } from "../model/linear.model.js";
+import type { LinearWeights } from "../model/model.types.js";
 
-import type {
-  TrainerOptions,
-  TrainingExample,
-} from "./trainer.types.js";
+import type { TrainerOptions, TrainingExample } from "./trainer.types.js";
 
 export class Trainer {
   private readonly learningRate: number;
@@ -26,12 +24,11 @@ export class Trainer {
       ...weights,
     };
 
-    for (const key of Object.keys(weights) as (keyof typeof weights)[]) {
-      updated[key] =
-        weights[key] +
-        this.learningRate *
-          error *
-          example.features[key];
+    for (const key of Object.keys(weights) as Array<keyof LinearWeights>) {
+      const weight = weights[key];
+      const feature = example.features[key] ?? 0;
+
+      updated[key] = weight + this.learningRate * error * feature;
     }
 
     this.model.setWeights(updated);

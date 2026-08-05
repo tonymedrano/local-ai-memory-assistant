@@ -54,7 +54,6 @@ export function createRetrievalPipeline() {
 
   const ltrRanker = new LTRRanker(
     new FeatureExtractor(),
-
     new LinearModel({
       semantic: 0.35,
       bm25: 0.2,
@@ -65,6 +64,10 @@ export function createRetrievalPipeline() {
       accessCount: 0.03,
       diversity: 0.02,
       duplicatePenalty: -0.1,
+
+      feedbackScore: 0,
+      retrievalFrequency: 0,
+      ageScore: 0,
     }),
   );
 

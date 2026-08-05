@@ -1,19 +1,10 @@
 import { LinearModel } from "../model/linear.model.js";
 import { LTRService } from "./ltr.service.js";
 import { FeatureExtractor } from "../features/feature.extractor.js";
+import { DEFAULT_WEIGHTS } from "../model/default-weights.js";
 
 
-const model = new LinearModel({
-  semantic: 0.49,
-  bm25: 0.38,
-  importance: 0.12,
-  confidence: 0.1,
-  freshness: 0.1,
-  graphEvidence: 0.1,
-  accessCount: 0.05,
-  diversity: 0.05,
-  duplicatePenalty: -0.2,
-});
+const model = new LinearModel(DEFAULT_WEIGHTS);
 
 
 const featureExtractor =

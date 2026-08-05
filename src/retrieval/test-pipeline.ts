@@ -55,21 +55,6 @@ async function main() {
 
   const reranker = new EmbeddingReranker();
 
-  /* const learningRanker = new LearningRanker(
-    new FeatureExtractor(),
-    new LinearModel({
-      semantic: 0.35,
-      bm25: 0.2,
-      importance: 0.15,
-      confidence: 0.1,
-      freshness: 0.1,
-      graphEvidence: 0.05,
-      accessCount: 0.03,
-      diversity: 0.02,
-      duplicatePenalty: -0.1,
-    }),
-  ); */
-
   const ltrRanker = new LTRRanker(
     new FeatureExtractor(),
     new LinearModel({
@@ -82,6 +67,10 @@ async function main() {
       accessCount: 0.03,
       diversity: 0.02,
       duplicatePenalty: -0.1,
+
+      feedbackScore: 0,
+      retrievalFrequency: 0,
+      ageScore: 0,
     }),
   );
 

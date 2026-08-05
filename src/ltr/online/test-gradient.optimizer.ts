@@ -2,8 +2,6 @@ import type { FeatureVector } from "../features/feature.types.js";
 import type { FeatureWeights } from "../model/feature-weights.js";
 import { GradientOptimizer } from "./gradient.optimizer.js";
 
-const optimizer = new GradientOptimizer(0.01);
-
 const weights: FeatureWeights = {
   semantic: 0.50,
   bm25: 0.20,
@@ -43,10 +41,11 @@ const error = reward - prediction;
 console.log("\n=== BEFORE ===");
 console.table(weights);
 
-const updated = optimizer.updateWeights(
-  weights,
+const updated = GradientOptimizer.updateWeights(
+   weights,
   features,
   error,
+  0.01,
 );
 
 console.log("\nError:", error.toFixed(4));

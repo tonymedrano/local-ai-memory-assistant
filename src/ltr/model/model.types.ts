@@ -1,5 +1,3 @@
-
-
 export interface LinearWeights {
   semantic: number;
   bm25: number;
@@ -10,6 +8,10 @@ export interface LinearWeights {
   accessCount: number;
   diversity: number;
   duplicatePenalty: number;
+
+  feedbackScore: number;
+  retrievalFrequency: number;
+  ageScore: number;
 }
 
 export interface StoredModel {
@@ -18,4 +20,3 @@ export interface StoredModel {
   samples: number;
   weights: LinearWeights;
 }
-

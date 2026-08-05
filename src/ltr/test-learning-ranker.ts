@@ -1,21 +1,12 @@
 import type { RetrievalResult } from "../retrieval/retrieval.types.js";
 import { FeatureExtractor } from "./features/feature.extractor.js";
+import { DEFAULT_WEIGHTS } from "./model/default-weights.js";
 import { LinearModel } from "./model/linear.model.js";
 import { LearningRanker } from "./ranking/learning.ranker.js";
 
 const extractor = new FeatureExtractor();
 
-const model = new LinearModel({
-  semantic: 0.35,
-  bm25: 0.2,
-  importance: 0.15,
-  confidence: 0.1,
-  freshness: 0.1,
-  graphEvidence: 0.05,
-  accessCount: 0.03,
-  diversity: 0.02,
-  duplicatePenalty: -0.1,
-});
+const model = new LinearModel(DEFAULT_WEIGHTS);
 
 const ranker = new LearningRanker(extractor, model);
 

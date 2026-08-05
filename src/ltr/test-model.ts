@@ -1,19 +1,10 @@
 import { FeatureExtractor } from "./features/feature.extractor.js";
+import { DEFAULT_WEIGHTS } from "./model/default-weights.js";
 import { LinearModel } from "./model/linear.model.js";
 
 const extractor = new FeatureExtractor();
 
-const model = new LinearModel({
-  semantic: 0.40,
-  bm25: 0.20,
-  importance: 0.10,
-  confidence: 0.10,
-  freshness: 0.05,
-  graphEvidence: 0.10,
-  accessCount: 0.02,
-  diversity: 0.03,
-  duplicatePenalty: -0.20,
-});
+const model = new LinearModel(DEFAULT_WEIGHTS);
 
 const ranked = extractor.extract({
   memory: {
@@ -41,7 +32,5 @@ console.table(ranked.features);
 const score = model.predict(ranked.features);
 
 console.log();
-
 console.log("Prediction");
-
 console.log(score);
