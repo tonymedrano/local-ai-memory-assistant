@@ -1,9 +1,9 @@
 {
   "version": 1,
   "trainedAt": "2026-08-04T16:03:11.076Z",
-  "samples": 44,
+  "samples": 47,
   "weights": {
-    "semantic": 0.514094,
+    "semantic": 0.5162403739362709,
     "bm25": 0.21252800000000002,
     "importance": 0.110962,
     "confidence": 0.112528,
