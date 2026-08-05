@@ -4,7 +4,7 @@ export enum FeedbackType {
   CLICK = "click",
   ACCEPT = "accept",
   REJECT = "reject",
-  IGNORE = "IGNORE",
+  IGNORE = "ignore",
 }
 
 export interface RankingFeedback {
