@@ -36,23 +36,32 @@ import { DEFAULT_WEIGHTS } from "../ltr/model/default-weights.js";
 import { ModelRepository } from "../ltr/model/model.repository.js";
 
 import { LearningRanker } from "../ltr/ranking/learning.ranker.js";
+import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
 
 import { FeedbackRepository } from "../ltr/feedback/feedback.repository.js";
+import { FeedbackService } from "../ltr/feedback/feedback.service.js";
+import { FeedbackCollector } from "../ltr/feedback/feedback.collector.js";
+import { FeedbackLearningService } from "../ltr/feedback/feedback.learning.service.js";
+
 import { TrainingService } from "../ltr/training/training.service.js";
 
-import { FeedbackCollector } from "../ltr/feedback/feedback.collector.js";
-import { FeedbackService } from "../ltr/feedback/feedback.service.js";
+import { LearningRate } from "../ltr/online/online.learning-rate.js";
+import { OnlineOptimizer } from "../ltr/online/online.optimizer.js";
+import { OnlineTrainer } from "../ltr/online/online.trainer.js";
+import { OnlineTrainingService } from "../ltr/online/online.training.service.js";
 
-import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
 
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
 export const dashboardService = new DashboardService(metricsService);
 
+
 export const learningRepository = new LearningRepository();
 export const learningService = new LearningService(learningRepository);
 
+
 export const memoryRepository = new MemoryRepository();
+
 
 export const keywordIndex = new KeywordIndex();
 
@@ -61,11 +70,18 @@ export const keywordIndexLoader = new KeywordIndexLoader(
   keywordIndex,
 );
 
+
 const embeddingService = new EmbeddingService();
 
-const vectorRetriever = new VectorRetriever(memoryRepository, embeddingService);
+const vectorRetriever = new VectorRetriever(
+  memoryRepository,
+  embeddingService,
+);
 
-const keywordRetriever = new KeywordRetriever(keywordIndex, memoryRepository);
+const keywordRetriever = new KeywordRetriever(
+  keywordIndex,
+  memoryRepository,
+);
 
 const graphRetriever = new GraphRetriever();
 
@@ -74,6 +90,7 @@ const graphEvidenceRetriever = new GraphEvidenceRetriever();
 const fusion = new WeightedReciprocalRankFusion();
 
 const semanticReranker = new SemanticReranker();
+
 
 export const hybridRetriever = new HybridRetriever(
   vectorRetriever,
@@ -84,9 +101,11 @@ export const hybridRetriever = new HybridRetriever(
   semanticReranker,
 );
 
+
 /* -------------------------------------------------------------------------- */
 /*                                    LTR                                     */
 /* -------------------------------------------------------------------------- */
+
 
 export const feedbackRepository = new FeedbackRepository();
 
@@ -98,45 +117,103 @@ const model = new LinearModel(
   storedModel?.weights ?? DEFAULT_WEIGHTS,
 );
 
+
 export const ltrRanker = new LTRRanker(
   new FeatureExtractor(),
   model,
 );
 
-export const learningRanker = new LearningRanker(new FeatureExtractor(), model);
 
-export const feedbackService = new FeedbackService(feedbackRepository);
+export const learningRanker =
+  new LearningRanker(
+    new FeatureExtractor(),
+    model,
+  );
 
-export const feedbackCollector = new FeedbackCollector(
-  feedbackService,
-  new FeatureExtractor(),
+
+/* -------------------------------------------------------------------------- */
+/*                           ONLINE TRAINING                                  */
+/* -------------------------------------------------------------------------- */
+
+
+const learningRate = new LearningRate();
+
+const onlineOptimizer = new OnlineOptimizer(
+  learningRate,
 );
 
-export const trainingService = new TrainingService(
-  feedbackRepository,
+const onlineTrainer = new OnlineTrainer(
   modelRepository,
+  onlineOptimizer,
 );
+
+export const onlineTrainingService =
+  new OnlineTrainingService(
+    onlineTrainer,
+  );
+
+
+/* -------------------------------------------------------------------------- */
+/*                                  FEEDBACK                                 */
+/* -------------------------------------------------------------------------- */
+
+
+export const feedbackService =
+  new FeedbackService(
+    feedbackRepository,
+  );
+
+
+export const feedbackLearningService =
+  new FeedbackLearningService(
+    feedbackService,
+    onlineTrainingService,
+  );
+
+
+export const feedbackCollector =
+  new FeedbackCollector(
+    feedbackLearningService,
+    new FeatureExtractor(),
+  );
+
+
+export const trainingService =
+  new TrainingService(
+    feedbackRepository,
+    modelRepository,
+  );
+
 
 /* -------------------------------------------------------------------------- */
 /*                              Retrieval Pipeline                            */
 /* -------------------------------------------------------------------------- */
 
-export const retrievalPipeline = new RetrievalPipeline(
-  hybridRetriever,
-  ltrRanker,
-  new EmbeddingReranker(),
-  new QualityScoringService(),
-  new DuplicateDetector(new TextSimilarityService()),
-  new DiversityService(new TextSimilarityService()),
-  metricsService,
- // learningRanker,
-  feedbackCollector,
-);
+
+export const retrievalPipeline =
+  new RetrievalPipeline(
+    hybridRetriever,
+    ltrRanker,
+    new EmbeddingReranker(),
+    new QualityScoringService(),
+    new DuplicateDetector(
+      new TextSimilarityService(),
+    ),
+    new DiversityService(
+      new TextSimilarityService(),
+    ),
+    metricsService,
+    feedbackCollector,
+  );
+
 
 /* -------------------------------------------------------------------------- */
+
 
 export async function initLearning() {
   await learningRepository.init();
 
-  console.log(`[Learning] Loaded ${learningRepository.getAll().length} events`);
+  console.log(
+    `[Learning] Loaded ${learningRepository.getAll().length} events`,
+  );
 }
