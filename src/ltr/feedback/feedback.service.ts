@@ -2,13 +2,9 @@ import { FeedbackType, type RankingFeedback } from "./feedback.types.js";
 import { FeedbackRepository } from "./feedback.repository.js";
 
 export class FeedbackService {
-  constructor(
-    private readonly repository: FeedbackRepository,
-  ) {}
+  constructor(private readonly repository: FeedbackRepository) {}
 
-  record(
-    input: Omit<RankingFeedback, "id" | "createdAt" | "signal">,
-  ) {
+  record(input: Omit<RankingFeedback, "id" | "createdAt" | "signal">) {
     return this.repository.save({
       ...input,
       signal: this.calculateSignal(input.type),
@@ -25,6 +21,9 @@ export class FeedbackService {
 
       case FeedbackType.REJECT:
         return -1;
+        
+      default:
+        return 0;
     }
   }
 }

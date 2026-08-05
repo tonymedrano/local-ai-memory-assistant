@@ -1,5 +1,4 @@
 import type { Memory } from "../../memory/memory.types.js";
-
 export interface RankedFeatures {
   memoryId: string;
   features: FeatureVector;
@@ -15,21 +14,17 @@ export interface FeatureMetrics {
   // LTR feedback signal
   feedbackScore?: number;
 }
-
 export interface TrainingExample {
   query: string;
   memoryId: string;
   features: FeatureVector;
   label: number;
 }
-
 export interface FeatureInput {
   memory: Memory;
   metrics?: FeatureMetrics;
 }
-
 export interface FeatureVector {
-
   semantic: number;
   bm25: number;
   importance: number;
@@ -45,7 +40,6 @@ export interface FeatureVector {
   retrievalFrequency?: number;
   ageScore?: number;
 }
-
 export interface LTRFeatures {
   // Retrieval
   vectorScore: number;
@@ -72,4 +66,13 @@ export interface LTRFeatures {
   // Penalties
   duplicatePenalty: number;
   redundancyPenalty: number;
+}
+export interface StoredFeature {
+  query: string;
+
+  memoryId: string;
+
+  features: FeatureVector;
+
+  createdAt: Date;
 }
