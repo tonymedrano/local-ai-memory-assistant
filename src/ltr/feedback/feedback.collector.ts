@@ -1,20 +1,18 @@
 import { FeatureExtractor } from "../features/feature.extractor.js";
-
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
-
-import { FeedbackService } from "./feedback.service.js";
 import { FeedbackType } from "./feedback.types.js";
+import type { FeedbackLearningService } from "./feedback.learning.service.js";
 
 export class FeedbackCollector {
   constructor(
-    private readonly feedbackService: FeedbackService,
+    private readonly feedbackService: FeedbackLearningService,
     private readonly featureExtractor: FeatureExtractor,
   ) {}
 
-  resultReturned(
+  async resultReturned(
     query: string,
     results: RetrievalResult[],
-  ): void {
+  ): Promise<void> {
     for (const result of results) {
       if (!result.memory.id) {
         continue;
@@ -31,7 +29,7 @@ export class FeedbackCollector {
         },
       });
 
-      this.feedbackService.record({
+      await this.feedbackService.record({
         query,
         memoryId: result.memory.id,
         type: FeedbackType.CLICK,
@@ -40,10 +38,7 @@ export class FeedbackCollector {
     }
   }
 
-  memorySelected(
-    query: string,
-    result: RetrievalResult,
-  ): void {
+  memorySelected(query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
@@ -58,10 +53,7 @@ export class FeedbackCollector {
     });
   }
 
-  contextUsed(
-    query: string,
-    result: RetrievalResult,
-  ): void {
+  contextUsed(query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
@@ -76,10 +68,7 @@ export class FeedbackCollector {
     });
   }
 
-  answerAccepted(
-    query: string,
-    result: RetrievalResult,
-  ): void {
+  answerAccepted(query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
@@ -94,10 +83,7 @@ export class FeedbackCollector {
     });
   }
 
-  answerRejected(
-    query: string,
-    result: RetrievalResult,
-  ): void {
+  answerRejected(query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }

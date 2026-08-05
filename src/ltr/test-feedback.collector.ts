@@ -1,17 +1,62 @@
 import { FeatureExtractor } from "./features/feature.extractor.js";
+
 import { FeedbackCollector } from "./feedback/feedback.collector.js";
 import { FeedbackRepository } from "./feedback/feedback.repository.js";
 import { FeedbackService } from "./feedback/feedback.service.js";
+import { FeedbackLearningService } from "./feedback/feedback.learning.service.js";
+
+import { ModelRepository } from "./model/model.repository.js";
+
+import { LearningRate } from "./online/online.learning-rate.js";
+import { OnlineOptimizer } from "./online/online.optimizer.js";
+import { OnlineTrainer } from "./online/online.trainer.js";
+import { OnlineTrainingService } from "./online/online.training.service.js";
 
 import type { RetrievalResult } from "../retrieval/types.js";
 
+
 const repository = new FeedbackRepository();
-const service = new FeedbackService(repository);
+
+const feedbackService = new FeedbackService(
+  repository,
+);
+
+
+// Online Training
+
+const modelRepository = new ModelRepository();
+
+const optimizer = new OnlineOptimizer(
+  new LearningRate(),
+);
+
+const trainer = new OnlineTrainer(
+  modelRepository,
+  optimizer,
+);
+
+const onlineTrainingService =
+  new OnlineTrainingService(
+    trainer,
+  );
+
+
+// Feedback Learning
+
+const feedbackLearningService =
+  new FeedbackLearningService(
+    feedbackService,
+    onlineTrainingService,
+  );
+
+
+// Collector
 
 const collector = new FeedbackCollector(
-  service,
+  feedbackLearningService,
   new FeatureExtractor(),
 );
+
 
 const result: RetrievalResult = {
   memory: {
@@ -39,6 +84,7 @@ const result: RetrievalResult = {
   source: "hybrid",
 };
 
+
 collector.resultReturned(
   "Angular",
   [result],
@@ -64,6 +110,7 @@ collector.answerRejected(
   result,
 );
 
+
 console.table(
   repository.findAll().map((item) => ({
     type: item.type,
@@ -73,4 +120,22 @@ console.table(
   })),
 );
 
-console.log("Stored:", repository.findAll().length);
+
+console.log(
+  "Stored:",
+  repository.findAll().length,
+);
+
+await new Promise(
+  resolve => setTimeout(resolve, 100)
+);
+
+const model = await modelRepository.load();
+
+if (!model) {
+  throw new Error("Model not found");
+}
+
+console.log("Model samples:", model.samples);
+
+console.table(model.weights);
