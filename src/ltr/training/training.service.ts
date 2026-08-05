@@ -11,8 +11,8 @@ export class TrainingService {
     private readonly modelRepository: ModelRepository,
   ) {}
 
-  train(): void {
-    const feedback = this.feedbackRepository.findAll();
+  async train(): Promise<void> {
+    const feedback = await this.feedbackRepository.findAll();
 
     const MIN_SAMPLES = 10;
 
