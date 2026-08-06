@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { StoredModel } from "./model.types.js";
+import { LinearModel } from "./linear.model.js";
+import type { StoredModel, LinearWeights } from "./model.types.js";
 
 export class ModelRepository {
   private static readonly FILE_PATH = path.join(
@@ -24,11 +25,23 @@ export class ModelRepository {
     return JSON.parse(content) as StoredModel;
   }
 
+  loadLinearModel(): LinearModel | null {
+    const stored = this.load();
+
+    if (!stored) {
+      return null;
+    }
+
+    return new LinearModel(stored.weights as LinearWeights);
+  }
+
   save(model: StoredModel): void {
     const directory = path.dirname(ModelRepository.FILE_PATH);
 
     if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, { recursive: true });
+      fs.mkdirSync(directory, {
+        recursive: true,
+      });
     }
 
     fs.writeFileSync(

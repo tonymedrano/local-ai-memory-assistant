@@ -1,0 +1,222 @@
+[
+  {
+    "id": "a1f58884-01ee-4ad3-91ed-8c5dc706711a",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "click",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 1,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 1
+    },
+    "signal": 0.5,
+    "createdAt": "2026-08-06T10:34:16.010Z"
+  },
+  {
+    "id": "0f2c790f-804a-4aaa-ae5e-97bf99734a83",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "click",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999365804
+    },
+    "signal": 0.5,
+    "createdAt": "2026-08-06T10:34:16.012Z"
+  },
+  {
+    "id": "1e3f2909-ec51-4ce1-a00f-a1757f92e036",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "accept",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999365804
+    },
+    "signal": 1,
+    "createdAt": "2026-08-06T10:34:16.012Z"
+  },
+  {
+    "id": "58f25099-f1ce-4e29-aff7-50fc75d6d5e9",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "accept",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999365804
+    },
+    "signal": 1,
+    "createdAt": "2026-08-06T10:34:16.012Z"
+  },
+  {
+    "id": "5ee6ee57-a5d4-4e41-b309-2c8e75bbfde2",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "reject",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999365804
+    },
+    "signal": -1,
+    "createdAt": "2026-08-06T10:34:16.012Z"
+  },
+  {
+    "id": "c33b5305-fe1f-41e4-8626-3e8ce711e3db",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "click",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 1,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999682903
+    },
+    "signal": 0.5,
+    "createdAt": "2026-08-06T10:38:54.000Z"
+  },
+  {
+    "id": "4bedff7a-9861-4511-b50c-244075222e82",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "click",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999048707
+    },
+    "signal": 0.5,
+    "createdAt": "2026-08-06T10:38:54.001Z"
+  },
+  {
+    "id": "4811060b-8014-4b3f-b126-a70cea3d22a9",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "accept",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999048707
+    },
+    "signal": 1,
+    "createdAt": "2026-08-06T10:38:54.001Z"
+  },
+  {
+    "id": "499fab4c-1c66-4bc9-a516-6f0f730ef1a1",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "accept",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999048707
+    },
+    "signal": 1,
+    "createdAt": "2026-08-06T10:38:54.001Z"
+  },
+  {
+    "id": "30da6ac0-e7d3-4cf2-bb09-9432ddb2adea",
+    "query": "Angular",
+    "memoryId": "A",
+    "type": "reject",
+    "features": {
+      "semantic": 0.91,
+      "bm25": 0.72,
+      "importance": 0.9,
+      "confidence": 0.8,
+      "freshness": 0.9999999999365804,
+      "graphEvidence": 0.55,
+      "accessCount": 0.4013152602464483,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 1,
+      "ageScore": 0.9999999999048707
+    },
+    "signal": -1,
+    "createdAt": "2026-08-06T10:38:54.001Z"
+  }
+]
