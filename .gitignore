@@ -144,6 +144,7 @@ vite.config.ts.timestamp-*
 
 # Qdrant data
 data/qdrant/
+data/ltr/evaluation-result.json
 
 # Docker volumes
 *.db

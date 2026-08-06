@@ -16,3 +16,23 @@ export interface EvaluationSummary {
   mrr: number;
   ndcgAtK: number;
 }
+
+export interface EvaluationLabel {
+  memoryId: string;
+
+  label: number;
+}
+
+export interface EvaluationSample {
+  query: string;
+
+  expected: EvaluationLabel[];
+}
+
+export interface EvaluationDataset {
+  version: number;
+
+  createdAt: string;
+
+  samples: EvaluationSample[];
+}

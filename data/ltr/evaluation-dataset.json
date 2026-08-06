@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "createdAt": "2026-08-06T00:00:00Z",
+  "samples": [
+    {
+      "query": "angular signals",
+      "expected": [
+        {
+          "memoryId": "memory-angular",
+          "label": 1
+        }
+      ]
+    }
+  ]
+}
