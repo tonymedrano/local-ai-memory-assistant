@@ -17,9 +17,9 @@ import type { MetricsService } from "../../metrics/metrics.service.js";
 
 import type { FeedbackCollector } from "../../ltr/index.js";
 
-import type { LearningRanker } from "../../ltr/index.js";
-
 import type { LTRRanker } from "../../ltr/ranking/ltr.ranker.js";
+
+import type { FeedbackDrivenReranker } from "../../ltr/feedback/feedback-driven.reranker.js";
 
 export class RetrievalPipeline {
   constructor(
@@ -31,7 +31,7 @@ export class RetrievalPipeline {
     private readonly diversityService: DiversityService,
     private readonly metricsService?: MetricsService,
     private readonly feedbackCollector?: FeedbackCollector,
-    private readonly learningRanker?: LearningRanker,
+    private readonly feedbackReranker?: FeedbackDrivenReranker,
   ) {}
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
@@ -51,12 +51,28 @@ export class RetrievalPipeline {
       Promise.resolve(this.ltrRanker.rank(request.query, candidates)),
     );
 
-    const ltrCandidates = ltrRanked.map(({ result, score }) => ({
+    // 3. Feedback Driven Reranking
+
+    const feedbackRanked = await profiler.trace("Feedback Reranking", () =>
+      this.feedbackReranker
+        ? this.feedbackReranker.rerank(request.query, ltrRanked)
+        : Promise.resolve(
+            ltrRanked.map((item) => ({
+              result: item.result,
+              score: item.score,
+              feedbackBoost: 0,
+            })),
+          ),
+    );
+
+    // Adaptación al formato actual
+
+    const ltrCandidates = feedbackRanked.map(({ result, score }) => ({
       ...result,
       score,
     }));
 
-    // 3. Reranking
+    // 4. Reranking
 
     const ranked = await profiler.trace("Reranking", () =>
       this.reranker.rerank(request.query, ltrCandidates),

@@ -49,19 +49,17 @@ import { LearningRate } from "../ltr/online/online.learning-rate.js";
 import { OnlineOptimizer } from "../ltr/online/online.optimizer.js";
 import { OnlineTrainer } from "../ltr/online/online.trainer.js";
 import { OnlineTrainingService } from "../ltr/online/online.training.service.js";
-
+import { PersistentLTRModelProvider } from "../ltr/model/ltr.model.provider.js";
+import { FeedbackDrivenReranker } from "../ltr/feedback/feedback-driven.reranker.js";
 
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
 export const dashboardService = new DashboardService(metricsService);
 
-
 export const learningRepository = new LearningRepository();
 export const learningService = new LearningService(learningRepository);
 
-
 export const memoryRepository = new MemoryRepository();
-
 
 export const keywordIndex = new KeywordIndex();
 
@@ -70,18 +68,11 @@ export const keywordIndexLoader = new KeywordIndexLoader(
   keywordIndex,
 );
 
-
 const embeddingService = new EmbeddingService();
 
-const vectorRetriever = new VectorRetriever(
-  memoryRepository,
-  embeddingService,
-);
+const vectorRetriever = new VectorRetriever(memoryRepository, embeddingService);
 
-const keywordRetriever = new KeywordRetriever(
-  keywordIndex,
-  memoryRepository,
-);
+const keywordRetriever = new KeywordRetriever(keywordIndex, memoryRepository);
 
 const graphRetriever = new GraphRetriever();
 
@@ -90,7 +81,6 @@ const graphEvidenceRetriever = new GraphEvidenceRetriever();
 const fusion = new WeightedReciprocalRankFusion();
 
 const semanticReranker = new SemanticReranker();
-
 
 export const hybridRetriever = new HybridRetriever(
   vectorRetriever,
@@ -101,119 +91,86 @@ export const hybridRetriever = new HybridRetriever(
   semanticReranker,
 );
 
-
 /* -------------------------------------------------------------------------- */
 /*                                    LTR                                     */
 /* -------------------------------------------------------------------------- */
-
 
 export const feedbackRepository = new FeedbackRepository();
 
 export const modelRepository = new ModelRepository();
 
-const storedModel = modelRepository.load();
-
-const model = new LinearModel(
-  storedModel?.weights ?? DEFAULT_WEIGHTS,
-);
-
+export const ltrModelProvider = new PersistentLTRModelProvider(modelRepository);
 
 export const ltrRanker = new LTRRanker(
   new FeatureExtractor(),
-  model,
+  ltrModelProvider,
 );
 
+// LearningRanker todavía trabaja con modelo directo
+const storedModel = modelRepository.load();
 
-export const learningRanker =
-  new LearningRanker(
-    new FeatureExtractor(),
-    model,
-  );
+const model = new LinearModel(storedModel?.weights ?? DEFAULT_WEIGHTS);
 
+export const learningRanker = new LearningRanker(new FeatureExtractor(), model);
 
 /* -------------------------------------------------------------------------- */
 /*                           ONLINE TRAINING                                  */
 /* -------------------------------------------------------------------------- */
 
-
 const learningRate = new LearningRate();
 
-const onlineOptimizer = new OnlineOptimizer(
-  learningRate,
-);
+const onlineOptimizer = new OnlineOptimizer(learningRate);
 
-const onlineTrainer = new OnlineTrainer(
-  modelRepository,
-  onlineOptimizer,
-);
+const onlineTrainer = new OnlineTrainer(modelRepository, onlineOptimizer);
 
-export const onlineTrainingService =
-  new OnlineTrainingService(
-    onlineTrainer,
-  );
-
+export const onlineTrainingService = new OnlineTrainingService(onlineTrainer);
 
 /* -------------------------------------------------------------------------- */
 /*                                  FEEDBACK                                 */
 /* -------------------------------------------------------------------------- */
 
+export const feedbackService = new FeedbackService(feedbackRepository);
 
-export const feedbackService =
-  new FeedbackService(
+export const feedbackLearningService = new FeedbackLearningService(
+  feedbackService,
+  onlineTrainingService,
+);
+
+export const feedbackCollector = new FeedbackCollector(
+  feedbackLearningService,
+  new FeatureExtractor(),
+);
+
+export const feedbackDrivenReranker =
+  new FeedbackDrivenReranker(
     feedbackRepository,
   );
 
-
-export const feedbackLearningService =
-  new FeedbackLearningService(
-    feedbackService,
-    onlineTrainingService,
-  );
-
-
-export const feedbackCollector =
-  new FeedbackCollector(
-    feedbackLearningService,
-    new FeatureExtractor(),
-  );
-
-
-export const trainingService =
-  new TrainingService(
-    feedbackRepository,
-    modelRepository,
-  );
-
+export const trainingService = new TrainingService(
+  feedbackRepository,
+  modelRepository,
+);
 
 /* -------------------------------------------------------------------------- */
 /*                              Retrieval Pipeline                            */
 /* -------------------------------------------------------------------------- */
 
-
-export const retrievalPipeline =
-  new RetrievalPipeline(
-    hybridRetriever,
-    ltrRanker,
-    new EmbeddingReranker(),
-    new QualityScoringService(),
-    new DuplicateDetector(
-      new TextSimilarityService(),
-    ),
-    new DiversityService(
-      new TextSimilarityService(),
-    ),
-    metricsService,
-    feedbackCollector,
-  );
-
+export const retrievalPipeline = new RetrievalPipeline(
+  hybridRetriever,
+  ltrRanker,
+  new EmbeddingReranker(),
+  new QualityScoringService(),
+  new DuplicateDetector(new TextSimilarityService()),
+  new DiversityService(new TextSimilarityService()),
+  metricsService,
+  feedbackCollector,
+  feedbackDrivenReranker,
+);
 
 /* -------------------------------------------------------------------------- */
-
 
 export async function initLearning() {
   await learningRepository.init();
 
-  console.log(
-    `[Learning] Loaded ${learningRepository.getAll().length} events`,
-  );
+  console.log(`[Learning] Loaded ${learningRepository.getAll().length} events`);
 }

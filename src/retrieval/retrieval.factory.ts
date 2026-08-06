@@ -14,14 +14,18 @@ import { TextSimilarityService } from "./quality/text-similarity.service.js";
 import { KeywordIndex } from "./index/keyword.index.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
+
 import { GraphRetriever } from "./graph/graph.retriever.js";
 import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
+
 import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
 import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
-import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
 import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
-import { LinearModel } from "../ltr/model/linear.model.js";
+import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
+
+import { ModelRepository } from "../ltr/model/model.repository.js";
+import { PersistentLTRModelProvider } from "../ltr/model/ltr.model.provider.js";
 
 export function createRetrievalPipeline() {
   const repository = new MemoryRepository();
@@ -37,11 +41,11 @@ export function createRetrievalPipeline() {
 
   const graphRetriever = new GraphRetriever();
 
+  const graphEvidenceRetriever = new GraphEvidenceRetriever();
+
   const fusion = new WeightedReciprocalRankFusion();
 
   const semanticReranker = new SemanticReranker();
-
-  const graphEvidenceRetriever = new GraphEvidenceRetriever();
 
   const hybridRetriever = new HybridRetriever(
     vectorRetriever,
@@ -52,24 +56,24 @@ export function createRetrievalPipeline() {
     semanticReranker,
   );
 
-  const ltrRanker = new LTRRanker(
-    new FeatureExtractor(),
-    new LinearModel({
-      semantic: 0.35,
-      bm25: 0.2,
-      importance: 0.15,
-      confidence: 0.1,
-      freshness: 0.1,
-      graphEvidence: 0.05,
-      accessCount: 0.03,
-      diversity: 0.02,
-      duplicatePenalty: -0.1,
+  /*
+   * --------------------------------------------------------------------------
+   * LTR
+   * --------------------------------------------------------------------------
+   *
+   * LTRRanker ya no recibe un LinearModel directamente.
+   * Usa un provider que carga el modelo actual desde ModelRepository.
+   *
+   * Esto permite que Online Learning actualice los pesos sin reiniciar
+   * el servicio.
+   *
+   */
 
-      feedbackScore: 0,
-      retrievalFrequency: 0,
-      ageScore: 0,
-    }),
-  );
+  const modelRepository = new ModelRepository();
+
+  const modelProvider = new PersistentLTRModelProvider(modelRepository);
+
+  const ltrRanker = new LTRRanker(new FeatureExtractor(), modelProvider);
 
   return new RetrievalPipeline(
     hybridRetriever,

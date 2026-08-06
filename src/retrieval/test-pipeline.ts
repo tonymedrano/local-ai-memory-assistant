@@ -23,7 +23,10 @@ import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
 import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
 import { LinearModel } from "../ltr/model/linear.model.js";
-import { LearningRanker } from "../ltr/ranking/learning.ranker.js";
+
+import type { LTRModel } from "../ltr/training/ltr.model.js";
+import type { FeatureVector } from "../ltr/features/feature.types.js";
+import type { LTRModelProvider } from "../ltr/model/ltr.model.provider.interface.js";
 import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
 
 async function main() {
@@ -54,25 +57,47 @@ async function main() {
   );
 
   const reranker = new EmbeddingReranker();
+  const mockModel: LTRModel = {
+    predict(features: FeatureVector): number {
+      return (
+        features.semantic * 0.35 +
+        features.bm25 * 0.2 +
+        features.importance * 0.15 +
+        features.confidence * 0.1 +
+        features.freshness * 0.1 +
+        features.graphEvidence * 0.05 +
+        features.accessCount * 0.03 +
+        features.diversity * 0.02 +
+        features.duplicatePenalty * -0.1
+      );
+    },
 
-  const ltrRanker = new LTRRanker(
-    new FeatureExtractor(),
-    new LinearModel({
-      semantic: 0.35,
-      bm25: 0.2,
-      importance: 0.15,
-      confidence: 0.1,
-      freshness: 0.1,
-      graphEvidence: 0.05,
-      accessCount: 0.03,
-      diversity: 0.02,
-      duplicatePenalty: -0.1,
+    getWeights() {
+      return {
+        semantic: 0.35,
+        bm25: 0.2,
+        importance: 0.15,
+        confidence: 0.1,
+        freshness: 0.1,
+        graphEvidence: 0.05,
+        accessCount: 0.03,
+        diversity: 0.02,
+        duplicatePenalty: -0.1,
 
-      feedbackScore: 0,
-      retrievalFrequency: 0,
-      ageScore: 0,
-    }),
-  );
+        feedbackScore: 0,
+        retrievalFrequency: 0,
+        ageScore: 0,
+      };
+    },
+  };
+
+  const mockModelProvider: LTRModelProvider = {
+    getModel() {
+      return mockModel;
+    },
+  };
+
+  const ltrRanker = new LTRRanker(new FeatureExtractor(), mockModelProvider);
 
   const pipeline = new RetrievalPipeline(
     hybridRetriever,

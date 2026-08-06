@@ -218,5 +218,27 @@
     },
     "signal": -1,
     "createdAt": "2026-08-06T10:38:54.001Z"
+  },
+  {
+    "id": "3c46aa02-92bb-457d-8542-ce8def3bde22",
+    "query": "Angular Native Federation",
+    "memoryId": "memory-federation",
+    "type": "accept",
+    "signal": 0.25,
+    "features": {
+      "semantic": 0.8,
+      "bm25": 0.7,
+      "importance": 0.8,
+      "confidence": 0.8,
+      "freshness": 1,
+      "graphEvidence": 0.5,
+      "accessCount": 10,
+      "diversity": 1,
+      "duplicatePenalty": 0,
+      "feedbackScore": 0,
+      "retrievalFrequency": 0,
+      "ageScore": 1
+    },
+    "createdAt": "2026-08-06T11:34:47.693Z"
   }
 ]

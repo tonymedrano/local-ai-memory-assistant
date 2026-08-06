@@ -4,6 +4,7 @@ import { FeatureExtractor } from "../features/feature.extractor.js";
 import type { LTRModel } from "../training/ltr.model.js";
 import type { FeatureVector } from "../features/feature.types.js";
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
+import type { LTRModelProvider } from "../model/ltr.model.provider.interface.js";
 
 const mockModel: LTRModel = {
   predict(features: FeatureVector): number {
@@ -23,7 +24,17 @@ const mockModel: LTRModel = {
   },
 };
 
-const ranker = new LTRRanker(new FeatureExtractor(), mockModel);
+const mockModelProvider: LTRModelProvider = {
+  getModel() {
+    return mockModel;
+  },
+};
+
+
+const ranker = new LTRRanker(
+  new FeatureExtractor(),
+  mockModelProvider,
+);
 
 const results: RetrievalResult[] = [
   {
