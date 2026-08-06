@@ -18,21 +18,20 @@ import type { MetricsService } from "../../metrics/metrics.service.js";
 import type { FeedbackCollector } from "../../ltr/index.js";
 
 import type { LTRRanker } from "../../ltr/ranking/ltr.ranker.js";
-
 import type { FeedbackDrivenReranker } from "../../ltr/feedback/feedback-driven.reranker.js";
 
 export class RetrievalPipeline {
   constructor(
-    private readonly hybridRetriever: HybridRetriever,
-    private readonly ltrRanker: LTRRanker,
-    private readonly reranker: Reranker,
-    private readonly qualityScoring: QualityScoringService,
-    private readonly duplicateDetector: DuplicateDetector,
-    private readonly diversityService: DiversityService,
-    private readonly metricsService?: MetricsService,
-    private readonly feedbackCollector?: FeedbackCollector,
-    private readonly feedbackReranker?: FeedbackDrivenReranker,
-  ) {}
+  private readonly hybridRetriever: HybridRetriever,
+  private readonly ltrRanker: LTRRanker,
+  private readonly reranker: Reranker,
+  private readonly qualityScoring: QualityScoringService,
+  private readonly duplicateDetector: DuplicateDetector,
+  private readonly diversityService: DiversityService,
+  private readonly metricsService?: MetricsService,
+  private readonly feedbackCollector?: FeedbackCollector,
+  private readonly feedbackReranker?: FeedbackDrivenReranker,
+) {}
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
     const start = Date.now();
@@ -45,37 +44,35 @@ export class RetrievalPipeline {
       this.hybridRetriever.search(request.query),
     );
 
-    // 2. LTR Ranking
+    // 2. Ranking (Baseline / LTR)
 
-    const ltrRanked = await profiler.trace("LTR Ranking", () =>
-      Promise.resolve(this.ltrRanker.rank(request.query, candidates)),
-    );
+    let rankedCandidates;
 
-    // 3. Feedback Driven Reranking
+    if (request.options?.useLTR === false) {
+      // ==========================
+      // BASELINE
+      // ==========================
 
-    const feedbackRanked = await profiler.trace("Feedback Reranking", () =>
-      this.feedbackReranker
-        ? this.feedbackReranker.rerank(request.query, ltrRanked)
-        : Promise.resolve(
-            ltrRanked.map((item) => ({
-              result: item.result,
-              score: item.score,
-              feedbackBoost: 0,
-            })),
-          ),
-    );
+      rankedCandidates = candidates;
+    } else {
+      // ==========================
+      // LTR
+      // ==========================
 
-    // Adaptación al formato actual
+      const ltrRanked = await profiler.trace("LTR Ranking", () =>
+        Promise.resolve(this.ltrRanker.rank(request.query, candidates)),
+      );
 
-    const ltrCandidates = feedbackRanked.map(({ result, score }) => ({
-      ...result,
-      score,
-    }));
+      rankedCandidates = ltrRanked.map(({ result, score }) => ({
+        ...result,
+        score,
+      }));
+    }
 
-    // 4. Reranking
+    // 3. Reranking
 
     const ranked = await profiler.trace("Reranking", () =>
-      this.reranker.rerank(request.query, ltrCandidates),
+      this.reranker.rerank(request.query, rankedCandidates),
     );
 
     // 4. Quality scoring
@@ -92,7 +89,7 @@ export class RetrievalPipeline {
 
     // 6. Diversity
 
-    let finalResults = await profiler.trace("Diversity Filtering", () =>
+    const finalResults = await profiler.trace("Diversity Filtering", () =>
       this.diversityService.filter(unique.results, request.limit ?? 5),
     );
 

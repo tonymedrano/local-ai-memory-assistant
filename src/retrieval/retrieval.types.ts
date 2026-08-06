@@ -4,8 +4,13 @@ import type { Memory } from "../memory/memory.types.js";
 
 export interface RetrievalRequest {
   query: string;
-  project?: string;
   limit?: number;
+  options?: RetrievalOptions;
+}
+
+export interface RetrievalOptions {
+  useLTR?: boolean;
+  useFeedback?: boolean;
 }
 
 export interface RetrievalPipelineResult {
@@ -30,12 +35,12 @@ export type RetrievalSource =
   | "hybrid";
 
 export interface RetrievalResult {
-    memory: Memory;
-    score: number;
-    source: RetrievalSource;
-    semanticScore?: number;
-    keywordScore?: number;
-    graphScore?: number;
-    diversityScore?: number;
-    duplicatePenalty?: number;
+  memory: Memory;
+  score: number;
+  source: RetrievalSource;
+  semanticScore?: number;
+  keywordScore?: number;
+  graphScore?: number;
+  diversityScore?: number;
+  duplicatePenalty?: number;
 }
