@@ -22,16 +22,16 @@ import type { FeedbackDrivenReranker } from "../../ltr/feedback/feedback-driven.
 
 export class RetrievalPipeline {
   constructor(
-  private readonly hybridRetriever: HybridRetriever,
-  private readonly ltrRanker: LTRRanker,
-  private readonly reranker: Reranker,
-  private readonly qualityScoring: QualityScoringService,
-  private readonly duplicateDetector: DuplicateDetector,
-  private readonly diversityService: DiversityService,
-  private readonly metricsService?: MetricsService,
-  private readonly feedbackCollector?: FeedbackCollector,
-  private readonly feedbackReranker?: FeedbackDrivenReranker,
-) {}
+    private readonly hybridRetriever: HybridRetriever,
+    private readonly ltrRanker: LTRRanker,
+    private readonly reranker: Reranker,
+    private readonly qualityScoring: QualityScoringService,
+    private readonly duplicateDetector: DuplicateDetector,
+    private readonly diversityService: DiversityService,
+    private readonly metricsService?: MetricsService,
+    private readonly feedbackCollector?: FeedbackCollector,
+    private readonly feedbackReranker?: FeedbackDrivenReranker,
+  ) {}
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
     const start = Date.now();
@@ -67,12 +67,37 @@ export class RetrievalPipeline {
         ...result,
         score,
       }));
-    }
 
+      // TEMPORARY - Debugging
+      console.table(
+        rankedCandidates.map((item) => ({
+          id: item.memory?.id,
+          score: item.score,
+        })),
+      );
+    }
     // 3. Reranking
 
     const ranked = await profiler.trace("Reranking", () =>
       this.reranker.rerank(request.query, rankedCandidates),
+    );
+
+    console.log("\n=== BEFORE EMBEDDING RERANKER ===");
+
+    console.table(
+      rankedCandidates.map((item) => ({
+        id: item.memory?.id,
+        score: item.score,
+      })),
+    );
+
+    console.log("\n=== AFTER EMBEDDING RERANKER ===");
+
+    console.table(
+      ranked.map((item) => ({
+        id: item.memory?.id,
+        score: item.score,
+      })),
     );
 
     // 4. Quality scoring

@@ -16,7 +16,9 @@ export class BaselineRunner {
 
     return {
       query,
-      results: result.memories.map((m) => m.memory.id),
+      results: result.memories
+        .map((m) => m.memory.id)
+        .filter((id): id is string => Boolean(id)),
       elapsedMs: Date.now() - start,
     };
   }
