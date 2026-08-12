@@ -32,7 +32,12 @@ export class HybridRetriever {
         this.graphEvidence.search(expandedQuery),
       ]);
 
-    const fused = this.fusion.fuse(vectorResults, keywordResults, graphResults, evidenceResults);
+    const fused = this.fusion.fuse(
+      vectorResults,
+      keywordResults,
+      graphResults,
+      evidenceResults,
+    );
 
     return this.reranker.rerank(
       fused,

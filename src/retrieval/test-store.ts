@@ -3,9 +3,7 @@ import { keywordIndex } from "./index/keyword.index.instance.js";
 
 await store({
   text: "Angular uses TypeScript for frontend development",
-  type: "technology"
+  type: "technology",
 } as any);
 
-console.log(
-  keywordIndex.search("Angular")
-);
+console.log(keywordIndex.search("Angular"));

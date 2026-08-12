@@ -1,7 +1,9 @@
 import type { RetrievalPipeline } from "../../retrieval/pipeline/retrieval.pipeline.js";
 
 export class BaselineRunner {
-  constructor(private readonly pipeline: RetrievalPipeline) {}
+  constructor(
+    private readonly pipeline: RetrievalPipeline,
+  ) {}
 
   async run(query: string) {
     const start = Date.now();
@@ -18,7 +20,9 @@ export class BaselineRunner {
       query,
       results: result.memories
         .map((m) => m.memory.id)
-        .filter((id): id is string => Boolean(id)),
+        .filter(
+          (id): id is string => Boolean(id),
+        ),
       elapsedMs: Date.now() - start,
     };
   }

@@ -11,7 +11,6 @@ import { DuplicateDetector } from "./quality/duplicate/duplicate.detector.js";
 import { DiversityService } from "./quality/diversity.service.js";
 import { TextSimilarityService } from "./quality/text-similarity.service.js";
 
-import { KeywordIndex } from "./index/keyword.index.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import { EmbeddingService } from "../embedding/embedding.service.js";
 
@@ -27,10 +26,10 @@ import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
 import { ModelRepository } from "../ltr/model/model.repository.js";
 import { PersistentLTRModelProvider } from "../ltr/model/ltr.model.provider.js";
 
+import { keywordIndex } from "./index/keyword.index.instance.js";
+
 export function createRetrievalPipeline() {
   const repository = new MemoryRepository();
-
-  const keywordIndex = new KeywordIndex();
 
   const keywordRetriever = new KeywordRetriever(keywordIndex, repository);
 
@@ -55,19 +54,6 @@ export function createRetrievalPipeline() {
     fusion,
     semanticReranker,
   );
-
-  /*
-   * --------------------------------------------------------------------------
-   * LTR
-   * --------------------------------------------------------------------------
-   *
-   * LTRRanker ya no recibe un LinearModel directamente.
-   * Usa un provider que carga el modelo actual desde ModelRepository.
-   *
-   * Esto permite que Online Learning actualice los pesos sin reiniciar
-   * el servicio.
-   *
-   */
 
   const modelRepository = new ModelRepository();
 

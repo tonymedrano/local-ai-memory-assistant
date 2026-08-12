@@ -18,6 +18,7 @@ import type { MetricsService } from "../../metrics/metrics.service.js";
 import type { FeedbackCollector } from "../../ltr/index.js";
 
 import type { LTRRanker } from "../../ltr/ranking/ltr.ranker.js";
+
 import type { FeedbackDrivenReranker } from "../../ltr/feedback/feedback-driven.reranker.js";
 
 export class RetrievalPipeline {
@@ -33,16 +34,27 @@ export class RetrievalPipeline {
     private readonly feedbackReranker?: FeedbackDrivenReranker,
   ) {}
 
-  async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
+  async retrieve(
+    request: RetrievalRequest,
+  ): Promise<RetrievalPipelineResult> {
     const start = Date.now();
 
     const profiler = new Profiler();
 
     // 1. Hybrid Retrieval
 
-    const candidates = await profiler.trace("Hybrid Retrieval", () =>
-      this.hybridRetriever.search(request.query),
+    const candidates = await profiler.trace(
+      "Hybrid Retrieval",
+      () => this.hybridRetriever.search(request.query),
     );
+
+    // 1.1 Strategy candidate limiting
+
+    const candidateLimit =
+      request.options?.strategy?.candidateLimit ??
+      candidates.length;
+
+    const limitedCandidates = candidates.slice(0, candidateLimit);
 
     // 2. Ranking (Baseline / LTR)
 
@@ -53,14 +65,21 @@ export class RetrievalPipeline {
       // BASELINE
       // ==========================
 
-      rankedCandidates = candidates;
+      rankedCandidates = limitedCandidates;
     } else {
       // ==========================
       // LTR
       // ==========================
 
-      const ltrRanked = await profiler.trace("LTR Ranking", () =>
-        Promise.resolve(this.ltrRanker.rank(request.query, candidates)),
+      const ltrRanked = await profiler.trace(
+        "LTR Ranking",
+        () =>
+          Promise.resolve(
+            this.ltrRanker.rank(
+              request.query,
+              limitedCandidates,
+            ),
+          ),
       );
 
       rankedCandidates = ltrRanked.map(({ result, score }) => ({
@@ -76,10 +95,16 @@ export class RetrievalPipeline {
         })),
       );
     }
+
     // 3. Reranking
 
-    const ranked = await profiler.trace("Reranking", () =>
-      this.reranker.rerank(request.query, rankedCandidates),
+    const ranked = await profiler.trace(
+      "Reranking",
+      () =>
+        this.reranker.rerank(
+          request.query,
+          rankedCandidates,
+        ),
     );
 
     console.log("\n=== BEFORE EMBEDDING RERANKER ===");
@@ -102,25 +127,38 @@ export class RetrievalPipeline {
 
     // 4. Quality scoring
 
-    const qualityRanked = await profiler.trace("Quality Scoring", () =>
-      this.qualityScoring.score(ranked),
+    const qualityRanked = await profiler.trace(
+      "Quality Scoring",
+      () => this.qualityScoring.score(ranked),
     );
 
     // 5. Duplicate detection
 
-    const unique = await profiler.trace("Duplicate Detection", () =>
-      this.duplicateDetector.removeDuplicates(qualityRanked),
+    const unique = await profiler.trace(
+      "Duplicate Detection",
+      () =>
+        this.duplicateDetector.removeDuplicates(
+          qualityRanked,
+        ),
     );
 
     // 6. Diversity
 
-    const finalResults = await profiler.trace("Diversity Filtering", () =>
-      this.diversityService.filter(unique.results, request.limit ?? 5),
+    const finalResults = await profiler.trace(
+      "Diversity Filtering",
+      () =>
+        this.diversityService.filter(
+          unique.results,
+          request.limit ?? 5,
+        ),
     );
 
     // Feedback collection
 
-    this.feedbackCollector?.resultReturned(request.query, finalResults);
+    this.feedbackCollector?.resultReturned(
+      request.query,
+      finalResults,
+    );
 
     console.table(profiler.summary());
 
@@ -139,15 +177,21 @@ export class RetrievalPipeline {
 
       quality: {
         averageScore: this.average(
-          finalResults.map((item) => item.qualityScore.finalScore),
+          finalResults.map(
+            (item) => item.qualityScore.finalScore,
+          ),
         ),
 
         averageRelevance: this.average(
-          finalResults.map((item) => item.qualityScore.relevance),
+          finalResults.map(
+            (item) => item.qualityScore.relevance,
+          ),
         ),
 
         averageConfidence: this.average(
-          finalResults.map((item) => item.qualityScore.confidence),
+          finalResults.map(
+            (item) => item.qualityScore.confidence,
+          ),
         ),
 
         duplicatesRemoved: unique.duplicatesRemoved,
@@ -156,8 +200,13 @@ export class RetrievalPipeline {
   }
 
   private average(values: number[]): number {
-    if (values.length === 0) return 0;
+    if (values.length === 0) {
+      return 0;
+    }
 
-    return values.reduce((a, b) => a + b, 0) / values.length;
+    return (
+      values.reduce((a, b) => a + b, 0) /
+      values.length
+    );
   }
 }

@@ -51,6 +51,7 @@ import { OnlineTrainer } from "../ltr/online/online.trainer.js";
 import { OnlineTrainingService } from "../ltr/online/online.training.service.js";
 import { PersistentLTRModelProvider } from "../ltr/model/ltr.model.provider.js";
 import { FeedbackDrivenReranker } from "../ltr/feedback/feedback-driven.reranker.js";
+import { createMemoryService } from "../memory/memory.service.js";
 
 export const metricsRepository = new InMemoryMetricsRepository();
 export const metricsService = new MetricsService(metricsRepository);
@@ -174,3 +175,11 @@ export async function initLearning() {
 
   console.log(`[Learning] Loaded ${learningRepository.getAll().length} events`);
 }
+
+const memoryService = createMemoryService(
+  memoryRepository,
+  keywordIndex,
+);
+
+export const store = memoryService.store;
+export const recall = memoryService.recall;

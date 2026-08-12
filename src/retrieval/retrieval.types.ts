@@ -1,6 +1,7 @@
 import type { RankedResult } from "./reranker.types.js";
 import type { TraceResult } from "../profiling/profiling.types.js";
-import type { Memory } from "../memory/memory.types.js";
+import type { Memory, MemoryType } from "../memory/memory.types.js";
+import type { RetrievalStrategy } from "./intelligence/strategy.types.js";
 
 export interface RetrievalRequest {
   query: string;
@@ -11,6 +12,7 @@ export interface RetrievalRequest {
 export interface RetrievalOptions {
   useLTR?: boolean;
   useFeedback?: boolean;
+  strategy?: RetrievalStrategy;
 }
 
 export interface RetrievalPipelineResult {
@@ -43,4 +45,20 @@ export interface RetrievalResult {
   graphScore?: number;
   diversityScore?: number;
   duplicatePenalty?: number;
+}
+
+export interface RetrievalRequest {
+  query: string;
+  limit?: number;
+  options?: RetrievalOptions;
+}
+
+export interface RetrievalOptions {
+  project?: string;
+  type?: MemoryType;
+
+  useLTR?: boolean;
+  useFeedback?: boolean;
+
+  strategy?: RetrievalStrategy;
 }
