@@ -11,6 +11,7 @@ export interface RetrievalStrategy {
   vectorWeight: number;
   keywordWeight: number;
   graphWeight: number;
+  graphEvidenceWeight: number;
 
   topK: number;
 

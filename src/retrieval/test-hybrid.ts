@@ -11,6 +11,7 @@ import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 import { SemanticReranker } from "./reranking/semantic.reranker.js";
 import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
 import { keywordIndex } from "./index/keyword.index.instance.js";
+import type { RetrievalStrategy } from "./strategy/retrieval.strategy.js";
 
 
 await new KeywordIndexLoader(memoryRepository, keywordIndex).load();
@@ -35,7 +36,22 @@ const hybridRetriever = new HybridRetriever(
   semanticReranker,
 );
 
-const results = await hybridRetriever.search("Angular TypeScript");
+const strategy: RetrievalStrategy = {
+  mode: "hybrid",
+  vectorWeight: 0.6,
+  keywordWeight: 0.4,
+  graphWeight: 0,
+  graphEvidenceWeight: 0,
+  topK: 10,
+  expandQuery: false,
+  rerank: true,
+  temporalBoost: 0,
+};
+
+const results = await hybridRetriever.search({
+  query: "Node.js TypeScript",
+  strategy,
+});
 
 console.table(
   results.map((r) => ({
