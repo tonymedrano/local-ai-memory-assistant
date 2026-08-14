@@ -164,6 +164,22 @@ export class QueryAnalyzer {
       "compara",
       "comparación",
       "vs",
+
+      "how",
+      "what",
+      "why",
+      "explain",
+      "explanation",
+      "works",
+      "work",
+      "mean",
+      "means",
+      "understand",
+      "difference",
+      "differences",
+      "compare",
+      "comparison",
+      "versus",
     ];
 
     return semanticTerms.some((term) => lower.includes(term)) ? 0.9 : 0.5;
@@ -215,6 +231,7 @@ export class QueryAnalyzer {
     const lower = query.toLowerCase();
 
     const temporalTerms = [
+      // Spanish
       "ayer",
       "hoy",
       "mañana",
@@ -227,13 +244,26 @@ export class QueryAnalyzer {
       "últimos",
       "últimas",
       "decidimos",
+
+      // English
+      "yesterday",
+      "today",
+      "tomorrow",
+      "before",
+      "after",
+      "recent",
+      "recently",
+      "latest",
+      "last",
+      "previous",
+      "decided",
     ];
 
     return temporalTerms.some((term) => lower.includes(term)) ? 0.9 : 0;
   }
 
   private hasExactTerms(query: string): boolean {
-    return /["'].*["']/.test(query);
+    return /["'][^"']+["']/.test(query);
   }
 
   private extractEntities(query: string): string[] {
