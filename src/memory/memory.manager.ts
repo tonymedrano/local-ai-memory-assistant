@@ -1,4 +1,4 @@
-import { store, recall } from "./memory.service.js";
+import { recall, store } from "../core/container.js";
 
 import { MemoryType } from "./memory.types.js";
 

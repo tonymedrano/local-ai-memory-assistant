@@ -1,4 +1,5 @@
-import { store } from "../../memory/memory.service.js";
+
+import { store } from "../../core/container.js";
 import { MemoryType } from "../../memory/memory.types.js";
 
 import { FeedbackService } from "./feedback.service.js";

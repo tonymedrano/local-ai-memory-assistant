@@ -1,5 +1,4 @@
-import { createRetrievalPipeline } from "../retrieval/retrieval.factory.js";
-
+import { retrievalPipeline } from "../core/container.js";
 import { runBenchmark } from "./benchmark.runner.js";
 
 async function main() {
@@ -7,9 +6,7 @@ async function main() {
   console.log(" Retrieval Benchmark");
   console.log("==============================");
 
-  const pipeline = createRetrievalPipeline();
-
-  const report = await runBenchmark(pipeline);
+  const report = await runBenchmark(retrievalPipeline);
 
   console.log("\nSummary\n");
 
@@ -34,7 +31,6 @@ async function main() {
   );
 
   console.log("\nRaw Results\n");
-
   console.log(JSON.stringify(report, null, 2));
 }
 

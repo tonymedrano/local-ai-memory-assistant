@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-import { store, recall } from "../memory/memory.service.js";
+import { recall, store } from "../core/container.js";
 
 export async function memoryRoutes(app: FastifyInstance) {
   app.post("/memory", async (request) => {

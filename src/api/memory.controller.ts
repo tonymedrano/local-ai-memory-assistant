@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
-
-import { store, recall } from "../memory/memory.service.js";
+import { recall, store } from "../core/container.js";
 
 /**
  * Guarda una memoria contextual.

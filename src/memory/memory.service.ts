@@ -8,9 +8,6 @@ import type {
   MemorySearchResult,
 } from "./memory.repository.js";
 
-import { memoryRepository } from "./memory.repository.instance.js";
-import { keywordIndex } from "../retrieval/index/keyword.index.instance.js";
-
 import type { KeywordIndex } from "../retrieval/index/keyword.index.js";
 
 export interface RecallOptions {
@@ -129,24 +126,3 @@ export function createMemoryService(
     recall,
   };
 }
-
-/*
- * --------------------------------------------------------------------------
- * Backward-compatible service
- * --------------------------------------------------------------------------
- *
- * Existing code imports:
- *
- *   import { store, recall } from "./memory.service.js";
- *
- * Keep those exports while the application gradually moves to the
- * dependency-injected createMemoryService() API.
- */
-
-const defaultMemoryService = createMemoryService(
-  memoryRepository,
-  keywordIndex,
-);
-
-export const store = defaultMemoryService.store;
-export const recall = defaultMemoryService.recall;
