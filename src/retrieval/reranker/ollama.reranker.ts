@@ -2,7 +2,7 @@ import { config } from "../../config.js";
 
 import type { Reranker, RankedResult } from "../reranker.types.js";
 
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 export class OllamaReranker implements Reranker {
   async rerank(

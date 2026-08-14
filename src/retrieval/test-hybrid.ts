@@ -1,5 +1,4 @@
 import { memoryRepository } from "../memory/memory.repository.instance.js";
-import { keywordIndex } from "./index/keyword.index.instance.js";
 
 import { VectorRetriever } from "./vector/vector.retriever.js";
 import { KeywordRetriever } from "./keyword/keyword.retriever.js";
@@ -11,6 +10,8 @@ import { EmbeddingService } from "../embedding/embedding.service.js";
 import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 import { SemanticReranker } from "./reranking/semantic.reranker.js";
 import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
+import { keywordIndex } from "./index/keyword.index.instance.js";
+
 
 await new KeywordIndexLoader(memoryRepository, keywordIndex).load();
 

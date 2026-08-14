@@ -1,4 +1,4 @@
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 const SOURCE_WEIGHTS: Record<string, number> = {
   vector: 1,

@@ -1,7 +1,7 @@
 import { graphRepository } from "../../knowledge/graph/graph.repository.js";
 import { inferenceRepository } from "../../knowledge/inference/inference.repository.js";
 
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 import { EntityExtractor } from "./entity.extractor.js";
 import { GraphTraverser } from "./graph.traverser.js";

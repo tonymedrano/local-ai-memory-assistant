@@ -2,7 +2,7 @@ import { createEmbedding } from "../../ai/ollama.service.js";
 
 import type { Reranker, RankedResult } from "../reranker.types.js";
 
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 function cosineSimilarity(a: number[], b: number[]): number {
   let dot = 0;

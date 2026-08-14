@@ -12,7 +12,7 @@ import { OnlineOptimizer } from "./online/online.optimizer.js";
 import { OnlineTrainer } from "./online/online.trainer.js";
 import { OnlineTrainingService } from "./online/online.training.service.js";
 
-import type { RetrievalResult } from "../retrieval/types.js";
+import type { RetrievalResult } from "../retrieval/retrieval.types.js";
 import type { RankingFeedback } from "./feedback/feedback.types.js";
 
 

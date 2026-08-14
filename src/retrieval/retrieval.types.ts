@@ -1,5 +1,4 @@
-import type { Memory } from "../memory/memory.types.js";
-import type { MemoryType } from "../memory/memory.types.js";
+import type { Memory, MemoryType } from "../memory/memory.types.js";
 import type { TraceResult } from "../profiling/profiling.types.js";
 import type { RankedResult } from "./reranker.types.js";
 import type { RetrievalStrategy } from "./intelligence/strategy.types.js";
@@ -45,9 +44,12 @@ export interface RetrievalResult {
   memory: Memory;
   score: number;
   source: RetrievalSource;
+
   semanticScore?: number;
   keywordScore?: number;
   graphScore?: number;
   diversityScore?: number;
   duplicatePenalty?: number;
+
+  originalSources?: RetrievalSource[];
 }

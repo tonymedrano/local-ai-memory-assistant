@@ -1,5 +1,5 @@
 import { inferenceRepository } from "../../knowledge/inference/inference.repository.js";
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 export class GraphEvidenceRetriever {
   async search(query: string): Promise<RetrievalResult[]> {
