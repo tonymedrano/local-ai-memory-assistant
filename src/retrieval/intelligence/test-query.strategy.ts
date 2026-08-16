@@ -1,8 +1,8 @@
 import { QueryAnalyzer } from "./query.analyzer.js";
-import { StrategySelector } from "./strategy.selector.js";
+import { RetrievalStrategySelector } from "../strategy/retrieval.strategy.selector.js";
 
 const analyzer = new QueryAnalyzer();
-const selector = new StrategySelector();
+const selector = new RetrievalStrategySelector();
 
 const queries = [
   "angular",
@@ -16,25 +16,19 @@ const queries = [
 ];
 
 for (const query of queries) {
-  const analysis = analyzer.analyze(query);
+  const profile = analyzer.analyze(query);
+  const strategy = selector.select(profile);
 
-  const selection = selector.select({
-    specificity: analysis.specificity,
-    complexity: analysis.complexity,
-    semanticIntent: analysis.semanticIntent,
-    tokenCount: analysis.tokenCount,
-  });
+  console.log(`\n=== ${query} ===`);
 
-  console.log(`\nQUERY: "${query}"`);
-
-  console.log("ANALYSIS");
+  console.log("PROFILE");
   console.log({
-    tokenCount: analysis.tokenCount,
-    specificity: analysis.specificity,
-    complexity: analysis.complexity,
-    semanticIntent: analysis.semanticIntent,
+    tokenCount: profile.tokenCount,
+    specificity: profile.specificity,
+    complexity: profile.complexity,
+    semanticIntent: profile.semanticIntent,
   });
 
   console.log("STRATEGY");
-  console.log(selection);
+  console.log(strategy);
 }

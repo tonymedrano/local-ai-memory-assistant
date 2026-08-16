@@ -1,49 +1,41 @@
-import { StrategySelector } from "./strategy.selector.js";
+import { QueryAnalyzer } from "../intelligence/query.analyzer.js";
+import { RetrievalStrategySelector } from "../strategy/retrieval.strategy.selector.js";
 
-const selector = new StrategySelector();
+const analyzer = new QueryAnalyzer();
+const selector = new RetrievalStrategySelector();
 
-const cases = [
-  {
-    name: "broad query",
-    input: {
-      specificity: 0.2,
-      complexity: 0.1,
-      semanticIntent: 0.4,
-      tokenCount: 1,
-    },
-  },
-  {
-    name: "semantic query",
-    input: {
-      specificity: 0.8,
-      complexity: 0.3,
-      semanticIntent: 0.9,
-      tokenCount: 3,
-    },
-  },
-  {
-    name: "complex keyword query",
-    input: {
-      specificity: 0.8,
-      complexity: 0.8,
-      semanticIntent: 0.4,
-      tokenCount: 5,
-    },
-  },
-  {
-    name: "focused query",
-    input: {
-      specificity: 0.9,
-      complexity: 0.3,
-      semanticIntent: 0.5,
-      tokenCount: 4,
-    },
-  },
+const queries = [
+  "angular",
+  "angular signals",
+  "typescript interfaces",
+  "node docker qdrant",
+  "how does LTR ranking work",
+  "memory service",
+  "knowledge graph inference",
+  "fix qdrant connection error",
+  "what is the relationship between Angular and TypeScript",
+  "compare Angular and React",
 ];
 
-for (const testCase of cases) {
-  const result = selector.select(testCase.input);
+for (const query of queries) {
+  const profile = analyzer.analyze(query);
+  const strategy = selector.select(profile);
 
-  console.log(`\n=== ${testCase.name} ===`);
-  console.log(result);
+  console.log(`\n=== ${query} ===`);
+
+  console.log("PROFILE");
+  console.log({
+    tokenCount: profile.tokenCount,
+    specificity: profile.specificity,
+    complexity: profile.complexity,
+    semanticIntent: profile.semanticIntent,
+    keywordIntent: profile.keywordIntent,
+    relationalIntent: profile.relationalIntent,
+    comparisonIntent: profile.comparisonIntent,
+    temporalIntent: profile.temporalIntent,
+    hasExactTerms: profile.hasExactTerms,
+  });
+
+  console.log("STRATEGY");
+  console.log(strategy);
 }
