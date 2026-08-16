@@ -1,49 +1,42 @@
 import { retrievalPipeline } from "../../core/container.js";
 
 import { QueryAnalyzer } from "../../retrieval/intelligence/query.analyzer.js";
-import { StrategySelector } from "../../retrieval/intelligence/strategy.selector.js";
+import { RetrievalStrategySelector } from "../../retrieval/strategy/retrieval.strategy.selector.js";
 
 import { EvaluationMetrics } from "./evaluation.metrics.js";
-
 import { benchmarkDataset } from "./benchmark.dataset.js";
 
 const analyzer = new QueryAnalyzer();
-const selector = new StrategySelector();
+const selector = new RetrievalStrategySelector();
 const metrics = new EvaluationMetrics();
 
 async function evaluate(query: string, useAdaptiveStrategy: boolean) {
   const analysis = analyzer.analyze(query);
 
-  const selection = selector.select({
-    tokenCount: analysis.tokenCount,
-    specificity: analysis.specificity,
-    complexity: analysis.complexity,
-    semanticIntent: analysis.semanticIntent,
-  });
+  const strategy = selector.select(analysis);
 
   const result = await retrievalPipeline.retrieve({
     query,
     limit: 5,
     options: {
       useLTR: true,
+
       ...(useAdaptiveStrategy
         ? {
-            strategy: selection.strategy,
+            strategy,
           }
         : {}),
     },
   });
-
-  console.dir(result.memories, { depth: 5 });
 
   return {
     results: result.memories
       .map((item) => item.memory.id)
       .filter((id): id is string => Boolean(id)),
 
-    strategy: useAdaptiveStrategy ? selection.strategy : undefined,
+    strategy: useAdaptiveStrategy ? strategy : undefined,
 
-    reason: useAdaptiveStrategy ? selection.reason : undefined,
+    analysis,
   };
 }
 
@@ -70,13 +63,29 @@ for (const item of benchmarkDataset) {
   console.log("QUERY:", item.query);
   console.log("EXPECTED:", item.expected);
 
+  // ------------------------------------
+  // BASELINE
+  // ------------------------------------
+
   const baseline = await evaluate(item.query, false);
 
+  // ------------------------------------
+  // ADAPTIVE
+  // ------------------------------------
+
   const adaptive = await evaluate(item.query, true);
+
+  // ------------------------------------
+  // METRICS
+  // ------------------------------------
 
   const baselineMetrics = evaluateMetrics(baseline.results, item.expected);
 
   const adaptiveMetrics = evaluateMetrics(adaptive.results, item.expected);
+
+  // ------------------------------------
+  // BASELINE
+  // ------------------------------------
 
   console.log("\n--- BASELINE ---");
 
@@ -84,17 +93,35 @@ for (const item of benchmarkDataset) {
 
   console.table(baselineMetrics);
 
+  // ------------------------------------
+  // ADAPTIVE
+  // ------------------------------------
+
   console.log("\n--- ADAPTIVE ---");
 
-  console.log("STRATEGY:", adaptive.strategy?.name);
+  console.log("MODE:", adaptive.strategy?.mode);
 
-  console.log("CANDIDATE LIMIT:", adaptive.strategy?.candidateLimit);
+  console.log("TOP K:", adaptive.strategy?.topK);
 
-  console.log("REASON:", adaptive.reason);
+  console.log("VECTOR WEIGHT:", adaptive.strategy?.vectorWeight);
+
+  console.log("KEYWORD WEIGHT:", adaptive.strategy?.keywordWeight);
+
+  console.log("GRAPH WEIGHT:", adaptive.strategy?.graphWeight);
+
+  console.log("GRAPH EVIDENCE WEIGHT:", adaptive.strategy?.graphEvidenceWeight);
+
+  console.log("EXPAND QUERY:", adaptive.strategy?.expandQuery);
+
+  console.log("RERANK:", adaptive.strategy?.rerank);
 
   console.log("RESULTS:", adaptive.results);
 
   console.table(adaptiveMetrics);
+
+  // ------------------------------------
+  // DELTA
+  // ------------------------------------
 
   console.log("\n--- DELTA ---");
 

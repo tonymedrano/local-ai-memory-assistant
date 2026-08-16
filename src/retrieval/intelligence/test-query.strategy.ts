@@ -4,31 +4,26 @@ import { RetrievalStrategySelector } from "../strategy/retrieval.strategy.select
 const analyzer = new QueryAnalyzer();
 const selector = new RetrievalStrategySelector();
 
-const queries = [
+const cases = [
   "angular",
   "angular signals",
-  "typescript interfaces",
   "node docker qdrant",
   "how does LTR ranking work",
-  "memory service",
-  "knowledge graph inference",
+  "what is the relationship between Angular and TypeScript",
+  "compare Angular and React",
   "fix qdrant connection error",
+  "show me recent decisions about the memory service",
 ];
 
-for (const query of queries) {
+for (const query of cases) {
   const profile = analyzer.analyze(query);
   const strategy = selector.select(profile);
 
   console.log(`\n=== ${query} ===`);
 
   console.log("PROFILE");
-  console.log({
-    tokenCount: profile.tokenCount,
-    specificity: profile.specificity,
-    complexity: profile.complexity,
-    semanticIntent: profile.semanticIntent,
-  });
+  console.dir(profile, { depth: null });
 
   console.log("STRATEGY");
-  console.log(strategy);
+  console.dir(strategy, { depth: null });
 }

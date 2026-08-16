@@ -3,6 +3,12 @@ import { MemoryRepository } from "../../memory/memory.repository.js";
 import { BM25Ranker } from "../bm25/bm25.ranker.js";
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
+export interface KeywordSearchOptions {
+  project?: string;
+  type?: string;
+  limit?: number;
+}
+
 export class KeywordRetriever {
   constructor(
     private index: KeywordIndex,
@@ -11,18 +17,18 @@ export class KeywordRetriever {
 
   async search(
     query: string,
-    options?: {
-      project?: string;
-      type?: string;
-    },
+    options?: KeywordSearchOptions,
   ): Promise<RetrievalResult[]> {
+    if (options?.limit !== undefined && options.limit <= 0) {
+      return [];
+    }
     const ids = this.index.search(query);
 
     const memories = await this.repository.getAll();
 
     const ranker = new BM25Ranker(this.index);
 
-    return memories
+    const results = memories
       .filter((m) => m.id && ids.includes(m.id))
       .filter((memory) => {
         if (options?.project && memory.project !== options.project) {
@@ -45,5 +51,9 @@ export class KeywordRetriever {
         source: "keyword" as const,
       }))
       .sort((a, b) => b.score - a.score);
+
+    return options?.limit !== undefined
+      ? results.slice(0, options.limit)
+      : results;
   }
 }

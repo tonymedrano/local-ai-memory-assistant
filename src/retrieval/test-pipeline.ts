@@ -22,7 +22,7 @@ import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
 import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
 import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
-import { LinearModel } from "../ltr/model/linear.model.js";
+import { KeywordIndexLoader } from "./index/keyword.index.loader.js";
 
 import type { LTRModel } from "../ltr/training/ltr.model.js";
 import type { FeatureVector } from "../ltr/features/feature.types.js";
@@ -33,6 +33,10 @@ async function main() {
   const repository = new MemoryRepository();
 
   const keywordIndex = new KeywordIndex();
+
+  const keywordIndexLoader = new KeywordIndexLoader(repository, keywordIndex);
+
+  await keywordIndexLoader.load();
 
   const vectorRetriever = new VectorRetriever(
     repository,
@@ -116,6 +120,34 @@ async function main() {
   if (!result.memories.length) {
     throw new Error("No retrieval results");
   }
+
+  const forcedKeywordResult = await pipeline.retrieve({
+    query: "Angular Native Federation",
+    limit: 5,
+    options: {
+      strategy: {
+        mode: "keyword",
+        vectorWeight: 0,
+        keywordWeight: 1,
+        graphWeight: 0,
+        graphEvidenceWeight: 0,
+        topK: 10,
+        expandQuery: false,
+        rerank: true,
+        temporalBoost: 0,
+      },
+    },
+  });
+
+  if (!forcedKeywordResult.memories.length) {
+    throw new Error("Forced keyword retrieval returned no results");
+  }
+
+  console.log(
+    "Forced keyword strategy OK:",
+    forcedKeywordResult.memories.length,
+    "results",
+  );
 
   console.log(
     "Pipeline OK:",

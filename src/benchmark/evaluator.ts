@@ -13,19 +13,15 @@ export function evaluate(
 ): BenchmarkResult {
   const expected = test.expectedTexts ?? [];
 
+  const k = retrieved.length;
+
   return {
     query: test.query,
-
     retrieved,
-
     expected,
-
-    recall: recallAtK(retrieved, expected),
-
+    recall: recallAtK(retrieved, expected, k),
     mrr: meanReciprocalRank(retrieved, expected),
-
     ndcg: ndcgAtK(retrieved, expected),
-
     latencyMs,
   };
 }

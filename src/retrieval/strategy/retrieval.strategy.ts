@@ -1,9 +1,10 @@
 export type RetrievalMode =
-  | 'vector'
-  | 'keyword'
-  | 'hybrid'
-  | 'graph'
-  | 'hybrid_graph';
+  | "vector"
+  | "keyword"
+  | "hybrid"
+  | "graph"
+  | "hybrid_graph"
+  | "knowledge";
 
 export interface RetrievalStrategy {
   mode: RetrievalMode;

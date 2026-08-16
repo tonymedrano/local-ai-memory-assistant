@@ -8,7 +8,6 @@ import { DuplicateDetector } from "../quality/duplicate/duplicate.detector.js";
 
 import { QueryAnalyzer } from "../intelligence/query.analyzer.js";
 import { RetrievalStrategySelector } from "../strategy/retrieval.strategy.selector.js";
-import type { RetrievalStrategy } from "../strategy/retrieval.strategy.js";
 
 import type {
   RetrievalRequest,
@@ -42,7 +41,9 @@ export class RetrievalPipeline {
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
     const queryProfile = this.queryAnalyzer.analyze(request.query);
-    const strategy = this.strategySelector.select(queryProfile);
+
+    const strategy =
+      request.options?.strategy ?? this.strategySelector.select(queryProfile);
 
     console.log("\n=== QUERY INTELLIGENCE ===");
 
@@ -58,7 +59,7 @@ export class RetrievalPipeline {
 
     const profiler = new Profiler();
 
-    // 1. Hybrid Retrieval
+    // 1. Retrieval
 
     const candidates = await profiler.trace(
       `Retrieval (${strategy.mode})`,
@@ -122,7 +123,9 @@ export class RetrievalPipeline {
     console.table(
       rankedCandidates.map((item) => ({
         id: item.memory?.id,
+        source: item.source,
         score: item.score,
+        rerankScore: item.rerankScore,
       })),
     );
 
@@ -131,7 +134,9 @@ export class RetrievalPipeline {
     console.table(
       ranked.map((item) => ({
         id: item.memory?.id,
+        source: item.source,
         score: item.score,
+        rerankScore: item.rerankScore,
       })),
     );
 
@@ -149,8 +154,24 @@ export class RetrievalPipeline {
 
     // 6. Diversity
 
+    /**
+     * Knowledge-oriented strategies need to preserve graph
+     * evidence when it exists.
+     *
+     * graph-evidence represents derived knowledge/inference
+     * and should not disappear merely because memory/vector
+     * results are semantically similar.
+     */
+    const requiredSources =
+      strategy.mode === "knowledge" || strategy.mode === "hybrid_graph"
+        ? ["graph-evidence"]
+        : undefined;
+
     const finalResults = await profiler.trace("Diversity Filtering", () =>
-      this.diversityService.filter(unique.results, request.limit ?? 5),
+      this.diversityService.filter(unique.results, request.limit ?? 5, {
+        requiredSources,
+        minimumPerSource: 2,
+      }),
     );
 
     // Feedback collection

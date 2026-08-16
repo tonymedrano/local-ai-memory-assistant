@@ -23,6 +23,26 @@ export class RetrievalStrategySelector {
     }
 
     /**
+     * Knowledge-oriented queries.
+     *
+     * Multiple recognized entities are a strong signal that the
+     * query may require knowledge-graph or inference evidence,
+     * even when the QueryAnalyzer has not classified it explicitly
+     * as relational.
+     *
+     * We deliberately require at least two entities so that a
+     * simple query such as "Qdrant vector database" remains hybrid.
+     */
+    if (
+      profile.hasEntities &&
+      profile.entities.length >= 2 &&
+      profile.comparisonIntent < 0.7 &&
+      profile.temporalIntent < 0.7
+    ) {
+      return "knowledge";
+    }
+
+    /**
      * Explicit comparisons are semantic/hybrid queries.
      * They should not become pure keyword searches merely
      * because they contain several entities.
@@ -46,6 +66,11 @@ export class RetrievalStrategySelector {
     if (profile.complexity >= 0.6) {
       return "hybrid";
     }
+
+    /**
+     * Temporal intent is handled as a modifier rather than
+     * forcing a dedicated retrieval mode.
+     */
 
     /**
      * High specificity alone does not imply keyword retrieval.
@@ -94,7 +119,7 @@ export class RetrievalStrategySelector {
      * may benefit from query expansion.
      */
     if (profile.complexity >= 0.6) {
-      strategy.topK = 20;
+      strategy.topK = Math.max(strategy.topK, 20);
       strategy.expandQuery = true;
     }
 
@@ -144,6 +169,27 @@ export class RetrievalStrategySelector {
           graphWeight: 0,
           graphEvidenceWeight: 0,
           topK: 10,
+          expandQuery: false,
+          rerank: true,
+          temporalBoost: 0,
+        };
+
+      /**
+       * Knowledge retrieval keeps semantic and lexical retrieval
+       * active while giving the Knowledge Graph and inference
+       * layer enough weight to contribute meaningful candidates.
+       *
+       * This is intentionally less aggressive than pure graph
+       * retrieval.
+       */
+      case "knowledge":
+        return {
+          mode,
+          vectorWeight: 0.35,
+          keywordWeight: 0.15,
+          graphWeight: 0.15,
+          graphEvidenceWeight: 0.35,
+          topK: 15,
           expandQuery: false,
           rerank: true,
           temporalBoost: 0,

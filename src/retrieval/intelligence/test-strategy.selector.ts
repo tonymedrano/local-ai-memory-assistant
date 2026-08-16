@@ -1,4 +1,4 @@
-import { QueryAnalyzer } from "../intelligence/query.analyzer.js";
+import { QueryAnalyzer } from "./query.analyzer.js";
 import { RetrievalStrategySelector } from "../strategy/retrieval.strategy.selector.js";
 
 const analyzer = new QueryAnalyzer();
@@ -24,18 +24,8 @@ for (const query of queries) {
   console.log(`\n=== ${query} ===`);
 
   console.log("PROFILE");
-  console.log({
-    tokenCount: profile.tokenCount,
-    specificity: profile.specificity,
-    complexity: profile.complexity,
-    semanticIntent: profile.semanticIntent,
-    keywordIntent: profile.keywordIntent,
-    relationalIntent: profile.relationalIntent,
-    comparisonIntent: profile.comparisonIntent,
-    temporalIntent: profile.temporalIntent,
-    hasExactTerms: profile.hasExactTerms,
-  });
+  console.dir(profile, { depth: null });
 
   console.log("STRATEGY");
-  console.log(strategy);
+  console.dir(strategy, { depth: null });
 }

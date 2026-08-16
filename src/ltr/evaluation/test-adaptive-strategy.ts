@@ -1,27 +1,27 @@
 import { retrievalPipeline } from "../../core/container.js";
-
 import { AdaptiveStrategyRunner } from "./adaptive.strategy.runner.js";
 
-const runner = new AdaptiveStrategyRunner(
-  retrievalPipeline,
-);
+const runner = new AdaptiveStrategyRunner(retrievalPipeline);
 
 const queries = [
-  "angular",
   "angular signals",
-  "node docker qdrant",
-  "how does LTR ranking work",
-  "fix qdrant connection error",
+  "how does Angular relate to TypeScript",
+  "compare Angular and React",
+  "what did we decide about the memory service",
+  "Qdrant retrieval pipeline",
 ];
 
 for (const query of queries) {
+  console.log("\n========================================");
+  console.log("QUERY:", query);
+
   const result = await runner.run(query);
 
-  console.log("\n================================");
-  console.log("QUERY:", result.query);
-  console.log("STRATEGY:", result.strategy.name);
-  console.log("CANDIDATE LIMIT:", result.strategy.candidateLimit);
-  console.log("REASON:", result.reason);
-  console.log("RESULTS:", result.results);
-  console.log("LATENCY:", result.elapsedMs, "ms");
+  console.log("\n--- RESULTS ---");
+
+  console.log(result.results);
+
+  console.log("\n--- ELAPSED ---");
+
+  console.log(`${result.elapsedMs} ms`);
 }

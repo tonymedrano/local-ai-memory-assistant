@@ -18,6 +18,10 @@ export class VectorRetriever {
     query: string,
     options?: SearchOptions,
   ): Promise<RetrievalResult[]> {
+    if (options?.limit !== undefined && options.limit <= 0) {
+      return [];
+    }
+
     const vector = await this.embeddingService.embed(query);
 
     const results = await this.repository.search(vector, options);
@@ -27,9 +31,7 @@ export class VectorRetriever {
         ...(result.payload as unknown as Memory),
         id: String(result.id),
       },
-
       score: result.score,
-
       source: "vector" as const,
     }));
   }

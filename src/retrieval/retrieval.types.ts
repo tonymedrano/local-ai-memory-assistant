@@ -1,7 +1,7 @@
 import type { Memory, MemoryType } from "../memory/memory.types.js";
 import type { TraceResult } from "../profiling/profiling.types.js";
 import type { RankedResult } from "./reranker.types.js";
-import type { RetrievalStrategy } from "./intelligence/strategy.types.js";
+import type { RetrievalStrategy } from "./strategy/retrieval.strategy.js";
 
 export interface RetrievalRequest {
   query: string;
@@ -16,20 +16,35 @@ export interface RetrievalOptions {
   useLTR?: boolean;
   useFeedback?: boolean;
 
+  /**
+   * Optional explicit strategy.
+   *
+   * Normally the RetrievalPipeline derives the strategy
+   * automatically from the QueryProfile.
+   *
+   * This remains available for evaluation/benchmarking
+   * and controlled experiments.
+   */
   strategy?: RetrievalStrategy;
 }
 
 export interface RetrievalPipelineResult {
   memories: RankedResult[];
+
   elapsedMs: number;
+
   trace?: TraceResult;
+
   quality?: RetrievalQualitySummary;
 }
 
 export interface RetrievalQualitySummary {
   averageScore: number;
+
   averageRelevance: number;
+
   averageConfidence: number;
+
   duplicatesRemoved?: number;
 }
 
@@ -42,13 +57,19 @@ export type RetrievalSource =
 
 export interface RetrievalResult {
   memory: Memory;
+
   score: number;
+
   source: RetrievalSource;
 
   semanticScore?: number;
+
   keywordScore?: number;
+
   graphScore?: number;
+
   diversityScore?: number;
+
   duplicatePenalty?: number;
 
   originalSources?: RetrievalSource[];
