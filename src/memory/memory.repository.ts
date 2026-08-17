@@ -56,28 +56,46 @@ export class MemoryRepository {
     }));
   }
 
-  async findSimilar(vector: number[], project?: string) {
+  async findSimilar(vector: number[], project?: string, excludeId?: string) {
     const results = await qdrant.search(COLLECTION, {
       vector,
 
-      limit: 1,
+      limit: 10,
 
       with_payload: true,
 
       score_threshold: 0.9,
     });
 
-    const memory = results[0];
+    const candidates = results.filter(
+      (result) => String(result.id) !== excludeId,
+    );
 
-    if (!memory) {
+    const result = candidates.find((candidate) => {
+      if (!candidate.payload) {
+        return false;
+      }
+
+      const payload = candidate.payload as unknown as Memory;
+
+      if (project && payload.project !== project) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!result || !result.payload) {
       return null;
     }
 
-    if (project && memory.payload?.project !== project) {
-      return null;
-    }
+    const payload = result.payload as unknown as Memory;
 
-    return memory;
+    return {
+      id: String(result.id),
+      score: result.score,
+      payload,
+    };
   }
 
   async update(id: string | number, payload: Record<string, unknown>) {

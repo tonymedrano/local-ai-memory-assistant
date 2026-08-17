@@ -59,6 +59,8 @@ import { PersistentLTRModelProvider } from "../ltr/model/ltr.model.provider.js";
 
 import { createMemoryService } from "../memory/memory.service.js";
 
+import { ConsolidationService } from "../memory/consolidation/consolidation.service.js";
+
 /* -------------------------------------------------------------------------- */
 /*                              Metrics / Learning                            */
 /* -------------------------------------------------------------------------- */
@@ -297,3 +299,11 @@ export const store =
 
 export const recall =
   memoryService.recall;
+
+  /* -------------------------------------------------------------------------- */
+  /*                              Consolidation Service                                */
+  /* -------------------------------------------------------------------------- */
+  export const consolidationService =
+  new ConsolidationService(
+    memoryRepository,
+  );
