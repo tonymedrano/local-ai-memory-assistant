@@ -72,6 +72,19 @@ export class GraphRepository {
     return this.graph.edges.filter((edge) => edge.target === nodeId);
   }
 
+  findEdge(
+    source: string,
+    relation: string,
+    target: string,
+  ): GraphEdge | undefined {
+    return this.graph.edges.find(
+      (edge) =>
+        edge.source === source &&
+        edge.relation === relation &&
+        edge.target === target,
+    );
+  }
+
   updateNode(id: string, changes: Partial<GraphNode>) {
     const index = this.graph.nodes.findIndex((node) => node.id === id);
 
