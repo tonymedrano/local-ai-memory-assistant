@@ -5,10 +5,9 @@ const COLLECTION = "contextual_memory";
 
 export interface SearchOptions {
   limit?: number;
-
   project?: string;
-
   type?: string;
+  scoreThreshold?: number;
 }
 
 export interface MemorySearchResult {
@@ -56,15 +55,17 @@ export class MemoryRepository {
     }));
   }
 
-  async findSimilar(vector: number[], project?: string, excludeId?: string) {
+  async findSimilar(
+    vector: number[],
+    project?: string,
+    excludeId?: string,
+    scoreThreshold = 0.9,
+  ) {
     const results = await qdrant.search(COLLECTION, {
       vector,
-
       limit: 10,
-
       with_payload: true,
-
-      score_threshold: 0.9,
+      score_threshold: scoreThreshold,
     });
 
     const candidates = results.filter(

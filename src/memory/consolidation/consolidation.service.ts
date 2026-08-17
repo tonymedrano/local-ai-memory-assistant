@@ -7,6 +7,8 @@ import type { Memory } from "../memory.types.js";
 
 import type { ConsolidationResult } from "./consolidation.types.js";
 
+const CONSOLIDATION_SIMILARITY_THRESHOLD = 0.8;
+
 export class ConsolidationService {
   constructor(private readonly memoryRepository: MemoryRepository) {}
 
@@ -39,6 +41,7 @@ export class ConsolidationService {
       embedding,
       memory.project,
       memory.id,
+      CONSOLIDATION_SIMILARITY_THRESHOLD,
     );
 
     if (!similar) {
@@ -79,36 +82,24 @@ export class ConsolidationService {
 
     const consolidatedMemory: Memory = {
       id: consolidatedId,
-
       text: consolidatedText,
-
       project: memory.project ?? similarMemory.project,
-
       type: memory.type ?? similarMemory.type,
-
       importance: Math.max(
         memory.importance ?? 0,
         similarMemory.importance ?? 0,
       ),
-
       confidence:
         ((memory.confidence ?? 0.8) + (similarMemory.confidence ?? 0.8)) / 2,
-
       accessCount: (memory.accessCount ?? 0) + (similarMemory.accessCount ?? 0),
-
       lastAccess: memory.lastAccess ?? similarMemory.lastAccess,
-
       archived: false,
-
       createdAt: now,
       updatedAt: now,
-
       origin: "consolidation",
-
       tags: [
         ...new Set([...(memory.tags ?? []), ...(similarMemory.tags ?? [])]),
       ],
-
       metadata: {
         consolidation: {
           type: "consolidated",
