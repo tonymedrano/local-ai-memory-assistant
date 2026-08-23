@@ -129,14 +129,37 @@ export class GraphRepository {
       return null;
     }
 
-    this.graph.nodes[index] = {
-      ...this.graph.nodes[index],
-      ...changes,
+    const current = this.graph.nodes[index];
+
+    const updatedNode: GraphNode = {
+      ...current,
+
+      /*
+       * Identity is immutable.
+       */
+      id: current.id,
+      label: current.label,
+      createdAt: current.createdAt,
+
+      /*
+       * Mutable structural information.
+       */
+      type: changes.type ?? current.type,
+
+      /*
+       * Evidence is merged instead of blindly replaced.
+       */
+      metadata: {
+        ...(current.metadata ?? {}),
+        ...(changes.metadata ?? {}),
+      },
     };
+
+    this.graph.nodes[index] = updatedNode;
 
     graphStorage.save(this.graph);
 
-    return this.graph.nodes[index];
+    return updatedNode;
   }
 
   replaceNodeId(oldId: string, newId: string) {

@@ -52,9 +52,8 @@ export class KnowledgeSyncService {
 
       if (existing) {
         this.graphRepository.updateNode(existing.id, {
-          ...node,
-          id: existing.id,
-          label: existing.label,
+          type: node.type,
+          metadata: node.metadata,
         });
 
         console.log(

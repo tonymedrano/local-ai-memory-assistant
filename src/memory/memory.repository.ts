@@ -40,10 +40,42 @@ export class MemoryRepository {
     vector: number[],
     options?: SearchOptions,
   ): Promise<MemorySearchResult[]> {
+    const filterConditions = [];
+
+    if (options?.project) {
+      filterConditions.push({
+        key: "project",
+        match: {
+          value: options.project,
+        },
+      });
+    }
+
+    if (options?.type) {
+      filterConditions.push({
+        key: "type",
+        match: {
+          value: options.type,
+        },
+      });
+    }
+
     const results = await qdrant.search(COLLECTION, {
       vector,
       limit: options?.limit ?? 5,
       with_payload: true,
+      ...(filterConditions.length > 0
+        ? {
+            filter: {
+              must: filterConditions,
+            },
+          }
+        : {}),
+      ...(options?.scoreThreshold !== undefined
+        ? {
+            score_threshold: options.scoreThreshold,
+          }
+        : {}),
     });
 
     return results.map((result) => ({
