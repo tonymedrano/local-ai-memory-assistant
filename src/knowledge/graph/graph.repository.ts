@@ -1,6 +1,11 @@
 import type { GraphNode, GraphEdge, KnowledgeGraph } from "./graph.types.js";
 import { graphStorage } from "./graph.storage.js";
 
+import {
+  canonicalizeLabel,
+  createNodeId,
+} from "./identity/identity.resolver.js";
+
 export class GraphRepository {
   private graph: KnowledgeGraph = graphStorage.load();
 
@@ -20,14 +25,34 @@ export class GraphRepository {
     return this.graph;
   }
 
-  addNode(node: GraphNode) {
-    const exists = this.graph.nodes.some((n) => n.id === node.id);
+  addNode(node: GraphNode): GraphNode {
+    const existingById = this.graph.nodes.find(
+      (existing) => existing.id === node.id,
+    );
 
-    if (!exists) {
-      this.graph.nodes.push(node);
-
-      graphStorage.save(this.graph);
+    if (existingById) {
+      return existingById;
     }
+
+    const existingByIdentity = this.findByIdentity(node.label);
+
+    if (existingByIdentity) {
+      return existingByIdentity;
+    }
+
+    const canonicalLabel = canonicalizeLabel(node.label);
+
+    const normalizedNode: GraphNode = {
+      ...node,
+      id: createNodeId(canonicalLabel),
+      label: canonicalLabel,
+    };
+
+    this.graph.nodes.push(normalizedNode);
+
+    graphStorage.save(this.graph);
+
+    return normalizedNode;
   }
 
   addEdge(edge: GraphEdge) {
@@ -83,6 +108,18 @@ export class GraphRepository {
         edge.relation === relation &&
         edge.target === target,
     );
+  }
+
+  findByIdentity(label: string): GraphNode | undefined {
+    const canonicalLabel = canonicalizeLabel(label);
+
+    return this.graph.nodes.find(
+      (node) => canonicalizeLabel(node.label) === canonicalLabel,
+    );
+  }
+
+  resolveNode(label: string): GraphNode | undefined {
+    return this.findByIdentity(label);
   }
 
   updateNode(id: string, changes: Partial<GraphNode>) {

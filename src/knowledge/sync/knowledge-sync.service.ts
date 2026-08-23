@@ -5,6 +5,7 @@ import { toGraphNodeType } from "../mappers/knowledge-graph.mapper.js";
 import { GraphConsistencyService } from "../graph/consistency/graph.consistency.js";
 
 import type { KnowledgeItem } from "../knowledge.types.js";
+import type { GraphNode } from "../graph/graph.types.js";
 import type { GraphConsistencyReport } from "../graph/consistency/graph.consistency.types.js";
 
 export class KnowledgeSyncService {
@@ -22,8 +23,12 @@ export class KnowledgeSyncService {
     /*
      * FASE 1
      *
-     * Primero garantizamos que todos los KnowledgeItems
+     * Garantizamos que todos los KnowledgeItems
      * tengan su correspondiente GraphNode.
+     *
+     * La identidad del GraphNode se resuelve mediante
+     * GraphRepository.addNode(), que utiliza la identidad
+     * semántica del label.
      */
     for (const item of knowledge) {
       if (!item.id) {
@@ -39,47 +44,38 @@ export class KnowledgeSyncService {
         metadata: {
           confidence: item.confidence,
           content: item.content,
+          knowledgeId: item.id,
         },
       };
 
-      const existing = this.graphRepository.getNode(item.id);
+      const existing = this.graphRepository.findByIdentity(item.subject);
 
       if (existing) {
-        this.graphRepository.updateNode(item.id, node);
+        this.graphRepository.updateNode(existing.id, {
+          ...node,
+          id: existing.id,
+          label: existing.label,
+        });
 
-        console.log(`[KnowledgeSync] Updated ${item.subject}`);
-
-        this.graphRepository.removeDuplicateLabels(item.id);
-
-        continue;
-      }
-
-      const candidates = this.graphRepository.findAllByLabel(item.subject);
-
-      const byLabel = candidates.find((candidate) => candidate.id !== item.id);
-
-      if (byLabel) {
-        console.log(`[KnowledgeSync] Migrating ${byLabel.id} -> ${item.id}`);
-
-        this.graphRepository.replaceNodeId(byLabel.id, item.id);
-
-        this.graphRepository.updateNode(item.id, node);
-
-        this.graphRepository.removeDuplicateLabels(item.id);
+        console.log(
+          `[KnowledgeSync] Updated ${item.subject} ` + `(${existing.id})`,
+        );
 
         continue;
       }
 
-      this.graphRepository.addNode(node);
+      const created = this.graphRepository.addNode(node);
 
-      console.log(`[KnowledgeSync] Created ${item.subject}`);
+      console.log(
+        `[KnowledgeSync] Created ${item.subject} ` + `(${created.id})`,
+      );
     }
 
     /*
      * FASE 2
      *
-     * Ahora que todos los nodos existen, podemos resolver
-     * source/target de las relaciones.
+     * Ahora que todos los nodos existen, resolvemos
+     * source/target mediante identidad semántica.
      */
     for (const item of knowledge) {
       this.syncRelations(item);
@@ -88,8 +84,8 @@ export class KnowledgeSyncService {
     /*
      * FASE 3
      *
-     * Validamos la consistencia estructural del grafo
-     * después de completar la sincronización.
+     * Validamos la consistencia del grafo después
+     * de completar la sincronización.
      *
      * Esta fase NO realiza auto-repair.
      */
@@ -130,15 +126,15 @@ export class KnowledgeSyncService {
     }
 
     for (const relation of item.relations ?? []) {
-      const sourceNode = this.graphRepository.findByLabel(relation.source);
+      const sourceNode = this.graphRepository.resolveNode(relation.source);
 
-      const targetNode = this.graphRepository.findByLabel(relation.target);
+      const targetNode = this.graphRepository.resolveNode(relation.target);
 
       if (!sourceNode || !targetNode) {
         console.log(
           `[KnowledgeSync] Skipping relation ` +
-            `${relation.source} --${relation.relation}--> ${relation.target}: ` +
-            `node not found`,
+            `${relation.source} --${relation.relation}--> ` +
+            `${relation.target}: node not found`,
         );
 
         continue;
@@ -174,7 +170,8 @@ export class KnowledgeSyncService {
 
       console.log(
         `[KnowledgeSync] Created edge ` +
-          `${relation.source} --${relation.relation}--> ${relation.target}`,
+          `${relation.source} --${relation.relation}--> ` +
+          `${relation.target}`,
       );
     }
   }

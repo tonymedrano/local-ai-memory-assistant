@@ -15,7 +15,8 @@ export type GraphConsistencyIssueCode =
   | "INVALID_EDGE_CONFIDENCE"
   | "INVALID_EDGE_TIMESTAMP"
   | "DUPLICATE_SEMANTIC_EDGE"
-  | "SELF_REFERENCE";
+  | "SELF_REFERENCE"
+  | "DUPLICATE_SEMANTIC_IDENTITY";
 
 export interface GraphConsistencyIssue {
   severity: GraphConsistencySeverity;
@@ -39,6 +40,8 @@ export interface GraphConsistencyStats {
   duplicateEdgeIds: number;
 
   duplicateNodeLabels: number;
+
+  duplicateSemanticIdentities: number;
 
   orphanEdges: number;
 

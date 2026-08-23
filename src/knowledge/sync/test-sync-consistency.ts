@@ -8,6 +8,8 @@ import type {
   GraphEdge,
 } from "../graph/graph.types.js";
 
+import { canonicalizeLabel } from "../graph/identity/identity.resolver.js";
+
 class TestKnowledgeRepository {
   constructor(private readonly items: KnowledgeItem[]) {}
 
@@ -22,16 +24,40 @@ class TestGraphRepository {
     edges: [],
   };
 
+  findByIdentity(label: string): GraphNode | undefined {
+    const canonicalLabel = canonicalizeLabel(label);
+
+    return this.graph.nodes.find(
+      (node) => canonicalizeLabel(node.label) === canonicalLabel,
+    );
+  }
+
+  resolveNode(label: string): GraphNode | undefined {
+    return this.findByIdentity(label);
+  }
+
   getGraph(): KnowledgeGraph {
     return this.graph;
   }
 
-  addNode(node: GraphNode): void {
-    const exists = this.graph.nodes.some((current) => current.id === node.id);
+  addNode(node: GraphNode): GraphNode {
+    const existingById = this.graph.nodes.find(
+      (current) => current.id === node.id,
+    );
 
-    if (!exists) {
-      this.graph.nodes.push(node);
+    if (existingById) {
+      return existingById;
     }
+
+    const existingByIdentity = this.findByIdentity(node.label);
+
+    if (existingByIdentity) {
+      return existingByIdentity;
+    }
+
+    this.graph.nodes.push(node);
+
+    return node;
   }
 
   addEdge(edge: GraphEdge): void {
@@ -61,18 +87,6 @@ class TestGraphRepository {
     return this.graph.nodes[index];
   }
 
-  findAllByLabel(label: string): GraphNode[] {
-    return this.graph.nodes.filter(
-      (node) => node.label.toLowerCase() === label.toLowerCase(),
-    );
-  }
-
-  findByLabel(label: string): GraphNode | undefined {
-    return this.graph.nodes.find(
-      (node) => node.label.toLowerCase() === label.toLowerCase(),
-    );
-  }
-
   findEdge(
     source: string,
     relation: string,
@@ -84,56 +98,6 @@ class TestGraphRepository {
         edge.relation === relation &&
         edge.target === target,
     );
-  }
-
-  replaceNodeId(oldId: string, newId: string): void {
-    const node = this.graph.nodes.find((current) => current.id === oldId);
-
-    if (!node) {
-      return;
-    }
-
-    node.id = newId;
-
-    for (const edge of this.graph.edges) {
-      if (edge.source === oldId) {
-        edge.source = newId;
-      }
-
-      if (edge.target === oldId) {
-        edge.target = newId;
-      }
-    }
-  }
-
-  removeDuplicateLabels(keepId: string): void {
-    const keepNode = this.graph.nodes.find((node) => node.id === keepId);
-
-    if (!keepNode) {
-      return;
-    }
-
-    const duplicates = this.graph.nodes.filter(
-      (node) =>
-        node.label.toLowerCase() === keepNode.label.toLowerCase() &&
-        node.id !== keepId,
-    );
-
-    for (const duplicate of duplicates) {
-      for (const edge of this.graph.edges) {
-        if (edge.source === duplicate.id) {
-          edge.source = keepId;
-        }
-
-        if (edge.target === duplicate.id) {
-          edge.target = keepId;
-        }
-      }
-
-      this.graph.nodes = this.graph.nodes.filter(
-        (node) => node.id !== duplicate.id,
-      );
-    }
   }
 }
 

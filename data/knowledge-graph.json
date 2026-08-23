@@ -22,7 +22,30 @@
       "createdAt": "2026-07-27T18:28:58.846Z",
       "metadata": {
         "confidence": 0.95,
-        "content": "Frontend framework"
+        "content": "Frontend framework",
+        "knowledgeId": "f15b71fb-4286-4d38-a0c0-e2961be552e1"
+      }
+    },
+    {
+      "id": "qdrant-a63a387b-85bf-462e-ad19-35d24fc37c6c",
+      "label": "qdrant-a63a387b-85bf-462e-ad19-35d24fc37c6c",
+      "type": "technology",
+      "createdAt": "2026-08-23T09:47:49.958Z",
+      "metadata": {
+        "confidence": 0.95,
+        "content": "Qdrant almacena embeddings.",
+        "knowledgeId": "ffcdedeb-747b-4608-b7ef-83fa1ac7bb88"
+      }
+    },
+    {
+      "id": "embeddings-527067bd-64c5-4ea1-8869-cb32087f2d58",
+      "label": "embeddings-527067bd-64c5-4ea1-8869-cb32087f2d58",
+      "type": "concept",
+      "createdAt": "2026-08-23T09:47:49.958Z",
+      "metadata": {
+        "confidence": 0.9,
+        "content": "Representaciones vectoriales utilizadas para búsqueda semántica.",
+        "knowledgeId": "dbaf087f-ca5c-4f41-b7c1-5415a04dad10"
       }
     }
   ],
@@ -58,6 +81,14 @@
       "relation": "does-not-use",
       "confidence": 0.7,
       "createdAt": "2026-07-27T14:19:38.428Z"
+    },
+    {
+      "id": "qdrant-a63a387b-85bf-462e-ad19-35d24fc37c6c:stores:embeddings-527067bd-64c5-4ea1-8869-cb32087f2d58",
+      "source": "qdrant-a63a387b-85bf-462e-ad19-35d24fc37c6c",
+      "target": "embeddings-527067bd-64c5-4ea1-8869-cb32087f2d58",
+      "relation": "stores",
+      "confidence": 0.95,
+      "createdAt": "2026-08-23T09:47:49.958Z"
     }
   ]
 }

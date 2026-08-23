@@ -12,6 +12,8 @@ import type {
   GraphConsistencyValidator,
 } from "./graph.consistency.types.js";
 
+import { canonicalizeLabel } from "../identity/identity.resolver.js";
+
 const VALID_NODE_TYPES: ReadonlySet<GraphNodeType> = new Set([
   "technology",
   "project",
@@ -47,9 +49,12 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
     const stats: GraphConsistencyStats = {
       nodes: graph.nodes.length,
       edges: graph.edges.length,
+
       duplicateNodeIds: 0,
       duplicateEdgeIds: 0,
       duplicateNodeLabels: 0,
+      duplicateSemanticIdentities: 0,
+
       orphanEdges: 0,
       duplicateSemanticEdges: 0,
     };
@@ -60,11 +65,8 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
 
     return {
       valid: errors.length === 0,
-
       errors,
-
       warnings,
-
       stats,
     };
   }
@@ -78,8 +80,14 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
 
     const labels = new Map<string, GraphNode>();
 
+    const identityMap = new Map<string, string>();
+
     for (const node of nodes) {
       this.validateNode(node, errors);
+
+      // -------------------------------------------------------
+      // Node ID consistency
+      // -------------------------------------------------------
 
       if (nodeIds.has(node.id)) {
         stats.duplicateNodeIds++;
@@ -94,6 +102,10 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
         nodeIds.add(node.id);
       }
 
+      // -------------------------------------------------------
+      // Label consistency
+      // -------------------------------------------------------
+
       const normalizedLabel = normalizeLabel(node.label);
 
       const existing = labels.get(normalizedLabel);
@@ -107,11 +119,33 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
           message:
             `Duplicate node label "${node.label}" ` +
             `used by nodes "${existing.id}" and "${node.id}".`,
-
           nodeId: node.id,
         });
       } else {
         labels.set(normalizedLabel, node);
+      }
+
+      // -------------------------------------------------------
+      // Semantic identity consistency
+      // -------------------------------------------------------
+
+      const canonicalLabel = canonicalizeLabel(node.label);
+
+      const existingIdentityId = identityMap.get(canonicalLabel);
+
+      if (existingIdentityId && existingIdentityId !== node.id) {
+        stats.duplicateSemanticIdentities++;
+
+        errors.push({
+          severity: "error",
+          code: "DUPLICATE_SEMANTIC_IDENTITY",
+          message:
+            `Duplicate semantic identity "${canonicalLabel}" ` +
+            `used by nodes "${existingIdentityId}" and "${node.id}".`,
+          nodeId: node.id,
+        });
+      } else {
+        identityMap.set(canonicalLabel, node.id);
       }
     }
   }
@@ -168,6 +202,10 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
     for (const edge of graph.edges) {
       this.validateEdge(edge, nodeIds, errors, warnings, stats);
 
+      // -------------------------------------------------------
+      // Edge ID consistency
+      // -------------------------------------------------------
+
       if (edgeIds.has(edge.id)) {
         stats.duplicateEdgeIds++;
 
@@ -180,6 +218,10 @@ export class GraphConsistencyService implements GraphConsistencyValidator {
       } else {
         edgeIds.add(edge.id);
       }
+
+      // -------------------------------------------------------
+      // Semantic edge consistency
+      // -------------------------------------------------------
 
       const semanticKey = semanticEdgeKey(edge);
 
