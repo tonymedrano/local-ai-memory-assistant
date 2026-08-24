@@ -127,7 +127,9 @@ export class ContextConstraintExtractor {
     query: string,
     matches: ConstraintMatch[],
   ): void {
-    const patterns = [/\b(?:usa|usar|usando|use|using)\s+(.+?)(?:[.!?]|$)/i];
+    const patterns = [
+      /\b(?:usa|usar|usando|use|using)\s+(.+?)(?=\s+(?:sin|without|no|do not)\b|[.!?]|$)/i,
+    ];
 
     for (const pattern of patterns) {
       const match = query.match(pattern);
@@ -142,7 +144,6 @@ export class ContextConstraintExtractor {
       }
     }
   }
-
   private deduplicate(constraints: ContextConstraint[]): ContextConstraint[] {
     const seen = new Set<string>();
 
