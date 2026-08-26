@@ -12,12 +12,15 @@ import { SemanticReranker } from "../reranking/semantic.reranker.js";
 import type { RetrievalOptions } from "../retrieval.types.js";
 import type { RetrievalStrategy } from "../strategy/retrieval.strategy.js";
 import { CandidateBudgeting } from "../intelligence/candidate.budget.js";
+import type { ContextModel } from "../../context/model/context.model.js";
+import { applyContextToCandidateBudget } from "../../context/retrieval/context.candidate.budget.js";
 
 export interface HybridSearchRequest {
   query: string;
   semantic?: SemanticQuery;
   options?: RetrievalOptions;
   strategy?: RetrievalStrategy;
+  context?: ContextModel;
 }
 
 export class HybridRetriever {
@@ -33,14 +36,14 @@ export class HybridRetriever {
   ) {}
 
   async search(request: HybridSearchRequest): Promise<RetrievalResult[]> {
-    const { query, semantic, options, strategy } = request;
+    const { query, semantic, options, strategy, context } = request;
 
     const expandedQuery =
       semantic?.expandedTerms
         .map((term) => (typeof term === "string" ? term : term.term))
         .join(" ") ?? query;
 
-    const budget = strategy
+    const baseBudget = strategy
       ? this.candidateBudgeting.calculate(strategy)
       : {
           vector: 5,
@@ -49,6 +52,8 @@ export class HybridRetriever {
           graphEvidence: 5,
           total: 5,
         };
+
+    const budget = applyContextToCandidateBudget(baseBudget, context);
 
     const [vectorResults, keywordResults, graphResults, evidenceResults] =
       await Promise.all([

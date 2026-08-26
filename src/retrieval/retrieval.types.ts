@@ -2,10 +2,22 @@ import type { Memory, MemoryType } from "../memory/memory.types.js";
 import type { TraceResult } from "../profiling/profiling.types.js";
 import type { RankedResult } from "./reranker.types.js";
 import type { RetrievalStrategy } from "./strategy/retrieval.strategy.js";
+import type { ContextModel } from "../context/model/context.model.js";
 
 export interface RetrievalRequest {
   query: string;
+
   limit?: number;
+
+  /**
+   * Optional contextual information used to
+   * influence retrieval strategy and candidate budgeting.
+   *
+   * Context is input data for retrieval, not execution
+   * configuration, so it lives directly on the request.
+   */
+  context?: ContextModel;
+
   options?: RetrievalOptions;
 }
 

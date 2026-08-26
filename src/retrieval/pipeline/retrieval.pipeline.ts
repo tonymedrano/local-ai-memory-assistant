@@ -24,6 +24,8 @@ import type { LTRRanker } from "../../ltr/ranking/ltr.ranker.js";
 
 import type { FeedbackDrivenReranker } from "../../ltr/feedback/feedback-driven.reranker.js";
 
+import type { ContextModel } from "../../context/model/context.model.js";
+
 export class RetrievalPipeline {
   constructor(
     private readonly hybridRetriever: HybridRetriever,
@@ -36,14 +38,19 @@ export class RetrievalPipeline {
     private readonly feedbackCollector?: FeedbackCollector,
     private readonly feedbackReranker?: FeedbackDrivenReranker,
     private readonly queryAnalyzer: QueryAnalyzer = new QueryAnalyzer(),
-    private readonly strategySelector: RetrievalStrategySelector = new RetrievalStrategySelector(),
+    private readonly strategySelector: RetrievalStrategySelector =
+      new RetrievalStrategySelector(),
   ) {}
 
-  async retrieve(request: RetrievalRequest): Promise<RetrievalPipelineResult> {
+  async retrieve(
+    request: RetrievalRequest,
+    context?: ContextModel,
+  ): Promise<RetrievalPipelineResult> {
     const queryProfile = this.queryAnalyzer.analyze(request.query);
 
     const strategy =
-      request.options?.strategy ?? this.strategySelector.select(queryProfile);
+      request.options?.strategy ??
+      this.strategySelector.select(queryProfile);
 
     console.log("\n=== QUERY INTELLIGENCE ===");
 
@@ -51,6 +58,7 @@ export class RetrievalPipeline {
       {
         profile: queryProfile,
         strategy,
+        contextAware: context !== undefined,
       },
       { depth: null },
     );
@@ -68,6 +76,7 @@ export class RetrievalPipeline {
           query: request.query,
           strategy,
           options: request.options,
+          context,
         }),
     );
 
@@ -77,26 +86,25 @@ export class RetrievalPipeline {
 
     const limitedCandidates = candidates.slice(0, candidateLimit);
 
-    // 2. Ranking (Baseline / LTR)
+    // 2. Ranking
 
     let rankedCandidates: RankedResult[];
 
     if (request.options?.useLTR === false) {
-      // ==========================
-      // BASELINE
-      // ==========================
-
       rankedCandidates = limitedCandidates.map((result) => ({
         ...result,
         rerankScore: result.score,
       }));
     } else {
-      // ==========================
-      // LTR
-      // ==========================
-
-      const ltrRanked = await profiler.trace("LTR Ranking", () =>
-        Promise.resolve(this.ltrRanker.rank(request.query, limitedCandidates)),
+      const ltrRanked = await profiler.trace(
+        "LTR Ranking",
+        () =>
+          Promise.resolve(
+            this.ltrRanker.rank(
+              request.query,
+              limitedCandidates,
+            ),
+          ),
       );
 
       rankedCandidates = ltrRanked.map(({ result, score }) => ({
@@ -111,72 +119,62 @@ export class RetrievalPipeline {
     let ranked: RankedResult[];
 
     if (strategy.rerank) {
-      ranked = await profiler.trace("Reranking", () =>
-        this.reranker.rerank(request.query, rankedCandidates),
+      ranked = await profiler.trace(
+        "Reranking",
+        () =>
+          this.reranker.rerank(
+            request.query,
+            rankedCandidates,
+          ),
       );
     } else {
       ranked = rankedCandidates;
     }
 
-    console.log("\n=== BEFORE EMBEDDING RERANKER ===");
-
-    console.table(
-      rankedCandidates.map((item) => ({
-        id: item.memory?.id,
-        source: item.source,
-        score: item.score,
-        rerankScore: item.rerankScore,
-      })),
-    );
-
-    console.log("\n=== AFTER EMBEDDING RERANKER ===");
-
-    console.table(
-      ranked.map((item) => ({
-        id: item.memory?.id,
-        source: item.source,
-        score: item.score,
-        rerankScore: item.rerankScore,
-      })),
-    );
-
     // 4. Quality scoring
 
-    const qualityRanked = await profiler.trace("Quality Scoring", () =>
-      this.qualityScoring.score(ranked),
+    const qualityRanked = await profiler.trace(
+      "Quality Scoring",
+      () => this.qualityScoring.score(ranked),
     );
 
     // 5. Duplicate detection
 
-    const unique = await profiler.trace("Duplicate Detection", () =>
-      this.duplicateDetector.removeDuplicates(qualityRanked),
+    const unique = await profiler.trace(
+      "Duplicate Detection",
+      () =>
+        this.duplicateDetector.removeDuplicates(
+          qualityRanked,
+        ),
     );
 
     // 6. Diversity
 
-    /**
-     * Knowledge-oriented strategies need to preserve graph
-     * evidence when it exists.
-     *
-     * graph-evidence represents derived knowledge/inference
-     * and should not disappear merely because memory/vector
-     * results are semantically similar.
-     */
     const requiredSources =
-      strategy.mode === "knowledge" || strategy.mode === "hybrid_graph"
+      strategy.mode === "knowledge" ||
+      strategy.mode === "hybrid_graph"
         ? ["graph-evidence"]
         : undefined;
 
-    const finalResults = await profiler.trace("Diversity Filtering", () =>
-      this.diversityService.filter(unique.results, request.limit ?? 5, {
-        requiredSources,
-        minimumPerSource: 2,
-      }),
+    const finalResults = await profiler.trace(
+      "Diversity Filtering",
+      () =>
+        this.diversityService.filter(
+          unique.results,
+          request.limit ?? 5,
+          {
+            requiredSources,
+            minimumPerSource: 2,
+          },
+        ),
     );
 
-    // Feedback collection
+    // Feedback
 
-    this.feedbackCollector?.resultReturned(request.query, finalResults);
+    this.feedbackCollector?.resultReturned(
+      request.query,
+      finalResults,
+    );
 
     console.table(profiler.summary());
 
@@ -195,15 +193,21 @@ export class RetrievalPipeline {
 
       quality: {
         averageScore: this.average(
-          finalResults.map((item) => item.qualityScore.finalScore),
+          finalResults.map(
+            (item) => item.qualityScore.finalScore,
+          ),
         ),
 
         averageRelevance: this.average(
-          finalResults.map((item) => item.qualityScore.relevance),
+          finalResults.map(
+            (item) => item.qualityScore.relevance,
+          ),
         ),
 
         averageConfidence: this.average(
-          finalResults.map((item) => item.qualityScore.confidence),
+          finalResults.map(
+            (item) => item.qualityScore.confidence,
+          ),
         ),
 
         duplicatesRemoved: unique.duplicatesRemoved,
@@ -216,6 +220,9 @@ export class RetrievalPipeline {
       return 0;
     }
 
-    return values.reduce((a, b) => a + b, 0) / values.length;
+    return (
+      values.reduce((a, b) => a + b, 0) /
+      values.length
+    );
   }
 }

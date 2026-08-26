@@ -1,0 +1,1 @@
+// This file will contain the adapter for context retrieval.
