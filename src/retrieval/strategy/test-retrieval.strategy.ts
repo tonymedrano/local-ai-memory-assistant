@@ -1,8 +1,275 @@
 import { QueryAnalyzer } from "../intelligence/query.analyzer.js";
 import { RetrievalStrategySelector } from "./retrieval.strategy.selector.js";
+import type { QueryProfile } from "../intelligence/query.types.js";
+import type { RetrievalStrategy } from "./retrieval.strategy.js";
+import { buildContextRetrievalSignals } from "../../context/retrieval/context.retrieval.signals.js";
+import type { ContextModel } from "../../context/model/context.model.js";
 
 const analyzer = new QueryAnalyzer();
 const selector = new RetrievalStrategySelector();
+
+function assert(condition: boolean, message: string): void {
+  if (!condition) {
+    throw new Error(`ASSERTION FAILED: ${message}`);
+  }
+}
+
+function select(query: string): {
+  profile: QueryProfile;
+  strategy: RetrievalStrategy;
+} {
+  const profile = analyzer.analyze(query);
+  const strategy = selector.select(profile);
+
+  return {
+    profile,
+    strategy,
+  };
+}
+
+console.log("=== Retrieval Strategy Selector Tests ===");
+
+/*
+ * -------------------------------------------------------
+ * Basic strategy selection
+ * -------------------------------------------------------
+ */
+
+{
+  const { strategy } = select("angular signals");
+
+  assert(
+    strategy.mode === "hybrid",
+    "angular signals should use hybrid retrieval",
+  );
+
+  console.log("✓ semantic/lexical query → hybrid");
+}
+
+{
+  const { strategy } = select("what is Angular Signals?");
+
+  assert(
+    strategy.mode === "hybrid",
+    "semantic question should use hybrid retrieval",
+  );
+
+  console.log("✓ semantic question → hybrid");
+}
+
+{
+  const { strategy } = select("typescript interfaces");
+
+  assert(
+    strategy.mode === "hybrid",
+    "typescript interfaces should use hybrid retrieval",
+  );
+
+  console.log("✓ technical query → hybrid");
+}
+
+/*
+ * -------------------------------------------------------
+ * Temporal retrieval
+ * -------------------------------------------------------
+ */
+
+{
+  const { strategy } = select("what did we decide about LTR yesterday?");
+
+  assert(strategy.mode === "hybrid", "temporal query should remain hybrid");
+
+  assert(
+    strategy.temporalBoost === 0.9,
+    "temporal query should receive temporal boost",
+  );
+
+  console.log("✓ temporal query → hybrid + temporal boost");
+}
+
+/*
+ * -------------------------------------------------------
+ * Relationship / graph retrieval
+ * -------------------------------------------------------
+ */
+
+{
+  const { strategy } = select(
+    "¿qué relación existe entre Angular y TypeScript?",
+  );
+
+  assert(
+    strategy.mode === "hybrid_graph",
+    "complex relationship query should use hybrid_graph",
+  );
+
+  assert(
+    strategy.topK === 20,
+    "complex relationship query should increase topK",
+  );
+
+  assert(
+    strategy.expandQuery === true,
+    "complex relationship query should enable query expansion",
+  );
+
+  console.log("✓ complex relationship query → hybrid_graph");
+}
+
+{
+  const { strategy } = select(
+    "¿cómo están relacionados Angular Signals y TypeScript?",
+  );
+
+  assert(
+    strategy.mode === "graph",
+    "simple relationship query should use graph retrieval",
+  );
+
+  console.log("✓ relationship query → graph");
+}
+
+/*
+ * -------------------------------------------------------
+ * Comparison retrieval
+ * -------------------------------------------------------
+ */
+
+{
+  const { strategy } = select("¿cuál es la diferencia entre BM25 y RRF?");
+
+  assert(
+    strategy.mode === "hybrid",
+    "comparison query should use hybrid retrieval",
+  );
+
+  assert(strategy.topK === 20, "complex comparison query should increase topK");
+
+  assert(
+    strategy.expandQuery === true,
+    "complex comparison query should enable query expansion",
+  );
+
+  console.log("✓ comparison query → hybrid");
+}
+
+/*
+ * -------------------------------------------------------
+ * Exact lexical retrieval
+ * -------------------------------------------------------
+ */
+
+{
+  const { strategy } = select('"angular signals"');
+
+  assert(
+    strategy.mode === "keyword",
+    "exact quoted terms should use keyword retrieval",
+  );
+
+  console.log("✓ exact terms → keyword");
+}
+
+/*
+ * -------------------------------------------------------
+ * Safe fallback
+ * -------------------------------------------------------
+ */
+
+{
+  const { strategy } = select("");
+
+  assert(
+    strategy.mode === "hybrid",
+    "empty query should use safe hybrid fallback",
+  );
+
+  console.log("✓ empty query → hybrid fallback");
+}
+
+/*
+ * -------------------------------------------------------
+ * Context retrieval signals
+ *
+ * These tests verify that the contextual layer can expose
+ * structured retrieval hints without mutating the context.
+ * -------------------------------------------------------
+ */
+
+{
+  const context: ContextModel = {
+    id: "context-test",
+    query: "Implementa el sistema usando Qdrant",
+    entities: [
+      {
+        id: "qdrant",
+        label: "Qdrant",
+        type: "technology",
+        confidence: 0.95,
+        source: "query",
+      },
+    ],
+    topics: ["database", "memory"],
+    goals: [
+      {
+        id: "implement-system",
+        description: "implementar el sistema de memoria",
+        priority: 0.9,
+      },
+    ],
+    constraints: [
+      {
+        type: "technology",
+        value: "Qdrant",
+        source: "query",
+      },
+    ],
+    memories: [],
+    knowledge: [],
+    confidence: 1,
+    createdAt: "2026-08-24T00:00:00.000Z",
+  };
+
+  const original = JSON.stringify(context);
+
+  const signals = buildContextRetrievalSignals(context);
+
+  assert(
+    signals.entities.includes("Qdrant"),
+    "context signals should expose entities",
+  );
+
+  assert(
+    signals.topics.includes("database"),
+    "context signals should expose topics",
+  );
+
+  assert(
+    signals.goalTerms.includes("implementar"),
+    "context signals should flatten goal terms",
+  );
+
+  assert(
+    signals.constraints.some(
+      (constraint) =>
+        constraint.type === "technology" && constraint.value === "Qdrant",
+    ),
+    "context signals should expose constraints",
+  );
+
+  assert(
+    JSON.stringify(context) === original,
+    "building retrieval signals must not mutate context",
+  );
+
+  console.log("✓ contextual retrieval signals preserved");
+}
+
+/*
+ * -------------------------------------------------------
+ * Regression matrix
+ * -------------------------------------------------------
+ */
 
 interface ExpectedStrategy {
   query: string;
@@ -113,9 +380,6 @@ for (const testCase of cases) {
 
   if (errors.length === 0) {
     passed++;
-
-    console.log(`✓ ${JSON.stringify(testCase.query)}`);
-    console.log(`  → ${strategy.mode}`);
   } else {
     failed++;
 
@@ -133,13 +397,14 @@ for (const testCase of cases) {
   }
 }
 
-console.log("\n========================================");
-console.log("RETRIEVAL STRATEGY TEST");
-console.log("========================================");
+console.log("\n=== REGRESSION MATRIX ===");
 console.log(`Passed: ${passed}`);
 console.log(`Failed: ${failed}`);
 console.log(`Total:  ${cases.length}`);
 
-if (failed > 0) {
-  process.exit(1);
-}
+assert(
+  failed === 0,
+  `retrieval strategy regression matrix has ${failed} failure(s)`,
+);
+
+console.log("\n=== ALL RETRIEVAL STRATEGY SELECTOR TESTS PASSED ===");

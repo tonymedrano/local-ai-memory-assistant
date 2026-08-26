@@ -1,14 +1,23 @@
 import type { QueryProfile } from "../intelligence/query.types.js";
 import type { RetrievalMode, RetrievalStrategy } from "./retrieval.strategy.js";
+import type { ContextRetrievalStrategyHints } from "../../context/retrieval/context.retrieval.strategy.js";
 
 export class RetrievalStrategySelector {
-  select(profile: QueryProfile): RetrievalStrategy {
-    const mode = this.selectMode(profile);
+  select(
+    profile: QueryProfile,
+    hints?: ContextRetrievalStrategyHints,
+  ): RetrievalStrategy {
+    const mode = this.selectMode(profile, hints);
 
-    return this.buildStrategy(mode, profile);
+    const strategy = this.buildStrategy(mode, profile);
+
+    return this.applyContextHints(strategy, hints);
   }
 
-  private selectMode(profile: QueryProfile): RetrievalMode {
+  private selectMode(
+    profile: QueryProfile,
+    hints?: ContextRetrievalStrategyHints,
+  ): RetrievalMode {
     /**
      * Relationship queries have the highest priority.
      *
@@ -24,14 +33,6 @@ export class RetrievalStrategySelector {
 
     /**
      * Knowledge-oriented queries.
-     *
-     * Multiple recognized entities are a strong signal that the
-     * query may require knowledge-graph or inference evidence,
-     * even when the QueryAnalyzer has not classified it explicitly
-     * as relational.
-     *
-     * We deliberately require at least two entities so that a
-     * simple query such as "Qdrant vector database" remains hybrid.
      */
     if (
       profile.hasEntities &&
@@ -43,9 +44,24 @@ export class RetrievalStrategySelector {
     }
 
     /**
+     * Contextual knowledge is a secondary signal.
+     *
+     * It may suggest knowledge retrieval only when the
+     * explicit query profile has not already selected a
+     * stronger semantic mode.
+     */
+    if (
+      hints?.preferredMode === "knowledge" &&
+      profile.comparisonIntent < 0.7 &&
+      profile.relationalIntent < 0.7 &&
+      profile.temporalIntent < 0.7 &&
+      !profile.hasExactTerms
+    ) {
+      return "knowledge";
+    }
+
+    /**
      * Explicit comparisons are semantic/hybrid queries.
-     * They should not become pure keyword searches merely
-     * because they contain several entities.
      */
     if (profile.comparisonIntent >= 0.7) {
       return "hybrid";
@@ -74,9 +90,6 @@ export class RetrievalStrategySelector {
 
     /**
      * High specificity alone does not imply keyword retrieval.
-     *
-     * Specificity represents information density, not
-     * necessarily lexical intent.
      */
     if (
       profile.specificity >= 0.8 &&
@@ -133,6 +146,38 @@ export class RetrievalStrategySelector {
     return strategy;
   }
 
+  private applyContextHints(
+    strategy: RetrievalStrategy,
+    hints?: ContextRetrievalStrategyHints,
+  ): RetrievalStrategy {
+    if (!hints) {
+      return strategy;
+    }
+
+    /*
+     * Context hints are deliberately conservative.
+     *
+     * They influence retrieval weights but do not replace
+     * the strategy selected from explicit query intent.
+     */
+    strategy.vectorWeight += hints.semanticBoost;
+    strategy.keywordWeight += hints.keywordBoost;
+    strategy.graphWeight += hints.graphBoost;
+
+    if (hints.temporalBoost > strategy.temporalBoost) {
+      strategy.temporalBoost = hints.temporalBoost;
+    }
+
+    /*
+     * Keep weights bounded.
+     */
+    strategy.vectorWeight = Math.min(strategy.vectorWeight, 1);
+    strategy.keywordWeight = Math.min(strategy.keywordWeight, 1);
+    strategy.graphWeight = Math.min(strategy.graphWeight, 1);
+
+    return strategy;
+  }
+
   private getBaseStrategy(mode: RetrievalMode): RetrievalStrategy {
     switch (mode) {
       case "vector":
@@ -174,14 +219,6 @@ export class RetrievalStrategySelector {
           temporalBoost: 0,
         };
 
-      /**
-       * Knowledge retrieval keeps semantic and lexical retrieval
-       * active while giving the Knowledge Graph and inference
-       * layer enough weight to contribute meaningful candidates.
-       *
-       * This is intentionally less aggressive than pure graph
-       * retrieval.
-       */
       case "knowledge":
         return {
           mode,
