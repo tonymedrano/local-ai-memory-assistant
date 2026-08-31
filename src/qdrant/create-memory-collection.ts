@@ -1,11 +1,12 @@
 import { qdrant } from "./qdrant.client.js";
+import { config } from "../config.js";
 
 
 async function createCollection(){
 
     const exists =
         await qdrant.collectionExists(
-            "contextual_memory"
+            config.memoryCollection
         );
 
 
@@ -17,8 +18,8 @@ async function createCollection(){
     }
 
 
-    await qdrant.createCollection(
-        "contextual_memory",
+        await qdrant.createCollection(
+        config.memoryCollection,
         {
             vectors:{
                 size:768,
@@ -29,7 +30,7 @@ async function createCollection(){
 
 
     console.log(
-        "contextual_memory created"
+        `${config.memoryCollection} created`
     );
 }
 

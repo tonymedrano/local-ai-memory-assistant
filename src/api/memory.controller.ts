@@ -14,7 +14,7 @@ import { recall, store } from "../core/container.js";
  *  |
  * Ollama embedding
  *  |
- * Qdrant contextual_memory
+ * Qdrant memory collection configured through MEMORY_COLLECTION
  */
 export async function addMemory(req: Request, res: Response) {
   try {

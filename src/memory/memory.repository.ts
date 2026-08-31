@@ -1,7 +1,11 @@
 import { qdrant } from "../qdrant/qdrant.client.js";
+import { config } from "../config.js";
 import type { Memory, MemoryItem } from "./memory.types.js";
 
-const COLLECTION = "contextual_memory";
+export type MemoryQdrantClient = Pick<
+  typeof qdrant,
+  "upsert" | "search" | "setPayload" | "scroll" | "delete"
+>;
 
 export interface SearchOptions {
   limit?: number;
@@ -17,8 +21,13 @@ export interface MemorySearchResult {
 }
 
 export class MemoryRepository {
+  constructor(
+    private readonly client: MemoryQdrantClient = qdrant,
+    private readonly collection: string = config.memoryCollection,
+  ) {}
+
   async save(id: string, vector: number[], memory: Memory) {
-    await qdrant.upsert(COLLECTION, {
+    await this.client.upsert(this.collection, {
       wait: true,
 
       points: [
@@ -60,7 +69,7 @@ export class MemoryRepository {
       });
     }
 
-    const results = await qdrant.search(COLLECTION, {
+    const results = await this.client.search(this.collection, {
       vector,
       limit: options?.limit ?? 5,
       with_payload: true,
@@ -93,7 +102,7 @@ export class MemoryRepository {
     excludeId?: string,
     scoreThreshold = 0.9,
   ) {
-    const results = await qdrant.search(COLLECTION, {
+    const results = await this.client.search(this.collection, {
       vector,
       limit: 10,
       with_payload: true,
@@ -132,7 +141,7 @@ export class MemoryRepository {
   }
 
   async update(id: string | number, payload: Record<string, unknown>) {
-    await qdrant.setPayload(COLLECTION, {
+    await this.client.setPayload(this.collection, {
       points: [id],
 
       payload: {
@@ -144,7 +153,7 @@ export class MemoryRepository {
   }
 
   async findPendingKnowledgeExtraction(): Promise<MemoryItem[]> {
-    const result = await qdrant.scroll(COLLECTION, {
+    const result = await this.client.scroll(this.collection, {
       limit: 1000,
 
       with_payload: true,
@@ -170,7 +179,7 @@ export class MemoryRepository {
   }
 
   async markKnowledgeExtracted(id: string) {
-    await qdrant.setPayload(COLLECTION, {
+    await this.client.setPayload(this.collection, {
       points: [id],
 
       payload: {
@@ -182,7 +191,7 @@ export class MemoryRepository {
   }
 
   async getAll(): Promise<Memory[]> {
-    const result = await qdrant.scroll(COLLECTION, {
+    const result = await this.client.scroll(this.collection, {
       limit: 1000,
 
       with_payload: true,
@@ -200,7 +209,7 @@ export class MemoryRepository {
   }
 
   async delete(id: string | number) {
-    await qdrant.delete(COLLECTION, {
+    await this.client.delete(this.collection, {
       points: [id],
     });
   }

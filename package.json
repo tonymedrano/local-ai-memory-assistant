@@ -15,7 +15,8 @@
     "test:consolidation": "tsx src/tests/test-memory-consolidation.ts",
     "test:score": "tsx src/tests/test-memory-score.ts",
     "test:ranking": "tsx src/tests/test-memory-ranking.ts",
-    "test:retrieval": "tsx src/tests/test-memory-retrieval.ts"
+    "test:retrieval": "tsx src/tests/test-memory-retrieval.ts",
+    "test:qdrant-config": "tsx src/qdrant/test-memory-collection-config.ts"
   },
   "keywords": [],
   "author": "",
