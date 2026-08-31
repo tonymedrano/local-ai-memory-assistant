@@ -12,7 +12,6 @@ const result = extractor.extract({
     updatedAt: new Date().toISOString(),
     accessCount: 50,
   },
-
   metrics: {
     semantic: 0.92,
     bm25: 0.74,
@@ -20,9 +19,15 @@ const result = extractor.extract({
     diversity: 0.8,
     duplicatePenalty: 0.1,
     feedbackScore: 0.7,
+    contextScore: 0.88,
   },
 });
 
 console.log("Memory:", result.memoryId);
 
 console.table(result.features);
+
+console.assert(
+  result.features.contextScore === 0.88,
+  "contextScore should be extracted",
+);

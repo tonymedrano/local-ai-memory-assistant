@@ -3,6 +3,7 @@ import { ModelRepository } from "../model/model.repository.js";
 import { Trainer } from "./trainer.js";
 
 import type { FeedbackRepository } from "../feedback/feedback.repository.js";
+import { isTrainableFeedback } from "../feedback/feedback.types.js";
 import { DEFAULT_WEIGHTS } from "../model/default-weights.js";
 
 export class TrainingService {
@@ -13,12 +14,15 @@ export class TrainingService {
 
   async train(): Promise<void> {
     const feedback = await this.feedbackRepository.findAll();
+    const trainableFeedback = feedback.filter((item) =>
+      isTrainableFeedback(item.type),
+    );
 
     const MIN_SAMPLES = 10;
 
-    if (feedback.length < MIN_SAMPLES) {
+    if (trainableFeedback.length < MIN_SAMPLES) {
       console.log(
-        `[LTR] Not enough feedback samples: ${feedback.length}/${MIN_SAMPLES}`,
+        `[LTR] Not enough trainable feedback samples: ${trainableFeedback.length}/${MIN_SAMPLES}`,
       );
 
       return;
@@ -30,7 +34,7 @@ export class TrainingService {
 
     const trainer = new Trainer(model);
 
-    for (const item of feedback) {
+    for (const item of trainableFeedback) {
       trainer.train({
         features: item.features,
         target: item.signal,
@@ -42,7 +46,7 @@ export class TrainingService {
 
       trainedAt: new Date().toISOString(),
 
-      samples: (stored?.samples ?? 0) + feedback.length,
+      samples: (stored?.samples ?? 0) + trainableFeedback.length,
 
       weights: model.getWeights(),
     });

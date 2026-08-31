@@ -1,19 +1,14 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 
+import { config } from "../config.js";
+import { readJsonFile, writeJsonFileAtomic } from "../persistence/json.file.js";
 import { type ProjectContext } from "./project.types.js";
 
-const PROJECT_FILE = path.join(process.cwd(), "data/projects.json");
+const PROJECT_FILE = path.join(config.dataDir, "projects.json");
 
 export class ProjectRegistry {
   async getProjects(): Promise<ProjectContext[]> {
-    try {
-      const data = await fs.readFile(PROJECT_FILE, "utf8");
-
-      return JSON.parse(data);
-    } catch {
-      return [];
-    }
+    return readJsonFile(PROJECT_FILE, []);
   }
 
   async getProject(id: string): Promise<ProjectContext | undefined> {
@@ -33,7 +28,7 @@ console.log(
   "Registrando proyecto:",
   project
 );
-      await fs.writeFile(PROJECT_FILE, JSON.stringify(projects, null, 2));
+      await writeJsonFileAtomic(PROJECT_FILE, projects);
     }
   }
 

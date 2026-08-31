@@ -1,4 +1,7 @@
-import fs from "node:fs";
+import {
+  readJsonFileSync,
+  writeJsonFileAtomicSync,
+} from "../../persistence/json.file.js";
 import type { LTRWeights } from "./ltr.model.js";
 
 export class LTRModelStorage {
@@ -13,20 +16,15 @@ export class LTRModelStorage {
       weights,
     };
 
-    fs.writeFileSync(
-      this.path,
-
-      JSON.stringify(model, null, 2),
-    );
+    writeJsonFileAtomicSync(this.path, model);
   }
 
   load(): LTRWeights | null {
-    if (!fs.existsSync(this.path)) {
-      return null;
-    }
+    const data = readJsonFileSync<{ weights: LTRWeights } | null>(
+      this.path,
+      null,
+    );
 
-    const data = JSON.parse(fs.readFileSync(this.path, "utf-8"));
-
-    return data.weights;
+    return data?.weights ?? null;
   }
 }

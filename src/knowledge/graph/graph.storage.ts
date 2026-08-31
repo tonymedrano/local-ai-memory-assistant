@@ -1,9 +1,10 @@
-import fs from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import { readJsonFileSync, writeJsonFileAtomicSync } from "../../persistence/json.file.js";
 import type { KnowledgeGraph } from "./graph.types.js";
 
-const DATA_DIR = path.resolve("data");
+const DATA_DIR = config.dataDir;
 
 const FILE_PATH = path.join(DATA_DIR, "knowledge-graph.json");
 
@@ -13,13 +14,7 @@ class GraphStorage {
   }
 
   private ensureStorage() {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, {
-        recursive: true,
-      });
-    }
-
-    if (!fs.existsSync(FILE_PATH)) {
+    if (!readJsonFileSync<KnowledgeGraph | undefined>(FILE_PATH, undefined)) {
       this.save({
         nodes: [],
         edges: [],
@@ -28,15 +23,11 @@ class GraphStorage {
   }
 
   load(): KnowledgeGraph {
-    console.log("[GraphStorage] FILE_PATH:", FILE_PATH);
-console.log("[GraphStorage] cwd:", process.cwd());
-    const content = fs.readFileSync(FILE_PATH, "utf-8");
-
-    return JSON.parse(content);
+    return readJsonFileSync(FILE_PATH, { nodes: [], edges: [] });
   }
 
   save(graph: KnowledgeGraph) {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(graph, null, 2), "utf-8");
+    writeJsonFileAtomicSync(FILE_PATH, graph);
   }
 
   clear() {

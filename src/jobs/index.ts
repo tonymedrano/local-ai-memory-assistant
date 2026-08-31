@@ -8,6 +8,8 @@ export { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
 
 export { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
 
+export { knowledgeMaintenanceCycle } from "./knowledge-maintenance.cycle.js";
+
 export { relearningJob } from "./relearning.job.js";
 
 export { contextLearningJob } from "./context-learning.job.js";

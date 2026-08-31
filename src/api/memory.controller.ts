@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { recall, store } from "../core/container.js";
+import { badRequest, internalError } from "./http.errors.js";
+import { memorySchema, memorySearchSchema } from "./request.schemas.js";
 
 /**
  * Guarda una memoria contextual.
@@ -17,18 +19,18 @@ import { recall, store } from "../core/container.js";
  * Qdrant memory collection configured through MEMORY_COLLECTION
  */
 export async function addMemory(req: Request, res: Response) {
-  try {
-    const memory = req.body;
+  const parsed = memorySchema.safeParse(req.body);
 
-    const result = await store(memory);
+  if (!parsed.success) {
+    return badRequest(res, "Invalid memory payload");
+  }
+
+  try {
+    const result = await store(parsed.data);
 
     res.json(result);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      error: "Error storing memory",
-    });
+    return internalError(res, error, "[MemoryController] store");
   }
 }
 
@@ -42,17 +44,19 @@ export async function addMemory(req: Request, res: Response) {
  * }
  */
 export async function findMemory(req: Request, res: Response) {
+  const parsed = memorySearchSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return badRequest(res, "Invalid memory search payload");
+  }
+
   try {
-    const { query, options } = req.body;
+    const { query, options } = parsed.data;
 
     const result = await recall(query, options);
 
     res.json(result);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      error: "Error searching memory",
-    });
+    return internalError(res, error, "[MemoryController] search");
   }
 }

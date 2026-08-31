@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { internalError } from "../api/http.errors.js";
 import { DashboardService } from "./dashboard.service.js";
 
 export function createDashboardController(dashboard: DashboardService): Router {
@@ -11,11 +12,7 @@ export function createDashboardController(dashboard: DashboardService): Router {
 
       res.json(data);
     } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        error: "Unable to load dashboard",
-      });
+      return internalError(res, error, "[DashboardController]");
     }
   });
 

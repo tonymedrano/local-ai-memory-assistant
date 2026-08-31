@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
 
+import { badRequest, notFound } from "../../api/http.errors.js";
+import { pathParameterSchema } from "../../api/request.schemas.js";
+
 import {
   getGraph,
   getStats,
@@ -19,13 +22,25 @@ export function graph(req: Request, res: Response) {
 }
 
 export function node(req: Request<Params>, res: Response) {
-  const result = getNode(req.params.id);
+  const parsed = pathParameterSchema.safeParse(req.params.id);
 
-  res.json(result ?? null);
+  if (!parsed.success) {
+    return badRequest(res, "Invalid graph node id");
+  }
+
+  const result = getNode(parsed.data);
+
+  return result ? res.json(result) : notFound(res, "Graph node not found");
 }
 
 export function neighbors(req: Request<Params>, res: Response) {
-  res.json(getNeighbors(req.params.id));
+  const parsed = pathParameterSchema.safeParse(req.params.id);
+
+  if (!parsed.success) {
+    return badRequest(res, "Invalid graph node id");
+  }
+
+  return res.json(getNeighbors(parsed.data));
 }
 
 export function stats(req: Request, res: Response) {
@@ -33,15 +48,33 @@ export function stats(req: Request, res: Response) {
 }
 
 export function relations(req: Request<{ id: string }>, res: Response) {
-  res.json(getRelations(req.params.id));
+  const parsed = pathParameterSchema.safeParse(req.params.id);
+
+  if (!parsed.success) {
+    return badRequest(res, "Invalid graph node id");
+  }
+
+  return res.json(getRelations(parsed.data));
 }
 
 export function incoming(req: Request<{ id: string }>, res: Response) {
-  res.json(getIncomingRelations(req.params.id));
+  const parsed = pathParameterSchema.safeParse(req.params.id);
+
+  if (!parsed.success) {
+    return badRequest(res, "Invalid graph node id");
+  }
+
+  return res.json(getIncomingRelations(parsed.data));
 }
 
 export function search(req: Request<{ label: string }>, res: Response) {
-  const result = findNodeByLabel(req.params.label);
+  const parsed = pathParameterSchema.safeParse(req.params.label);
 
-  res.json(result ?? null);
+  if (!parsed.success) {
+    return badRequest(res, "Invalid graph label");
+  }
+
+  const result = findNodeByLabel(parsed.data);
+
+  return result ? res.json(result) : notFound(res, "Graph node not found");
 }

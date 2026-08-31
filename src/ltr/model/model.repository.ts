@@ -1,28 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import { readJsonFileSync, writeJsonFileAtomicSync } from "../../persistence/json.file.js";
 import { LinearModel } from "./linear.model.js";
 import type { StoredModel, LinearWeights } from "./model.types.js";
 
 export class ModelRepository {
-  private static readonly FILE_PATH = path.join(
-    process.cwd(),
-    "data",
-    "ltr-model.json",
-  );
+  constructor(
+    private readonly filePath = path.join(config.dataDir, "ltr-model.json"),
+  ) {}
 
   load(): StoredModel | null {
-    if (!fs.existsSync(ModelRepository.FILE_PATH)) {
-      return null;
-    }
-
-    const content = fs.readFileSync(ModelRepository.FILE_PATH, "utf8");
-
-    if (!content.trim()) {
-      return null;
-    }
-
-    return JSON.parse(content) as StoredModel;
+    return readJsonFileSync<StoredModel | null>(this.filePath, null);
   }
 
   loadLinearModel(): LinearModel | null {
@@ -36,28 +26,16 @@ export class ModelRepository {
   }
 
   save(model: StoredModel): void {
-    const directory = path.dirname(ModelRepository.FILE_PATH);
-
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, {
-        recursive: true,
-      });
-    }
-
-    fs.writeFileSync(
-      ModelRepository.FILE_PATH,
-      JSON.stringify(model, null, 2),
-      "utf8",
-    );
+    writeJsonFileAtomicSync(this.filePath, model);
   }
 
   exists(): boolean {
-    return fs.existsSync(ModelRepository.FILE_PATH);
+    return fs.existsSync(this.filePath);
   }
 
   delete(): void {
     if (this.exists()) {
-      fs.unlinkSync(ModelRepository.FILE_PATH);
+      fs.unlinkSync(this.filePath);
     }
   }
 }

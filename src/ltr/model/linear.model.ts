@@ -7,7 +7,9 @@ export class LinearModel {
   predict(features: FeatureVector): number {
     return (Object.keys(this.weights) as Array<keyof LinearWeights>).reduce(
       (score, key) => {
-        return score + this.weights[key]! * features[key]!;
+        const featureValue = features[key] ?? 0;
+
+        return score + this.weights[key]! * featureValue;
       },
       0,
     );

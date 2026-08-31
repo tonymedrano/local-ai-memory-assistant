@@ -1,7 +1,10 @@
 import { DatasetRepository } from "./dataset.repository.js";
 import { FeedbackRepository } from "../feedback/feedback.repository.js";
 import { FeatureStore } from "../features/feature.store.js";
-import { FeedbackType } from "../feedback/feedback.types.js";
+import {
+  FeedbackType,
+  isTrainableFeedback,
+} from "../feedback/feedback.types.js";
 
 export class AutomaticDatasetBuilder {
   constructor(
@@ -16,6 +19,10 @@ export class AutomaticDatasetBuilder {
     let generated = 0;
 
     for (const feedback of feedbacks) {
+      if (!isTrainableFeedback(feedback.type)) {
+        continue;
+      }
+
       const features = this.featureStore.find(
         feedback.query,
         feedback.memoryId,
@@ -54,7 +61,7 @@ export class AutomaticDatasetBuilder {
         return 0;
 
       default:
-        return 0.5;
+        return 0;
     }
   }
 }

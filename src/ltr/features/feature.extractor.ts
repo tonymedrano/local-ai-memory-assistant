@@ -10,35 +10,24 @@ export class FeatureExtractor {
 
     const features: FeatureVector = {
       semantic: metrics?.semantic ?? 0,
-
       bm25: metrics?.bm25 ?? 0,
-
       importance: memory.importance ?? 0,
-
       confidence: memory.confidence ?? 0,
-
       freshness: this.calculateFreshness(
         memory.updatedAt ?? memory.createdAt ?? new Date(),
       ),
-
       graphEvidence: metrics?.graphEvidence ?? 0,
-
       accessCount: this.normalizeAccessCount(memory.accessCount ?? 0),
-
       diversity: metrics?.diversity ?? 0,
-
       duplicatePenalty: metrics?.duplicatePenalty ?? 0,
-
-      // NUEVAS FEATURES LTR
-
       feedbackScore: metrics?.feedbackScore ?? 0,
-
       retrievalFrequency: this.calculateRetrievalFrequency(
         memory.accessCount ?? 0,
         memory.createdAt,
       ),
 
       ageScore: this.calculateAgeScore(memory.createdAt),
+      contextScore: metrics?.contextScore ?? 0,
     };
 
     return {

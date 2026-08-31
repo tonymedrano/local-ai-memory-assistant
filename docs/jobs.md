@@ -1,31 +1,18 @@
-# Background Jobs
+# Background jobs
 
-Memory Service runs autonomous background jobs.
+Jobs start only after service bootstrap succeeds. The shared runner records job
+history and prevents concurrent executions of the same named job in a process.
 
-## Lifecycle
+## Schedule (server local time)
 
-Updates importance and archives memories.
+| Time | Job | Behaviour |
+| --- | --- | --- |
+| Daily 03:00 | Lifecycle | Updates memory lifecycle state. |
+| Daily 04:00 | Knowledge maintenance | Runs extraction → consolidation → relearning → inference sequentially. A failure stops later stages. |
+| Daily 05:30 | Context learning | Processes context-learning events. |
+| Daily 05:45 | LTR training | Trains only from explicit, trainable feedback; impressions are excluded. |
+| Sunday 04:00 | Cleanup | Deletes archived memories whose `updatedAt` is at least 30 days old. Active, recent, or invalid-date records are kept. |
 
-## Cleanup
-
-Deletes obsolete archived memories.
-
-## Knowledge Extraction
-
-Converts new memories into structured knowledge.
-
-## Knowledge Consolidation
-
-Merges duplicated knowledge.
-
-## Relearning
-
-Re-evaluates knowledge confidence.
-
-## Context Learning
-
-Processes learning events and updates adaptive scores.
-
-## Scheduler
-
-All jobs are executed automatically using cron schedules.
+The cleanup job is intentionally idempotent. V1 has no manual HTTP trigger for
+maintenance jobs and no cross-process/distributed lock; run a single scheduler
+instance for a given deployment.

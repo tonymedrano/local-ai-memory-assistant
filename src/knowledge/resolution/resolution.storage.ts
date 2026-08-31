@@ -1,9 +1,10 @@
-import fs from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import { readJsonFileSync, writeJsonFileAtomicSync } from "../../persistence/json.file.js";
 import type { KnowledgeResolution } from "./resolution.types.js";
 
-const FILE_PATH = path.resolve("data/knowledge-resolutions.json");
+const FILE_PATH = path.join(config.dataDir, "knowledge-resolutions.json");
 
 class ResolutionStorage {
   private resolutions: KnowledgeResolution[] = [];
@@ -17,15 +18,14 @@ class ResolutionStorage {
   }
 
   private load() {
-    if (!fs.existsSync(FILE_PATH)) {
+    const resolutions = readJsonFileSync<KnowledgeResolution[] | undefined>(FILE_PATH, undefined);
+    if (!resolutions) {
       this.save();
 
       return;
     }
 
-    const content = fs.readFileSync(FILE_PATH, "utf-8");
-
-    this.resolutions = JSON.parse(content);
+    this.resolutions = resolutions;
 
     console.log(
       `[ResolutionStorage] Loaded ${this.resolutions.length} resolutions`,
@@ -33,7 +33,7 @@ class ResolutionStorage {
   }
 
   private save() {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(this.resolutions, null, 2));
+    writeJsonFileAtomicSync(FILE_PATH, this.resolutions);
   }
 
   add(resolution: KnowledgeResolution) {

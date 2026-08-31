@@ -18,10 +18,10 @@ repository.save({
     accessCount: 0.01,
     diversity: 0.01,
     duplicatePenalty: -0.1,
-
-  feedbackScore: 0.05,
-  retrievalFrequency: 0.03,
-  ageScore: 0.02,
+    feedbackScore: 0.05,
+    retrievalFrequency: 0.03,
+    ageScore: 0.02,
+    contextScore: 0,
   },
 });
 

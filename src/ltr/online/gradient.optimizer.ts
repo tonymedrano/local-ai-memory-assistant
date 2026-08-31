@@ -11,11 +11,9 @@ export class GradientOptimizer {
     const updated: FeatureWeights = { ...weights };
 
     for (const key of Object.keys(weights) as Array<keyof FeatureWeights>) {
-      updated[key] =
-        weights[key]! +
-        learningRate *
-          error *
-          features[key]!;
+      const featureValue = features[key] ?? 0;
+
+      updated[key] = weights[key]! + learningRate * error * featureValue;
     }
 
     return updated;

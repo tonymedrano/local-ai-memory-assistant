@@ -13,6 +13,7 @@ export interface FeatureMetrics {
 
   // LTR feedback signal
   feedbackScore?: number;
+  contextScore?: number;
 }
 export interface TrainingExample {
   query: string;
@@ -39,6 +40,7 @@ export interface FeatureVector {
   feedbackScore?: number;
   retrievalFrequency?: number;
   ageScore?: number;
+  contextScore?: number;
 }
 export interface LTRFeatures {
   // Retrieval

@@ -32,7 +32,7 @@ export class FeedbackCollector {
       await this.feedbackService.record({
         query,
         memoryId: result.memory.id,
-        type: FeedbackType.CLICK,
+        type: FeedbackType.IMPRESSION,
         features: ranked.features,
       });
     }

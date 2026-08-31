@@ -46,6 +46,10 @@ export class JobRepository {
 
     execution.finishedAt = new Date().toISOString();
 
+    execution.duration =
+      new Date(execution.finishedAt).getTime() -
+      new Date(execution.startedAt).getTime();
+
     execution.error = error instanceof Error ? error.message : String(error);
   }
 

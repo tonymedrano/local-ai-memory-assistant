@@ -61,31 +61,27 @@ import { createMemoryService } from "../memory/memory.service.js";
 
 import { ConsolidationService } from "../memory/consolidation/consolidation.service.js";
 
+import { ContextAwareScoringService } from "../retrieval/context/context-aware-scoring.service.js";
+
 /* -------------------------------------------------------------------------- */
 /*                              Metrics / Learning                            */
 /* -------------------------------------------------------------------------- */
 
-export const metricsRepository =
-  new InMemoryMetricsRepository();
+export const metricsRepository = new InMemoryMetricsRepository();
 
-export const metricsService =
-  new MetricsService(metricsRepository);
+export const metricsService = new MetricsService(metricsRepository);
 
-export const dashboardService =
-  new DashboardService(metricsService);
+export const dashboardService = new DashboardService(metricsService);
 
-export const learningRepository =
-  new LearningRepository();
+export const learningRepository = new LearningRepository();
 
-export const learningService =
-  new LearningService(learningRepository);
+export const learningService = new LearningService(learningRepository);
 
 /* -------------------------------------------------------------------------- */
 /*                                Memory                                      */
 /* -------------------------------------------------------------------------- */
 
-export const memoryRepository =
-  new MemoryRepository();
+export const memoryRepository = new MemoryRepository();
 
 /* -------------------------------------------------------------------------- */
 /*                              Retrieval Index                                */
@@ -101,75 +97,60 @@ export const memoryRepository =
  *
  * Everything is instantiated here, in dependency order.
  */
-export const keywordIndex =
-  new KeywordIndex();
+export const keywordIndex = new KeywordIndex();
 
-export const keywordIndexLoader =
-  new KeywordIndexLoader(
-    memoryRepository,
-    keywordIndex,
-  );
+export const keywordIndexLoader = new KeywordIndexLoader(
+  memoryRepository,
+  keywordIndex,
+);
 
 /* -------------------------------------------------------------------------- */
 /*                              Retrieval Core                                 */
 /* -------------------------------------------------------------------------- */
 
-const embeddingService =
-  new EmbeddingService();
+const embeddingService = new EmbeddingService();
 
-const vectorRetriever =
-  new VectorRetriever(
-    memoryRepository,
-    embeddingService,
-  );
+const vectorRetriever = new VectorRetriever(memoryRepository, embeddingService);
 
-const keywordRetriever =
-  new KeywordRetriever(
-    keywordIndex,
-    memoryRepository,
-  );
+const keywordRetriever = new KeywordRetriever(keywordIndex, memoryRepository);
 
-const graphRetriever =
-  new GraphRetriever();
+const graphRetriever = new GraphRetriever();
 
-const graphEvidenceRetriever =
-  new GraphEvidenceRetriever();
+const graphEvidenceRetriever = new GraphEvidenceRetriever();
 
-const fusion =
-  new WeightedReciprocalRankFusion();
+const fusion = new WeightedReciprocalRankFusion();
 
-const semanticReranker =
-  new SemanticReranker();
+const semanticReranker = new SemanticReranker();
 
-export const hybridRetriever =
-  new HybridRetriever(
-    vectorRetriever,
-    keywordRetriever,
-    graphRetriever,
-    graphEvidenceRetriever,
-    fusion,
-    semanticReranker,
-  );
+export const hybridRetriever = new HybridRetriever(
+  vectorRetriever,
+  keywordRetriever,
+  graphRetriever,
+  graphEvidenceRetriever,
+  fusion,
+  semanticReranker,
+);
 
 /* -------------------------------------------------------------------------- */
 /*                                    LTR                                     */
 /* -------------------------------------------------------------------------- */
 
-export const feedbackRepository =
-  new FeedbackRepository();
+export const feedbackRepository = new FeedbackRepository();
 
-export const modelRepository =
-  new ModelRepository();
+export const modelRepository = new ModelRepository();
 
-export const ltrModelProvider =
-  new PersistentLTRModelProvider(
-    modelRepository,
-  );
+export const ltrModelProvider = new PersistentLTRModelProvider(modelRepository);
+
+/* -------------------------------------------------------------------------- */
+/*                              LTR Components                                */
+/* -------------------------------------------------------------------------- */
+export const contextAwareScoring = new ContextAwareScoringService();
 
 export const ltrRanker =
   new LTRRanker(
     new FeatureExtractor(),
     ltrModelProvider,
+    contextAwareScoring,
   );
 
 /**
@@ -178,99 +159,68 @@ export const ltrRanker =
  * Lo mantenemos separado del LTRRanker hasta que terminemos
  * la unificación del sistema de ranking.
  */
-const storedModel =
-  modelRepository.load();
+const storedModel = modelRepository.load();
 
-const model =
-  new LinearModel(
-    storedModel?.weights ?? DEFAULT_WEIGHTS,
-  );
+const model = new LinearModel(storedModel?.weights ?? DEFAULT_WEIGHTS);
 
-export const learningRanker =
-  new LearningRanker(
-    new FeatureExtractor(),
-    model,
-  );
+export const learningRanker = new LearningRanker(new FeatureExtractor(), model);
 
 /* -------------------------------------------------------------------------- */
 /*                           Online Training                                  */
 /* -------------------------------------------------------------------------- */
 
-const learningRate =
-  new LearningRate();
+const learningRate = new LearningRate();
 
-const onlineOptimizer =
-  new OnlineOptimizer(
-    learningRate,
-  );
+const onlineOptimizer = new OnlineOptimizer(learningRate);
 
-const onlineTrainer =
-  new OnlineTrainer(
-    modelRepository,
-    onlineOptimizer,
-  );
+const onlineTrainer = new OnlineTrainer(modelRepository, onlineOptimizer);
 
-export const onlineTrainingService =
-  new OnlineTrainingService(
-    onlineTrainer,
-  );
+export const onlineTrainingService = new OnlineTrainingService(onlineTrainer);
 
 /* -------------------------------------------------------------------------- */
 /*                                  Feedback                                  */
 /* -------------------------------------------------------------------------- */
 
-export const feedbackService =
-  new FeedbackService(
-    feedbackRepository,
-  );
+export const feedbackService = new FeedbackService(feedbackRepository);
 
-export const feedbackLearningService =
-  new FeedbackLearningService(
-    feedbackService,
-    onlineTrainingService,
-  );
+export const feedbackLearningService = new FeedbackLearningService(
+  feedbackService,
+  onlineTrainingService,
+);
 
-export const feedbackCollector =
-  new FeedbackCollector(
-    feedbackLearningService,
-    new FeatureExtractor(),
-  );
+export const feedbackCollector = new FeedbackCollector(
+  feedbackLearningService,
+  new FeatureExtractor(),
+);
 
-export const feedbackDrivenReranker =
-  new FeedbackDrivenReranker(
-    feedbackRepository,
-  );
+export const feedbackDrivenReranker = new FeedbackDrivenReranker(
+  feedbackRepository,
+);
 
 /* -------------------------------------------------------------------------- */
 /*                              Offline Training                              */
 /* -------------------------------------------------------------------------- */
 
-export const trainingService =
-  new TrainingService(
-    feedbackRepository,
-    modelRepository,
-  );
+export const trainingService = new TrainingService(
+  feedbackRepository,
+  modelRepository,
+);
 
 /* -------------------------------------------------------------------------- */
 /*                           Retrieval Pipeline                               */
 /* -------------------------------------------------------------------------- */
 
-export const retrievalPipeline =
-  new RetrievalPipeline(
-    hybridRetriever,
-    ltrRanker,
-    new EmbeddingReranker(),
-    new QualityScoringService(),
-    new DuplicateDetector(
-      new TextSimilarityService(),
-    ),
-    new DiversityService(
-      new TextSimilarityService(),
-    ),
-    metricsService,
-    feedbackCollector,
-    feedbackDrivenReranker,
-  );
+export const retrievalPipeline = new RetrievalPipeline(
+  hybridRetriever,
+  ltrRanker,
+  new EmbeddingReranker(),
+  new QualityScoringService(),
+  new DuplicateDetector(new TextSimilarityService()),
+  new DiversityService(new TextSimilarityService()),
+  metricsService,
+  feedbackCollector,
+  feedbackDrivenReranker,
+);
 
 /* -------------------------------------------------------------------------- */
 /*                           Learning Lifecycle                               */
@@ -279,31 +229,20 @@ export const retrievalPipeline =
 export async function initLearning() {
   await learningRepository.init();
 
-  console.log(
-    `[Learning] Loaded ${learningRepository.getAll().length} events`,
-  );
+  console.log(`[Learning] Loaded ${learningRepository.getAll().length} events`);
 }
 
 /* -------------------------------------------------------------------------- */
 /*                              Memory Service                                */
 /* -------------------------------------------------------------------------- */
 
-const memoryService =
-  createMemoryService(
-    memoryRepository,
-    keywordIndex,
-  );
+const memoryService = createMemoryService(memoryRepository, keywordIndex);
 
-export const store =
-  memoryService.store;
+export const store = memoryService.store;
 
-export const recall =
-  memoryService.recall;
+export const recall = memoryService.recall;
 
-  /* -------------------------------------------------------------------------- */
-  /*                              Consolidation Service                                */
-  /* -------------------------------------------------------------------------- */
-  export const consolidationService =
-  new ConsolidationService(
-    memoryRepository,
-  );
+/* -------------------------------------------------------------------------- */
+/*                              Consolidation Service                                */
+/* -------------------------------------------------------------------------- */
+export const consolidationService = new ConsolidationService(memoryRepository);

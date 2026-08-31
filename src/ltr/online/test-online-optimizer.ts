@@ -27,6 +27,7 @@ const model: StoredModel = {
     feedbackScore: 0.05,
     retrievalFrequency: 0.03,
     ageScore: 0.02,
+    contextScore: 0,
   },
 };
 

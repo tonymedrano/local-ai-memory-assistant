@@ -1,18 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import { writeTextFileAtomicSync } from "../../persistence/json.file.js";
 import type { StoredFeature } from "./feature.types.js";
 import type { FeatureVector } from "./feature.types.js";
 
 export class FeatureStore {
-  private readonly filePath = path.join(
-    process.cwd(),
-    "data",
-    "ltr",
-    "features.jsonl",
-  );
-
-  constructor() {
+  constructor(
+    private readonly filePath = path.join(
+      config.dataDir,
+      "ltr",
+      "features.jsonl",
+    ),
+  ) {
     this.ensureStorage();
   }
 
@@ -24,7 +25,7 @@ export class FeatureStore {
     }
 
     if (!fs.existsSync(this.filePath)) {
-      fs.writeFileSync(this.filePath, "");
+      writeTextFileAtomicSync(this.filePath, "");
     }
   }
 
@@ -44,7 +45,10 @@ export class FeatureStore {
 
     const content = filtered.map((f) => JSON.stringify(f)).join("\n");
 
-    fs.writeFileSync(this.filePath, content + (filtered.length ? "\n" : ""));
+    writeTextFileAtomicSync(
+      this.filePath,
+      content + (filtered.length ? "\n" : ""),
+    );
   }
 
   find(query: string, memoryId: string): FeatureVector | undefined {
@@ -79,6 +83,6 @@ export class FeatureStore {
   }
 
   clear(): void {
-    fs.writeFileSync(this.filePath, "");
+    writeTextFileAtomicSync(this.filePath, "");
   }
 }

@@ -12,6 +12,7 @@ export interface LinearWeights {
   feedbackScore: number;
   retrievalFrequency: number;
   ageScore: number;
+  contextScore: number;
 }
 
 export interface StoredModel {

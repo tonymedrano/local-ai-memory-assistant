@@ -7,6 +7,7 @@ import { contextRanker } from "./ranking/context.ranker.js";
 import type { ContextResult } from "./context.types.js";
 
 import type { RetrievalPipeline } from "../retrieval/pipeline/retrieval.pipeline.js";
+import type { ContextModel } from "./model/context.model.js";
 
 export class ContextBuilder {
   private readonly knowledge = new KnowledgeProvider();
@@ -15,11 +16,15 @@ export class ContextBuilder {
 
   constructor(private readonly retrievalPipeline: RetrievalPipeline) {}
 
-  async build(query: string): Promise<ContextResult> {
+  async build(
+    query: string,
+    retrievalContext?: ContextModel,
+  ): Promise<ContextResult> {
     const retrieval = await this.retrievalPipeline.retrieve({
       query,
       limit: 5,
-    });
+      context: retrievalContext,
+    }, retrievalContext);
 
     const knowledge = await this.knowledge.search(query);
 

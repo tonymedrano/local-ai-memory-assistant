@@ -1,5 +1,7 @@
-import fs from "node:fs/promises";
 import path from "node:path";
+
+import { config } from "../config.js";
+import { readJsonFile, writeJsonFileAtomic } from "../persistence/json.file.js";
 
 export interface ProjectRegistry {
   id: string;
@@ -15,31 +17,20 @@ export interface ProjectRegistry {
   files: number;
 }
 
-const REGISTRY_PATH = path.resolve(
-  process.cwd(),
-  "data/registry/projects.json",
-);
+const REGISTRY_PATH = path.join(config.dataDir, "registry", "projects.json");
 
 async function loadRegistry() {
-  try {
-    const data = await fs.readFile(REGISTRY_PATH, "utf-8");
-
-    return JSON.parse(data);
-  } catch {
-    return {
-      projects: [],
-    };
-  }
+  return readJsonFile(REGISTRY_PATH, { projects: [] as ProjectRegistry[] });
 }
 
-async function saveRegistry(data: any) {
-  await fs.writeFile(REGISTRY_PATH, JSON.stringify(data, null, 2));
+async function saveRegistry(data: { projects: ProjectRegistry[] }) {
+  await writeJsonFileAtomic(REGISTRY_PATH, data);
 }
 
 export async function registerProject(project: ProjectRegistry) {
   const registry = await loadRegistry();
 
-  const index = registry.projects.findIndex((p: any) => p.id === project.id);
+  const index = registry.projects.findIndex((p) => p.id === project.id);
 
   if (index >= 0) {
     registry.projects[index] = project;

@@ -2,10 +2,7 @@ import cron from "node-cron";
 
 import { lifecycleJob } from "./lifecycle.job.js";
 import { cleanupJob } from "./cleanup.job.js";
-import { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
-import { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
-import { relearningJob } from "./relearning.job.js";
-import { inferenceJob } from "./inference.job.js";
+import { knowledgeMaintenanceCycle } from "./knowledge-maintenance.cycle.js";
 import { contextLearningJob } from "./context-learning.job.js";
 import { trainingJob } from "./training.job.js";
 
@@ -26,28 +23,16 @@ export function startScheduler(): void {
   });
 
   /**
-   * Knowledge Extraction
+   * Knowledge maintenance cycle
    *
-   * Cada día a las 04:00
+   * Every dependent stage is awaited in this order:
+   * extraction -> consolidation -> relearning -> inference.
    */
   cron.schedule("0 4 * * *", async () => {
     try {
-      await knowledgeExtractionJob();
+      await knowledgeMaintenanceCycle();
     } catch (error) {
-      console.error("[Scheduler] Knowledge extraction failed", error);
-    }
-  });
-
-  /**
-   * Knowledge Consolidation
-   *
-   * Cada día a las 05:00
-   */
-  cron.schedule("0 5 * * *", async () => {
-    try {
-      await knowledgeConsolidationJob();
-    } catch (error) {
-      console.error("[Scheduler] Knowledge consolidation failed", error);
+      console.error("[Scheduler] Knowledge maintenance cycle failed", error);
     }
   });
 
@@ -56,32 +41,6 @@ export function startScheduler(): void {
       await contextLearningJob();
     } catch (error) {
       console.error("[Scheduler] context learning job failed", error);
-    }
-  });
-
-  /**
-   * Knowledge Relearning
-   *
-   * Cada día a las 06:00
-   */
-  cron.schedule("0 6 * * *", async () => {
-    try {
-      await relearningJob();
-    } catch (error) {
-      console.error("[Scheduler] Relearning failed", error);
-    }
-  });
-
-  /**
-   * Inference
-   *
-   * Cada día 06:00
-   */
-  cron.schedule("0 6 * * *", async () => {
-    try {
-      await inferenceJob();
-    } catch (error) {
-      console.error("[Scheduler] Inference failed", error);
     }
   });
 

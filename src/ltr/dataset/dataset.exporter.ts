@@ -1,4 +1,4 @@
-import { promises as fs } from "fs";
+import { writeTextFileAtomic } from "../../persistence/json.file.js";
 import type { TrainingExample } from "./dataset.types.js";
 
 export class DatasetExporter {
@@ -14,6 +14,6 @@ export class DatasetExporter {
       });
     });
 
-    await fs.writeFile(this.outputPath, lines.join("\n"), "utf-8");
+    await writeTextFileAtomic(this.outputPath, lines.join("\n"));
   }
 }

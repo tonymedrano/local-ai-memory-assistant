@@ -1,15 +1,28 @@
-import { trainingService } from "../core/container.js";
+import type { TrainingService } from "../ltr/training/training.service.js";
+import { runJob } from "./job.runner.js";
 
-export async function trainingJob(): Promise<void> {
-  console.log("[LTR] Training started");
+export interface TrainingJobDependencies {
+  trainingService?: Pick<TrainingService, "train">;
+}
 
-  const start = Date.now();
+export async function trainingJob(
+  dependencies: TrainingJobDependencies = {},
+): Promise<void> {
+  const service =
+    dependencies.trainingService ??
+    (await import("../core/container.js")).trainingService;
 
-  await trainingService.train();
+  await runJob("training", async () => {
+    console.log("[LTR] Training started");
 
-  console.log(
-    "[LTR] Training finished in",
-    Date.now() - start,
-    "ms",
-  );
+    const start = Date.now();
+
+    await service.train();
+
+    console.log(
+      "[LTR] Training finished in",
+      Date.now() - start,
+      "ms",
+    );
+  });
 }

@@ -26,6 +26,10 @@ export class FeedbackService {
       case FeedbackType.REJECT:
         return -1;
 
+      case FeedbackType.IMPRESSION:
+      case FeedbackType.IGNORE:
+        return 0;
+
       default:
         return 0;
     }

@@ -1,19 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
+
+import { config } from "../../config.js";
+import { writeTextFileAtomicSync } from "../../persistence/json.file.js";
 import type { DatasetSample } from "./dataset.sample.js";
 
 export class DatasetRepository {
-
-    private readonly filePath = path.join(
-        process.cwd(),
-        "data",
-        "ltr",
-        "training-dataset.jsonl"
-    );
-
-    constructor() {
+    constructor(
+        private readonly filePath = path.join(
+            config.dataDir,
+            "ltr",
+            "training-dataset.jsonl",
+        ),
+    ) {
         this.ensureDirectory();
     }
+
 
     private ensureDirectory(): void {
 
@@ -24,16 +26,19 @@ export class DatasetRepository {
         }
 
         if (!fs.existsSync(this.filePath)) {
-            fs.writeFileSync(this.filePath, "");
+            writeTextFileAtomicSync(this.filePath, "");
         }
     }
 
     append(sample: DatasetSample): void {
 
-        fs.appendFileSync(
+        const current = fs.existsSync(this.filePath)
+            ? fs.readFileSync(this.filePath, "utf8")
+            : "";
+
+        writeTextFileAtomicSync(
             this.filePath,
-            JSON.stringify(sample) + "\n",
-            "utf8"
+            current + JSON.stringify(sample) + "\n",
         );
     }
 
@@ -66,7 +71,7 @@ export class DatasetRepository {
     }
 
     clear(): void {
-        fs.writeFileSync(this.filePath, "");
+        writeTextFileAtomicSync(this.filePath, "");
     }
 
     /**
@@ -90,9 +95,9 @@ export class DatasetRepository {
             .map(s => JSON.stringify(s))
             .join("\n");
 
-        fs.writeFileSync(
+        writeTextFileAtomicSync(
             this.filePath,
-            content + (filtered.length ? "\n" : "")
+            content + (filtered.length ? "\n" : ""),
         );
     }
 

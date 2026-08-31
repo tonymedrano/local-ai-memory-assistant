@@ -16,7 +16,7 @@
  *
  */
 
-import fs from "node:fs/promises";
+import { readJsonFile, writeJsonFileAtomic } from "../persistence/json.file.js";
 
 const REGISTRY_FILE = ".indexer-registry.json";
 
@@ -49,13 +49,7 @@ export type Registry = Record<string, RegistryEntry>;
  * devuelve un objeto vacío.
  */
 export async function loadRegistry(): Promise<Registry> {
-  try {
-    const data = await fs.readFile(REGISTRY_FILE, "utf8");
-
-    return JSON.parse(data);
-  } catch {
-    return {};
-  }
+  return readJsonFile(REGISTRY_FILE, {});
 }
 
 /**
@@ -63,11 +57,7 @@ export async function loadRegistry(): Promise<Registry> {
  * del indexador.
  */
 export async function saveRegistry(registry: Registry) {
-  await fs.writeFile(
-    REGISTRY_FILE,
-
-    JSON.stringify(registry, null, 2),
-  );
+  await writeJsonFileAtomic(REGISTRY_FILE, registry);
 }
 
 /**

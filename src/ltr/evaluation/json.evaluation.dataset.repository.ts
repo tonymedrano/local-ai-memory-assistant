@@ -1,50 +1,42 @@
-import fs from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import {
+  readJsonFileSync,
+  writeJsonFileAtomicSync,
+} from "../../persistence/json.file.js";
 import type { EvaluationDataset } from "./evaluation.types.js";
 
 import type { EvaluationDatasetRepository } from "./evaluation.dataset.repository.js";
 
 export class JsonEvaluationDatasetRepository implements EvaluationDatasetRepository {
-  private static readonly FILE_PATH = path.join(
-    process.cwd(),
-    "data",
-    "ltr",
-    "evaluation-dataset.json",
-  );
+  constructor(
+    private readonly filePath = path.join(
+      config.dataDir,
+      "ltr",
+      "evaluation-dataset.json",
+    ),
+  ) {}
 
   async load(): Promise<EvaluationDataset> {
-    if (!fs.existsSync(JsonEvaluationDatasetRepository.FILE_PATH)) {
+    if (!existsSync(this.filePath)) {
       throw new Error("Evaluation dataset not found");
     }
 
-    const content = fs.readFileSync(
-      JsonEvaluationDatasetRepository.FILE_PATH,
-      "utf8",
+    const dataset = readJsonFileSync<EvaluationDataset | undefined>(
+      this.filePath,
+      undefined,
     );
 
-    if (!content.trim()) {
+    if (!dataset) {
       throw new Error("Evaluation dataset is empty");
     }
 
-    return JSON.parse(content) as EvaluationDataset;
+    return dataset;
   }
 
   async save(dataset: EvaluationDataset): Promise<void> {
-    const directory = path.dirname(JsonEvaluationDatasetRepository.FILE_PATH);
-
-    if (!fs.existsSync(directory)) {
-      fs.mkdirSync(directory, {
-        recursive: true,
-      });
-    }
-
-    fs.writeFileSync(
-      JsonEvaluationDatasetRepository.FILE_PATH,
-
-      JSON.stringify(dataset, null, 2),
-
-      "utf8",
-    );
+    writeJsonFileAtomicSync(this.filePath, dataset);
   }
 }

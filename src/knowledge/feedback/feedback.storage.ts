@@ -1,9 +1,10 @@
-import fs from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import { readJsonFileSync, writeJsonFileAtomicSync } from "../../persistence/json.file.js";
 import type { KnowledgeFeedback } from "./feedback.types.js";
 
-const FILE_PATH = path.resolve("data/knowledge-feedback.json");
+const FILE_PATH = path.join(config.dataDir, "knowledge-feedback.json");
 
 class FeedbackStorage {
   private feedback: KnowledgeFeedback[] = [];
@@ -13,13 +14,14 @@ class FeedbackStorage {
   }
 
   private load() {
-    if (!fs.existsSync(FILE_PATH)) {
+    const feedback = readJsonFileSync<KnowledgeFeedback[] | undefined>(FILE_PATH, undefined);
+    if (!feedback) {
       this.save();
 
       return;
     }
 
-    this.feedback = JSON.parse(fs.readFileSync(FILE_PATH, "utf-8"));
+    this.feedback = feedback;
 
     console.log(
       `[FeedbackStorage] Loaded ${this.feedback.length} feedback entries`,
@@ -27,7 +29,7 @@ class FeedbackStorage {
   }
 
   private save() {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(this.feedback, null, 2));
+    writeJsonFileAtomicSync(FILE_PATH, this.feedback);
   }
 
   add(item: KnowledgeFeedback) {

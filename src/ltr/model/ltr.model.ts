@@ -1,9 +1,8 @@
+import type { FeatureVector } from "../features/feature.types.js";
+import type { LinearWeights } from "./model.types.js";
+
 export interface LTRModel {
+  predict(features: FeatureVector): number;
 
-  predict(features: {
-    semantic: number;
-    bm25: number;
-    importance: number;
-  }): number;
-
+  getWeights(): LinearWeights;
 }

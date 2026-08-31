@@ -1,4 +1,5 @@
 import express from "express";
+import { errorHandler, notFoundHandler } from "./api/http.errors.js";
 
 import { addMemory, findMemory } from "./api/memory.controller.js";
 import contextRoutes from "./context/context.routes.js";
@@ -12,10 +13,11 @@ import { memoryIntelligenceRouter } from "./intelligence/index.js";
 import feedbackRouter from "./context/feedback/feedback.controller.js";
 import { createMetricsController } from "./metrics/metrics.controller.js";
 import { createDashboardController } from "./dashboard/dashboard.controller.js";
+import { readinessService } from "./readiness/readiness.service.js";
 
 export const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_req, res) => {
   res.json({
@@ -26,12 +28,9 @@ app.get("/health", (_req, res) => {
   });
 });
 
-app.get("/ready", (_req, res) => {
-  res.json({
-    ready: true,
-    service: "memory-service",
-    timestamp: new Date().toISOString(),
-  });
+app.get("/ready", async (_req, res) => {
+  const readiness = await readinessService.getStatus();
+  res.status(readiness.ready ? 200 : 503).json(readiness);
 });
 
 app.post("/memory", addMemory);
@@ -47,3 +46,5 @@ app.use("/metrics", createMetricsController(metricsService));
 app.use("/dashboard", createDashboardController(dashboardService));
 app.use(memoryIntelligenceRouter);
 app.use(feedbackRouter);
+app.use(notFoundHandler);
+app.use(errorHandler);

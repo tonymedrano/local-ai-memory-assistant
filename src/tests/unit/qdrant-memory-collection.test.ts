@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import test from "node:test";
 
-import { createConfig } from "../config.js";
+import { createConfig } from "../../config.js";
 import {
   MemoryRepository,
   type MemoryQdrantClient,
-} from "../memory/memory.repository.js";
-import { initMemoryCollection } from "./qdrant.service.js";
+} from "../../memory/memory.repository.js";
+import { initMemoryCollection } from "../../qdrant/qdrant.service.js";
 
 const DEFAULT_MEMORY_COLLECTION = "contextual_memory";
 const CUSTOM_MEMORY_COLLECTION = "release_v1_memory";
@@ -17,7 +18,27 @@ function response(body: unknown, status = 200): Response {
   });
 }
 
-async function testBootstrapUsesConfiguredCollection(): Promise<void> {
+test("uses the configured default memory collection", () => {
+  assert.equal(
+    createConfig({}).memoryCollection,
+    DEFAULT_MEMORY_COLLECTION,
+  );
+});
+
+test("accepts a custom MEMORY_COLLECTION and rejects an empty value", () => {
+  assert.equal(
+    createConfig({ MEMORY_COLLECTION: CUSTOM_MEMORY_COLLECTION })
+      .memoryCollection,
+    CUSTOM_MEMORY_COLLECTION,
+  );
+
+  assert.throws(
+    () => createConfig({ MEMORY_COLLECTION: "   " }),
+    /MEMORY_COLLECTION must be a non-empty collection name/,
+  );
+});
+
+test("bootstraps the configured memory collection", async () => {
   const configured = createConfig({
     MEMORY_COLLECTION: CUSTOM_MEMORY_COLLECTION,
   });
@@ -43,9 +64,9 @@ async function testBootstrapUsesConfiguredCollection(): Promise<void> {
     "GET http://qdrant.test/collections",
     `PUT http://qdrant.test/collections/${CUSTOM_MEMORY_COLLECTION}`,
   ]);
-}
+});
 
-async function testRepositoryUsesConfiguredCollection(): Promise<void> {
+test("stores and searches through the configured memory collection", async () => {
   const configured = createConfig({
     MEMORY_COLLECTION: CUSTOM_MEMORY_COLLECTION,
   });
@@ -83,28 +104,9 @@ async function testRepositoryUsesConfiguredCollection(): Promise<void> {
     { operation: "upsert", collection: CUSTOM_MEMORY_COLLECTION },
     { operation: "search", collection: CUSTOM_MEMORY_COLLECTION },
   ]);
-}
+});
 
-async function main(): Promise<void> {
-  assert.equal(
-    createConfig({}).memoryCollection,
-    DEFAULT_MEMORY_COLLECTION,
-    "the default memory collection must remain configured in config",
-  );
-
-  const configured = createConfig({
-    MEMORY_COLLECTION: CUSTOM_MEMORY_COLLECTION,
-  });
-  assert.equal(configured.memoryCollection, CUSTOM_MEMORY_COLLECTION);
-
-  assert.throws(
-    () => createConfig({ MEMORY_COLLECTION: "   " }),
-    /MEMORY_COLLECTION must be a non-empty collection name/,
-  );
-
-  await testBootstrapUsesConfiguredCollection();
-  await testRepositoryUsesConfiguredCollection();
-
+test("reports an actionable error when Qdrant is unavailable", async () => {
   await assert.rejects(
     initMemoryCollection({
       baseUrl: "http://unavailable-qdrant.test",
@@ -114,11 +116,4 @@ async function main(): Promise<void> {
     }),
     /Unable to reach Qdrant at http:\/\/unavailable-qdrant\.test: connection refused/,
   );
-
-  console.log("✓ Qdrant memory collection configuration tests passed");
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
 });
