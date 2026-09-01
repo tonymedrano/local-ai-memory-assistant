@@ -25,6 +25,16 @@ is `MemoryRepository` through the Qdrant collection configured by
 See [the architecture guide](docs/architecture.md) for component ownership and
 [the API guide](docs/api.md) for the exposed routes.
 
+## Continue MCP (local read integration)
+
+The validated Continue integration uses `global-memory` through the canonical
+launcher `node scripts/continue-mcp.mjs`. It creates a tenant-scoped JWT from
+the ignored local `.env`; Continue configuration never needs a copied token or
+tenant header. See [the Continue MCP guide](docs/continue-mcp.md) for the
+required `.env` variables, canonical Continue configuration, smoke test, and
+tenant-isolation behavior. This integration exposes read-only
+`search_memory`; it does not provide `store_memory`.
+
 ## Requirements
 
 - Node.js 22

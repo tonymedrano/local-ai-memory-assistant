@@ -5,8 +5,11 @@ All payloads are JSON. Invalid payloads return `400` with
 contract (`413` for the size limit). Unknown routes return `404` with
 `code: "NOT_FOUND"`.
 
-Memory and context routes require `X-Memory-User-Id`. It is a tenant identity
-provided by a trusted gateway, not a substitute for end-user authentication.
+Memory and context routes require authenticated tenant identity. In JWT mode
+(required for production and the local Continue MCP integration), clients send
+an `Authorization: Bearer <JWT>` header and the service derives the tenant from
+the configured JWT claim. Continue's MCP launcher supplies this JWT
+automatically; it does not send a tenant header or tool argument.
 
 ## Operations
 

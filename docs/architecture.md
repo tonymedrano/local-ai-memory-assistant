@@ -84,6 +84,10 @@ Responsibilities:
   by contextual-memory runtime traffic. Both are bootstrapped at startup.
 * **JSON/JSONL:** global service state is rooted at `config.dataDir` (`DATA_DIR`)
   and written atomically.
+* **LTR feedback runtime state:** `data/ranking-feedback.json` is mutable,
+  tenant-scoped impression/metric/timestamp state persisted by
+  `FeedbackRepository` under `DATA_DIR`. It is neither source nor a fixture or
+  build/release dependency, and is specifically ignored by Git.
 * **Project index registry:** `.indexer-registry.json` intentionally belongs to
   the indexed project, not `DATA_DIR`.
 
