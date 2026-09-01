@@ -159,11 +159,7 @@ export const ltrRanker =
  * Lo mantenemos separado del LTRRanker hasta que terminemos
  * la unificación del sistema de ranking.
  */
-const storedModel = modelRepository.load();
-
-const model = new LinearModel(storedModel?.weights ?? DEFAULT_WEIGHTS);
-
-export const learningRanker = new LearningRanker(new FeatureExtractor(), model);
+export const learningRanker = new LearningRanker(new FeatureExtractor(), ltrModelProvider);
 
 /* -------------------------------------------------------------------------- */
 /*                           Online Training                                  */

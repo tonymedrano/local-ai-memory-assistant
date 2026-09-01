@@ -1,15 +1,17 @@
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 import type { FeatureExtractor } from "../features/feature.extractor.js";
-import type { LinearModel } from "../model/linear.model.js";
+import type { LTRModelProvider } from "../model/ltr.model.provider.interface.js";
+import type { FeedbackScope } from "../feedback/feedback.types.js";
 
 export class LearningRanker {
   score: any;
   constructor(
     private readonly extractor: FeatureExtractor,
-    private readonly model: LinearModel,
+    private readonly modelProvider: LTRModelProvider,
   ) {}
 
-  rank<T extends RetrievalResult>(results: T[]): T[] {
+  rank<T extends RetrievalResult>(scope: FeedbackScope, results: T[]): T[] {
+    const model = this.modelProvider.getModel(scope);
     return results
       .map((result) => {
         const ranked = this.extractor.extract({
@@ -23,7 +25,7 @@ export class LearningRanker {
           },
         });
 
-        const learningScore = this.model.predict(
+        const learningScore = model.predict(
           ranked.features,
         );
 

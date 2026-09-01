@@ -5,6 +5,7 @@ import { Trainer } from "./trainer.js";
 import type { FeedbackRepository } from "../feedback/feedback.repository.js";
 import { isTrainableFeedback } from "../feedback/feedback.types.js";
 import { DEFAULT_WEIGHTS } from "../model/default-weights.js";
+import type { FeedbackScope } from "../feedback/feedback.types.js";
 
 export class TrainingService {
   constructor(
@@ -12,8 +13,9 @@ export class TrainingService {
     private readonly modelRepository: ModelRepository,
   ) {}
 
-  async train(): Promise<void> {
-    const feedback = await this.feedbackRepository.findAll();
+  async train(scope: FeedbackScope): Promise<void> {
+    if (scope.kind !== "tenant") throw new Error("Training requires tenant scope");
+    const feedback = await this.feedbackRepository.findAll(scope);
     const trainableFeedback = feedback.filter((item) =>
       isTrainableFeedback(item.type),
     );
@@ -28,7 +30,7 @@ export class TrainingService {
       return;
     }
 
-    const stored = this.modelRepository.load();
+    const stored = this.modelRepository.loadScoped(scope);
 
     const model = new LinearModel(stored?.weights ?? DEFAULT_WEIGHTS);
 
@@ -41,7 +43,7 @@ export class TrainingService {
       });
     }
 
-    this.modelRepository.save({
+    this.modelRepository.saveScoped(scope, {
       version: stored?.version ?? 1,
 
       trainedAt: new Date().toISOString(),

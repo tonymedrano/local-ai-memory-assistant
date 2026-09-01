@@ -4,6 +4,7 @@ import { BM25Ranker } from "../bm25/bm25.ranker.js";
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 export interface KeywordSearchOptions {
+  tenantId?: string;
   project?: string;
   type?: string;
   limit?: number;
@@ -24,7 +25,7 @@ export class KeywordRetriever {
     }
     const ids = this.index.search(query);
 
-    const memories = await this.repository.getAll();
+    const memories = await this.repository.getAll(options?.tenantId);
 
     const ranker = new BM25Ranker(this.index);
 

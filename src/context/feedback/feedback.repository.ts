@@ -21,9 +21,9 @@ export class FeedbackRepository {
     return this.feedbacks;
   }
 
-  findByMemory(memoryId: string): ContextFeedback[] {
+  findByMemory(tenantId: string, memoryId: string): ContextFeedback[] {
     return this.feedbacks.filter((feedback) =>
-      feedback.memories.includes(memoryId),
+      feedback.tenantId === tenantId && feedback.memories.includes(memoryId),
     );
   }
 }

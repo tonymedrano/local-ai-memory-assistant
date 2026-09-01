@@ -14,7 +14,7 @@ const qdrantUrl = process.env.QDRANT_TEST_URL;
 if (!qdrantUrl) {
   test(
     "MemoryRepository integration requires QDRANT_TEST_URL",
-    { skip: "Set QDRANT_TEST_URL to run against an isolated Qdrant instance" },
+    { skip: "SKIPPED_PROVIDER_UNAVAILABLE: set QDRANT_TEST_URL to run against an isolated Qdrant instance" },
     () => {},
   );
 } else {

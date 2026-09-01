@@ -36,6 +36,7 @@ Old low-value memories become archived.
 
 ## Cleanup
 
-Archived memories can eventually be removed automatically.
+Archived memories can eventually be removed by a future tenant-safe lifecycle
+implementation.
 
-Lifecycle execution is handled by scheduled background jobs.
+Lifecycle execution is not scheduled in V1. See [the V1 jobs contract](jobs.md).

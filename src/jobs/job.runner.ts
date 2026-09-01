@@ -1,4 +1,5 @@
 import { jobRepository } from "../jobs-history/job.repository.instance.js";
+import type { JobScope } from "../jobs-history/job.types.js";
 
 const runningJobs = new Set<string>();
 
@@ -9,14 +10,14 @@ export class JobAlreadyRunningError extends Error {
   }
 }
 
-export async function runJob(name: string, task: () => Promise<void>) {
+export async function runJob(name: string, scope: JobScope, task: () => Promise<void>) {
   if (runningJobs.has(name)) {
     throw new JobAlreadyRunningError(name);
   }
 
   runningJobs.add(name);
 
-  const execution = await jobRepository.start(name);
+  const execution = await jobRepository.start(name, scope);
 
   try {
     await task();

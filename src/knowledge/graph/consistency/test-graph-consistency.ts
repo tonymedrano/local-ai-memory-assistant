@@ -9,6 +9,7 @@ function node(
   type: GraphNode["type"] = "concept",
 ): GraphNode {
   return {
+    scope: { kind: "system" },
     id,
     type,
     label,
@@ -24,6 +25,7 @@ function edge(
   confidence = 0.8,
 ): GraphEdge {
   return {
+    scope: { kind: "system" },
     id,
     source,
     target,

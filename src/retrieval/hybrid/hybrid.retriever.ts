@@ -13,9 +13,11 @@ import type { RetrievalOptions } from "../retrieval.types.js";
 import type { RetrievalStrategy } from "../strategy/retrieval.strategy.js";
 import { CandidateBudgeting } from "../intelligence/candidate.budget.js";
 import type { ContextModel } from "../../context/model/context.model.js";
+import type { GraphScope } from "../../knowledge/graph/graph.types.js";
 import { applyContextToCandidateBudget } from "../../context/retrieval/context.candidate.budget.js";
 
 export interface HybridSearchRequest {
+  scope: GraphScope;
   query: string;
   semantic?: SemanticQuery;
   options?: RetrievalOptions;
@@ -36,7 +38,10 @@ export class HybridRetriever {
   ) {}
 
   async search(request: HybridSearchRequest): Promise<RetrievalResult[]> {
-    const { query, semantic, options, strategy, context } = request;
+    const { scope, query, semantic, options, strategy, context } = request;
+    if (scope.kind !== "tenant" || options?.tenantId !== scope.tenantId) {
+      throw new Error("Hybrid retrieval scope and tenantId must match");
+    }
 
     const expandedQuery =
       semantic?.expandedTerms
@@ -58,24 +63,24 @@ export class HybridRetriever {
     const [vectorResults, keywordResults, graphResults, evidenceResults] =
       await Promise.all([
         this.vector.search(expandedQuery, {
+          tenantId: options?.tenantId,
           project: options?.project,
           type: options?.type,
           limit: budget.vector,
         }),
 
         this.keyword.search(expandedQuery, {
+          tenantId: options?.tenantId,
           project: options?.project,
           type: options?.type,
           limit: budget.keyword,
         }),
 
-        this.graph.search(expandedQuery, {
+        this.graph.search(scope, expandedQuery, {
           limit: budget.graph,
         }),
 
-        this.graphEvidence.search(expandedQuery, {
-          limit: budget.graphEvidence,
-        }),
+        Promise.resolve([]),
       ]);
 
     const weights: FusionWeights = {
@@ -93,11 +98,15 @@ export class HybridRetriever {
       weights,
     );
 
-    return this.reranker.rerank(
+    const reranked = this.reranker.rerank(
       fused,
       semantic?.expandedTerms.map((item) =>
         typeof item === "string" ? item : item.term,
       ),
     );
+
+    return scope.kind === "tenant"
+      ? reranked.filter((result) => result.memory.tenantId === scope.tenantId)
+      : reranked;
   }
 }

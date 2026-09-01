@@ -1,5 +1,5 @@
 import { graphRepository } from "../../knowledge/graph/graph.repository.js";
-import type { GraphNode } from "../../knowledge/graph/graph.types.js";
+import { graphScopeKey, type GraphNode, type GraphScope } from "../../knowledge/graph/graph.types.js";
 
 export interface TraversedStep {
   nodeId: string;
@@ -24,14 +24,15 @@ interface QueueItem {
 export class GraphTraverser {
   constructor(private readonly repository = graphRepository) {}
 
-  traverse(entities: string[], maxDepth = 2): TraversedNode[] {
+  traverse(scope: GraphScope, entities: string[], maxDepth = 2): TraversedNode[] {
     const visited = new Set<string>();
     const queue: QueueItem[] = [];
     const results: TraversedNode[] = [];
 
     // Nodos iniciales
     for (const entity of entities) {
-      const nodes = this.repository.findAllByLabel(entity);
+      const node = this.repository.findByLabel(scope, entity);
+      const nodes = node && graphScopeKey(node.scope) === graphScopeKey(scope) ? [node] : [];
 
       for (const node of nodes) {
         queue.push({
@@ -67,12 +68,14 @@ export class GraphTraverser {
         continue;
       }
 
-      const edges = this.repository.getEdgesFrom(current.node.id);
+      if (graphScopeKey(current.node.scope) !== graphScopeKey(scope)) continue;
+      const edges = this.repository.getEdgesFrom(scope, current.node.id)
+        .filter((edge) => graphScopeKey(edge.scope) === graphScopeKey(scope));
 
       for (const edge of edges) {
-        const neighbor = this.repository.getNode(edge.target);
+        const neighbor = this.repository.getNode(scope, edge.target);
 
-        if (!neighbor || visited.has(neighbor.id)) {
+        if (!neighbor || graphScopeKey(neighbor.scope) !== graphScopeKey(scope) || visited.has(neighbor.id)) {
           continue;
         }
 

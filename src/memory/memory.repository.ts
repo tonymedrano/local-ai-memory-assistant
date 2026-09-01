@@ -12,6 +12,7 @@ export interface SearchOptions {
   project?: string;
   type?: string;
   scoreThreshold?: number;
+  tenantId?: string;
 }
 
 export interface MemorySearchResult {
@@ -69,6 +70,15 @@ export class MemoryRepository {
       });
     }
 
+    if (options?.tenantId) {
+      filterConditions.push({
+        key: "tenantId",
+        match: {
+          value: options.tenantId,
+        },
+      });
+    }
+
     const results = await this.client.search(this.collection, {
       vector,
       limit: options?.limit ?? 5,
@@ -101,12 +111,20 @@ export class MemoryRepository {
     project?: string,
     excludeId?: string,
     scoreThreshold = 0.9,
+    tenantId?: string,
   ) {
     const results = await this.client.search(this.collection, {
       vector,
       limit: 10,
       with_payload: true,
       score_threshold: scoreThreshold,
+      ...(tenantId
+        ? {
+            filter: {
+              must: [{ key: "tenantId", match: { value: tenantId } }],
+            },
+          }
+        : {}),
     });
 
     const candidates = results.filter(
@@ -121,6 +139,10 @@ export class MemoryRepository {
       const payload = candidate.payload as unknown as Memory;
 
       if (project && payload.project !== project) {
+        return false;
+      }
+
+      if (tenantId && payload.tenantId !== tenantId) {
         return false;
       }
 
@@ -140,7 +162,12 @@ export class MemoryRepository {
     };
   }
 
-  async update(id: string | number, payload: Record<string, unknown>) {
+  async update(
+    id: string | number,
+    payload: Record<string, unknown>,
+    tenantId?: string,
+  ) {
+    await this.assertOwnership(String(id), tenantId);
     await this.client.setPayload(this.collection, {
       points: [id],
 
@@ -157,15 +184,18 @@ export class MemoryRepository {
       limit: 1000,
 
       with_payload: true,
+      filter: { must: [{ key: "tenantId", is_null: false }] },
     });
 
     return result.points
-      .filter((point) => point.payload && !point.payload.knowledgeExtracted)
+      .filter((point) => point.payload && !point.payload.knowledgeExtracted && typeof (point.payload as any).tenantId === "string")
       .map((point) => {
         const payload = point.payload as unknown as Memory;
 
         return {
           id: String(point.id),
+
+          tenantId: (payload as any).tenantId,
 
           text: payload.text,
 
@@ -190,33 +220,53 @@ export class MemoryRepository {
     });
   }
 
-  async getAll(): Promise<Memory[]> {
+  async getAll(tenantId?: string): Promise<Memory[]> {
     const result = await this.client.scroll(this.collection, {
       limit: 1000,
 
       with_payload: true,
+
+      ...(tenantId
+        ? {
+            filter: {
+              must: [{ key: "tenantId", match: { value: tenantId } }],
+            },
+          }
+        : {}),
     });
 
-    return result.points.map((point) => {
-      const payload = point.payload as unknown as Memory;
-
-      return {
-        ...payload,
-
-        id: String(point.id),
-      };
-    });
+    return result.points
+      .map((point) => {
+        const payload = point.payload as unknown as Memory;
+        return { ...payload, id: String(point.id) };
+      })
+      // Defense in depth: keep the tenant boundary even if a remote filter is
+      // misconfigured or a mocked/client implementation returns extra points.
+      .filter((memory) => !tenantId || memory.tenantId === tenantId);
   }
 
-  async delete(id: string | number) {
+  async delete(id: string | number, tenantId?: string) {
+    await this.assertOwnership(String(id), tenantId);
     await this.client.delete(this.collection, {
       points: [id],
     });
   }
 
-  async findById(id: string) {
-    const memories = await this.getAll();
+  async findById(id: string, tenantId?: string) {
+    const memories = await this.getAll(tenantId);
 
     return memories.find((memory) => memory.id === id);
+  }
+
+  private async assertOwnership(id: string, tenantId?: string): Promise<void> {
+    if (!tenantId) {
+      return;
+    }
+
+    const memory = await this.findById(id, tenantId);
+
+    if (!memory) {
+      throw new Error("Memory not found for tenant");
+    }
   }
 }

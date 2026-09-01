@@ -12,13 +12,21 @@ import {
   getIncomingRelations,
   findNodeByLabel,
 } from "./graph.service.js";
+import { tenantIdFromRequest } from "../../security/tenant.js";
+import { tenantGraphScope } from "./graph.types.js";
+
+function scope(req: Request<any>, res: Response) {
+  const tenantId = tenantIdFromRequest(req, res);
+  return tenantId ? tenantGraphScope(tenantId) : undefined;
+}
 
 interface Params {
   id: string;
 }
 
 export function graph(req: Request, res: Response) {
-  res.json(getGraph());
+  const currentScope = scope(req, res); if (!currentScope) return;
+  res.json(getGraph(currentScope));
 }
 
 export function node(req: Request<Params>, res: Response) {
@@ -28,7 +36,8 @@ export function node(req: Request<Params>, res: Response) {
     return badRequest(res, "Invalid graph node id");
   }
 
-  const result = getNode(parsed.data);
+  const currentScope = scope(req, res); if (!currentScope) return;
+  const result = getNode(currentScope, parsed.data);
 
   return result ? res.json(result) : notFound(res, "Graph node not found");
 }
@@ -40,11 +49,13 @@ export function neighbors(req: Request<Params>, res: Response) {
     return badRequest(res, "Invalid graph node id");
   }
 
-  return res.json(getNeighbors(parsed.data));
+  const currentScope = scope(req, res); if (!currentScope) return;
+  return res.json(getNeighbors(currentScope, parsed.data));
 }
 
 export function stats(req: Request, res: Response) {
-  res.json(getStats());
+  const currentScope = scope(req, res); if (!currentScope) return;
+  res.json(getStats(currentScope));
 }
 
 export function relations(req: Request<{ id: string }>, res: Response) {
@@ -54,7 +65,8 @@ export function relations(req: Request<{ id: string }>, res: Response) {
     return badRequest(res, "Invalid graph node id");
   }
 
-  return res.json(getRelations(parsed.data));
+  const currentScope = scope(req, res); if (!currentScope) return;
+  return res.json(getRelations(currentScope, parsed.data));
 }
 
 export function incoming(req: Request<{ id: string }>, res: Response) {
@@ -64,7 +76,8 @@ export function incoming(req: Request<{ id: string }>, res: Response) {
     return badRequest(res, "Invalid graph node id");
   }
 
-  return res.json(getIncomingRelations(parsed.data));
+  const currentScope = scope(req, res); if (!currentScope) return;
+  return res.json(getIncomingRelations(currentScope, parsed.data));
 }
 
 export function search(req: Request<{ label: string }>, res: Response) {
@@ -74,7 +87,8 @@ export function search(req: Request<{ label: string }>, res: Response) {
     return badRequest(res, "Invalid graph label");
   }
 
-  const result = findNodeByLabel(parsed.data);
+  const currentScope = scope(req, res); if (!currentScope) return;
+  const result = findNodeByLabel(currentScope, parsed.data);
 
   return result ? res.json(result) : notFound(res, "Graph node not found");
 }

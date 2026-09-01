@@ -1,7 +1,8 @@
 import { config } from "../config.js";
+import { ExternalProviderError, fetchWithTimeout } from "../external/fetch-with-timeout.js";
 
 export async function createEmbedding(text: string): Promise<number[]> {
-  const response = await fetch(`${config.ollamaUrl}/api/embeddings`, {
+  const response = await fetchWithTimeout("Ollama embeddings", `${config.ollamaUrl}/api/embeddings`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -12,19 +13,22 @@ export async function createEmbedding(text: string): Promise<number[]> {
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(await response.text());
+  let data: { embedding?: number[] };
+  try {
+    data = (await response.json()) as { embedding?: number[] };
+  } catch (error) {
+    throw new ExternalProviderError("Ollama embeddings returned invalid JSON", "Ollama embeddings", "invalid-response");
   }
 
-  const data = (await response.json()) as {
-    embedding: number[];
-  };
+  if (!Array.isArray(data.embedding) || data.embedding.length === 0) {
+    throw new ExternalProviderError("Ollama embeddings returned no vector", "Ollama embeddings", "invalid-response");
+  }
 
   return data.embedding;
 }
 
 export async function generateText(prompt: string): Promise<string> {
-  const response = await fetch(`${config.ollamaUrl}/api/generate`, {
+  const response = await fetchWithTimeout("Ollama generation", `${config.ollamaUrl}/api/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,10 +39,6 @@ export async function generateText(prompt: string): Promise<string> {
       stream: false,
     }),
   });
-
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
 
   const data = (await response.json()) as {
     response?: string;

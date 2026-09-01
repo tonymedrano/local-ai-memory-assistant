@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [],
+  "files": [
+    "src/index.ts",
+    "src/qdrant/migrate-ownership.ts",
+    "src/knowledge/graph/migrate-ownership.ts"
+  ]
+}

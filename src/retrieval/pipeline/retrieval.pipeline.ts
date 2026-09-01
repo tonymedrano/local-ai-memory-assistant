@@ -27,6 +27,7 @@ import type { FeedbackDrivenReranker } from "../../ltr/feedback/feedback-driven.
 import type { ContextModel } from "../../context/model/context.model.js";
 import { applyContextToRetrievalStrategy } from "../../context/retrieval/context.retrieval.pipeline.js";
 import { config } from "../../config.js";
+import { tenantGraphScope } from "../../knowledge/graph/graph.types.js";
 
 export class RetrievalPipeline {
   constructor(
@@ -81,6 +82,7 @@ export class RetrievalPipeline {
       `Retrieval (${strategy.mode})`,
       () =>
         this.hybridRetriever.search({
+          scope: tenantGraphScope(request.options?.tenantId ?? (() => { throw new Error("Retrieval requires tenant scope"); })()),
           query: request.query,
           strategy,
           options: request.options,
@@ -107,6 +109,7 @@ export class RetrievalPipeline {
       const ltrRanked = await profiler.trace("LTR Ranking", () =>
         Promise.resolve(
           this.ltrRanker.rank(
+            { kind: "tenant", tenantId: request.options?.tenantId ?? (() => { throw new Error("LTR ranking requires tenant scope"); })() },
             request.query,
             limitedCandidates,
             retrievalContext,
@@ -161,7 +164,9 @@ export class RetrievalPipeline {
 
     // Feedback
 
-    this.feedbackCollector?.resultReturned(request.query, finalResults);
+    if (this.feedbackCollector && request.options?.tenantId) {
+      this.feedbackCollector.resultReturned({ kind: "tenant", tenantId: request.options.tenantId }, request.query, finalResults);
+    }
 
     console.table(profiler.summary());
 

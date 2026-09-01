@@ -5,6 +5,9 @@ All payloads are JSON. Invalid payloads return `400` with
 contract (`413` for the size limit). Unknown routes return `404` with
 `code: "NOT_FOUND"`.
 
+Memory and context routes require `X-Memory-User-Id`. It is a tenant identity
+provided by a trusted gateway, not a substitute for end-user authentication.
+
 ## Operations
 
 ```http

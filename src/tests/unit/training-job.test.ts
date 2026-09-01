@@ -11,13 +11,16 @@ test.beforeEach(async () => {
 test("records a completed training job", async () => {
   let calls = 0;
 
-  await trainingJob({
-    trainingService: {
-      async train() {
-        calls++;
+  await trainingJob(
+    { kind: "tenant", tenantId: "tenant-a" },
+    {
+      trainingService: {
+        async train() {
+          calls++;
+        },
       },
     },
-  });
+  );
 
   const execution = await jobRepository.getLatest("training");
 
@@ -29,13 +32,16 @@ test("records a completed training job", async () => {
 });
 
 test("records a completed job when training has insufficient samples", async () => {
-  await trainingJob({
-    trainingService: {
-      async train() {
-        // TrainingService treats insufficient feedback as a successful no-op.
+  await trainingJob(
+    { kind: "tenant", tenantId: "tenant-a" },
+    {
+      trainingService: {
+        async train() {
+          // TrainingService treats insufficient feedback as a successful no-op.
+        },
       },
     },
-  });
+  );
 
   const execution = await jobRepository.getLatest("training");
 
@@ -45,13 +51,16 @@ test("records a completed job when training has insufficient samples", async () 
 
 test("records a failed training job and preserves the failure", async () => {
   await assert.rejects(
-    trainingJob({
-      trainingService: {
-        async train() {
-          throw new Error("model storage unavailable");
+    trainingJob(
+      { kind: "tenant", tenantId: "tenant-a" },
+      {
+        trainingService: {
+          async train() {
+            throw new Error("model storage unavailable");
+          },
         },
       },
-    }),
+    ),
     /model storage unavailable/,
   );
 

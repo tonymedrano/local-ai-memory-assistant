@@ -8,6 +8,7 @@ import type { ContextResult } from "./context.types.js";
 
 import type { RetrievalPipeline } from "../retrieval/pipeline/retrieval.pipeline.js";
 import type { ContextModel } from "./model/context.model.js";
+import type { GraphScope } from "../knowledge/graph/graph.types.js";
 
 export class ContextBuilder {
   private readonly knowledge = new KnowledgeProvider();
@@ -17,20 +18,28 @@ export class ContextBuilder {
   constructor(private readonly retrievalPipeline: RetrievalPipeline) {}
 
   async build(
+    scope: GraphScope,
     query: string,
     retrievalContext?: ContextModel,
+    tenantId?: string,
   ): Promise<ContextResult> {
+    if (scope.kind !== "tenant" || !tenantId || tenantId !== scope.tenantId) {
+      throw new Error("Context scope and tenantId must match");
+    }
     const retrieval = await this.retrievalPipeline.retrieve({
       query,
       limit: 5,
+      options: tenantId ? { tenantId } : undefined,
       context: retrievalContext,
     }, retrievalContext);
 
-    const knowledge = await this.knowledge.search(query);
+    // Knowledge graph state is currently global. It must not be included in a
+    // tenant-scoped response until the graph gains tenant ownership.
+    const knowledge = tenantId ? [] : await this.knowledge.search(query);
 
-    const inference = this.inference.search();
+    const inference = tenantId ? [] : this.inference.search();
 
-    const explanations = this.explanation.search(inference);
+    const explanations = this.explanation.search(scope, inference);
 
     const memories = retrieval.memories.map((result) => result.memory);
 

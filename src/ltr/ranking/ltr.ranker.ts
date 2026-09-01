@@ -3,6 +3,7 @@ import type { FeatureExtractor } from "../features/feature.extractor.js";
 import type { LTRModelProvider } from "../model/ltr.model.provider.interface.js";
 import type { ContextModel } from "../../context/model/context.model.js";
 import type { ContextAwareScoringService } from "../../retrieval/context/context-aware-scoring.service.js";
+import type { FeedbackScope } from "../feedback/feedback.types.js";
 
 export interface LTRRankingResult {
   result: RetrievalResult;
@@ -17,11 +18,12 @@ export class LTRRanker {
   ) {}
 
   rank(
+    scope: FeedbackScope,
     query: string,
     results: RetrievalResult[],
     context?: ContextModel,
   ): LTRRankingResult[] {
-    const model = this.modelProvider.getModel();
+    const model = this.modelProvider.getModel(scope);
 
     return results
       .map((result) => {

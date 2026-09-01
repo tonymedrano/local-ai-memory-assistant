@@ -14,7 +14,7 @@ export async function cleanupJob(dependencies: CleanupJobDependencies = {}) {
     dependencies.cleanupService ?? new CleanupService(new MemoryRepository());
 
   await runJob(
-    "cleanup",
+    "cleanup", { kind: "system" },
 
     async () => {
       const result: CleanupResult = await cleanupService.run();

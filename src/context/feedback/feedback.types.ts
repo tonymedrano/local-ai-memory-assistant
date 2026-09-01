@@ -6,4 +6,5 @@ export interface ContextFeedback {
   memories: string[];
   feedback: FeedbackType;
   createdAt: Date;
+  tenantId: string;
 }

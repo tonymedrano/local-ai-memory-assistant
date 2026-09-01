@@ -53,6 +53,11 @@ function requiredDirectory(
 }
 
 export function createConfig(env: NodeJS.ProcessEnv = process.env) {
+  const production = env.NODE_ENV === "production";
+  const authMode = env.AUTH_MODE ?? (production ? "jwt" : "development");
+  if (production && authMode === "development") throw new Error("AUTH_MODE=development is forbidden in production");
+  if (authMode !== "development" && authMode !== "jwt") throw new Error("AUTH_MODE must be development or jwt");
+  if (authMode === "jwt" && !env.JWT_SECRET?.trim()) throw new Error("JWT_SECRET is required when AUTH_MODE=jwt");
   return {
     chatModel: "qwen2.5:14b",
     port: Number(env.PORT ?? 3000),
@@ -71,6 +76,11 @@ export function createConfig(env: NodeJS.ProcessEnv = process.env) {
     ),
     dataDir: requiredDirectory(env.DATA_DIR, "DATA_DIR", "data"),
     embedModel: env.EMBED_MODEL ?? "nomic-embed-text",
+    authMode,
+    jwtSecret: env.JWT_SECRET,
+    jwtIssuer: env.JWT_ISSUER,
+    jwtAudience: env.JWT_AUDIENCE,
+    jwtTenantClaim: env.JWT_TENANT_CLAIM?.trim() || "tenantId",
   };
 }
 

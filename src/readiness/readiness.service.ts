@@ -1,4 +1,5 @@
 import { config } from "../config.js";
+import { missingOllamaModels } from "../ai/ollama.models.js";
 
 export interface ReadinessCheck {
   name: string;
@@ -55,12 +56,11 @@ async function checkOllama(): Promise<void> {
     throw new Error(`Ollama readiness check failed with status ${response.status}`);
   }
 
-  const payload = (await response.json()) as { models?: Array<{ name?: string }> };
-  const availableModels = new Set(
-    (payload.models ?? []).flatMap((model) => (model.name ? [model.name] : [])),
+  const payload = (await response.json()) as { models?: Array<{ name?: string; model?: string }> };
+  const missingModels = missingOllamaModels(
+    [config.embedModel, config.chatModel],
+    payload.models ?? [],
   );
-  const requiredModels = new Set([config.embedModel, config.chatModel]);
-  const missingModels = [...requiredModels].filter((model) => !availableModels.has(model));
 
   if (missingModels.length > 0) {
     throw new Error(`Ollama is missing configured model(s): ${missingModels.join(", ")}`);

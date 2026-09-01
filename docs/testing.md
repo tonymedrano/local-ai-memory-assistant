@@ -30,9 +30,10 @@ required environment variable is set.
 - **Integration:** every `*.test.ts` file directly under
   `src/tests/integration/` runs with `npm run test:integration`. Qdrant tests
   use `QDRANT_TEST_URL`, create a unique collection, and delete it in `finally`.
-  Without that variable, the test is reported as skipped. Existing scripts that
-  exercise Qdrant, Ollama, or JSON persistence remain opt-in until each one
-  uses this same isolation model.
+  Without that variable, or if the provider cannot be reached, the test is
+  reported as `SKIPPED_PROVIDER_UNAVAILABLE`; this is not a passing integration
+  result. Existing scripts that exercise Qdrant, Ollama, or JSON persistence
+  remain opt-in until each one uses this same isolation model.
 - **End-to-end:** [`src/tests/test-e2e.ts`](../src/tests/test-e2e.ts), which
   targets a ready service at `http://localhost:3000`, requires Qdrant and
   Ollama, stores a uniquely named memory, and is intentionally not part of

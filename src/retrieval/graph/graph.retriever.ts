@@ -1,6 +1,7 @@
 import { graphRepository } from "../../knowledge/graph/graph.repository.js";
 
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
+import type { GraphScope } from "../../knowledge/graph/graph.types.js";
 
 import { EntityExtractor } from "./entity.extractor.js";
 import { GraphTraverser } from "./graph.traverser.js";
@@ -15,6 +16,7 @@ export class GraphRetriever {
   private readonly traverser = new GraphTraverser(graphRepository);
 
   async search(
+    scope: GraphScope,
     query: string,
     options?: GraphSearchOptions,
   ): Promise<RetrievalResult[]> {
@@ -28,7 +30,7 @@ export class GraphRetriever {
       return [];
     }
 
-    const traversed = this.traverser.traverse(entities, 2);
+    const traversed = this.traverser.traverse(scope, entities, 2);
 
     const results: RetrievalResult[] = traversed.map((item) => ({
       memory: {

@@ -1,16 +1,32 @@
-import type { GraphNode, GraphEdge, KnowledgeGraph } from "./graph.types.js";
+import type { GraphNode, GraphEdge, GraphScope, KnowledgeGraph } from "./graph.types.js";
+import { graphScopeKey } from "./graph.types.js";
 import { graphStorage } from "./graph.storage.js";
 
-import {
-  canonicalizeLabel,
-  createNodeId,
-} from "./identity/identity.resolver.js";
+import { canonicalizeLabel, resolveGraphNodeId } from "./identity/identity.resolver.js";
+
+export interface GraphStorage {
+  load(): KnowledgeGraph;
+  save(graph: KnowledgeGraph): void;
+}
 
 export class GraphRepository {
-  private graph: KnowledgeGraph = graphStorage.load();
+  private readonly scopedGraphs = new Map<string, { nodes: Map<string, GraphNode>; edges: Map<string, GraphEdge>; labels: Map<string, string> }>();
+  private scoped(scope: GraphScope) {
+    const key = graphScopeKey(scope);
+    let state = this.scopedGraphs.get(key);
+    if (!state) { state = { nodes: new Map(), edges: new Map(), labels: new Map() }; this.scopedGraphs.set(key, state); }
+    return state;
+  }
+  private graph: KnowledgeGraph;
 
-  constructor() {
-    this.graph = graphStorage.load();
+  constructor(private readonly storage: GraphStorage = graphStorage) {
+    this.graph = storage.load();
+    for (const node of this.graph.nodes) {
+      const state = this.scoped(node.scope);
+      state.nodes.set(node.id, node);
+      state.labels.set(canonicalizeLabel(node.label), node.id);
+    }
+    for (const edge of this.graph.edges) this.scoped(edge.scope).edges.set(edge.id, edge);
 
     console.log(
       "[GraphRepository] Loaded",
@@ -21,20 +37,23 @@ export class GraphRepository {
     );
   }
 
-  getGraph(): KnowledgeGraph {
-    return this.graph;
+  getGraph(scope: GraphScope): KnowledgeGraph {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    if (!state) return { nodes: [], edges: [] };
+    return { nodes: [...state.nodes.values()], edges: [...state.edges.values()] };
   }
 
   addNode(node: GraphNode): GraphNode {
-    const existingById = this.graph.nodes.find(
-      (existing) => existing.id === node.id,
-    );
+    const scoped = this.scoped(node.scope);
+    const scopedExisting = scoped.labels.get(canonicalizeLabel(node.label));
+    if (scopedExisting) return scoped.nodes.get(scopedExisting)!;
+    const existingById = scoped.nodes.get(node.id);
 
     if (existingById) {
       return existingById;
     }
 
-    const existingByIdentity = this.findByIdentity(node.label);
+    const existingByIdentity = scoped.nodes.get(scoped.labels.get(canonicalizeLabel(node.label)) ?? "");
 
     if (existingByIdentity) {
       return existingByIdentity;
@@ -44,43 +63,54 @@ export class GraphRepository {
 
     const normalizedNode: GraphNode = {
       ...node,
-      id: createNodeId(canonicalLabel),
+      id: resolveGraphNodeId(node.scope, canonicalLabel),
       label: canonicalLabel,
     };
 
     this.graph.nodes.push(normalizedNode);
+    scoped.nodes.set(normalizedNode.id, normalizedNode);
+    scoped.labels.set(canonicalizeLabel(normalizedNode.label), normalizedNode.id);
 
-    graphStorage.save(this.graph);
+    this.storage.save(this.graph);
 
     return normalizedNode;
   }
 
-  addEdge(edge: GraphEdge) {
-    const exists = this.graph.edges.some((e) => e.id === edge.id);
+  addEdge(scope: GraphScope, edge: GraphEdge) {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    if (!state || graphScopeKey(edge.scope) !== graphScopeKey(scope)) throw new Error("Graph edge scope mismatch");
+    if (!state.nodes.has(edge.source) || !state.nodes.has(edge.target)) throw new Error("Graph edge endpoints must belong to scope");
+    const exists = state.edges.has(edge.id);
 
     if (!exists) {
       this.graph.edges.push(edge);
+      state.edges.set(edge.id, edge);
 
-      graphStorage.save(this.graph);
+      this.storage.save(this.graph);
     }
   }
 
-  getNode(id: string) {
-    return this.graph.nodes.find((n) => n.id === id);
+  getNode(scope: GraphScope, id: string) {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    const node = state?.nodes.get(id);
+    return node && graphScopeKey(node.scope) === graphScopeKey(scope) ? node : undefined;
   }
 
-  getNeighbors(id: string) {
-    const targets = this.graph.edges
-      .filter((e) => e.source === id)
-      .map((e) => e.target);
-
-    return this.graph.nodes.filter((n) => targets.includes(n.id));
+  getNeighbors(scope: GraphScope, id: string) {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    if (!state || !this.getNode(scope, id)) return [];
+    const targets = [...state.edges.values()]
+      .filter((edge) => edge.source === id)
+      .map((edge) => edge.target);
+    return targets
+      .map((target) => state.nodes.get(target))
+      .filter((node): node is GraphNode => Boolean(node) && graphScopeKey(node!.scope) === graphScopeKey(scope));
   }
 
-  findByLabel(label: string) {
-    return this.graph.nodes.find(
-      (node) => node.label.toLowerCase() === label.toLowerCase(),
-    );
+  findByLabel(scope: GraphScope, label: string) {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    const node = state?.nodes.get(state.labels.get(canonicalizeLabel(label)) ?? "");
+    return node && graphScopeKey(node.scope) === graphScopeKey(scope) ? node : undefined;
   }
 
   findAllByLabel(label: string): GraphNode[] {
@@ -89,12 +119,16 @@ export class GraphRepository {
     );
   }
 
-  getEdgesFrom(nodeId: string) {
-    return this.graph.edges.filter((edge) => edge.source === nodeId);
+  getEdgesFrom(scope: GraphScope, nodeId: string) {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    if (!state || !this.getNode(scope, nodeId)) return [];
+    return [...state.edges.values()].filter((edge) => edge.source === nodeId);
   }
 
-  getEdgesTo(nodeId: string) {
-    return this.graph.edges.filter((edge) => edge.target === nodeId);
+  getEdgesTo(scope: GraphScope, nodeId: string) {
+    const state = this.scopedGraphs.get(graphScopeKey(scope));
+    if (!state || !this.getNode(scope, nodeId)) return [];
+    return [...state.edges.values()].filter((edge) => edge.target === nodeId);
   }
 
   findEdge(
@@ -157,7 +191,7 @@ export class GraphRepository {
 
     this.graph.nodes[index] = updatedNode;
 
-    graphStorage.save(this.graph);
+    this.storage.save(this.graph);
 
     return updatedNode;
   }
@@ -183,7 +217,7 @@ export class GraphRepository {
       }
     }
 
-    graphStorage.save(this.graph);
+    this.storage.save(this.graph);
   }
 
   removeDuplicateLabels(keepId: string) {
@@ -216,7 +250,7 @@ export class GraphRepository {
       this.graph.nodes = this.graph.nodes.filter((n) => n.id !== duplicate.id);
     }
 
-    graphStorage.save(this.graph);
+    this.storage.save(this.graph);
   }
 
   clear() {
@@ -225,7 +259,7 @@ export class GraphRepository {
       edges: [],
     };
 
-    graphStorage.save(this.graph);
+    this.storage.save(this.graph);
   }
 }
 

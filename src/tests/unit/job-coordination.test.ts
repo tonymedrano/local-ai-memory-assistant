@@ -18,10 +18,10 @@ test("prevents concurrent executions of the same job", async () => {
     release = resolve;
   });
 
-  const first = runJob("exclusive-job", async () => pending);
+  const first = runJob("exclusive-job", { kind: "tenant", tenantId: "tenant-a" }, async () => pending);
 
   await assert.rejects(
-    runJob("exclusive-job", async () => {}),
+    runJob("exclusive-job", { kind: "tenant", tenantId: "tenant-a" }, async () => {}),
     JobAlreadyRunningError,
   );
 
@@ -50,7 +50,7 @@ test("runs dependent knowledge jobs in order", async () => {
     async inferenceJob() {
       calls.push("inference");
     },
-  });
+  }, { kind: "tenant", tenantId: "tenant-a" });
 
   assert.deepEqual(calls, [
     "extraction",
@@ -78,7 +78,7 @@ test("stops the dependent cycle when an earlier stage fails", async () => {
       async inferenceJob() {
         calls.push("inference");
       },
-    }),
+    }, { kind: "tenant", tenantId: "tenant-a" }),
     /extraction unavailable/,
   );
 

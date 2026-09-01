@@ -18,7 +18,7 @@ const processor = new RelearningProcessor(relearning, mutation);
 
 export async function relearningJob() {
   await runJob(
-    "relearning",
+    "relearning", { kind: "system" },
 
     async () => {
       const knowledge = await knowledgeRepository.findAll();

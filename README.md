@@ -2,8 +2,8 @@
 
 Memory Service is a Node.js + TypeScript service for persistent semantic
 memory. V1 stores contextual memories in Qdrant, retrieves them with Ollama
-embeddings, maintains local JSON state under one data directory, and runs
-scheduled knowledge, lifecycle, cleanup, and LTR-maintenance jobs.
+embeddings, maintains local JSON state under one data directory, and drains
+tenant-owned knowledge and LTR work through a scheduled worker.
 
 ## V1 architecture
 
@@ -40,7 +40,7 @@ is used to store and search memory.
 cp .env.example .env
 set -a && . ./.env && set +a
 npm ci
-npm run build
+npm run build:production
 npm run dev
 ```
 
@@ -54,8 +54,14 @@ loads the keyword index. It exits when that bootstrap fails.
 To run the service and Qdrant with Docker:
 
 ```bash
-docker compose up --build
+JWT_SECRET="$(openssl rand -hex 32)" docker compose up --build
 ```
+
+Production Compose requires `JWT_SECRET` at runtime and explicitly runs with
+`AUTH_MODE=jwt`. Supply the secret through your platform secret manager or the
+shell environment; never commit it. `JWT_ISSUER` and `JWT_AUDIENCE` are
+optional validation constraints. `JWT_TENANT_CLAIM` defaults to `tenantId`, so
+tokens must carry that claim unless the deployment configures a different one.
 
 On Linux, set `OLLAMA_URL` to an address reachable from the container. The
 compose default (`host.docker.internal`) is appropriate for Docker Desktop.
@@ -84,15 +90,30 @@ each indexed project, rather than service-global state.
 - `GET /ready` is a readiness endpoint. It returns `200` only after bootstrap
   completes and while Qdrant collections plus Ollama's configured models are
   available. Otherwise it returns `503` with per-check diagnostics.
+- An Ollama model configured without a tag is matched only to the same model's
+  `:latest` tag. Explicit model tags must match exactly.
 - The production compose healthcheck targets `/ready`, so an alive but unusable
   instance is not treated as healthy.
 
-Jobs are scheduled once startup succeeds. Their order and retention policy are
-documented in [docs/jobs.md](docs/jobs.md).
+Once startup succeeds, the scheduler drains durable tenant work daily at
+04:00 (server local time). Lifecycle, cleanup, context learning, consolidation,
+and relearning are not scheduled V1 jobs. The exact supported work types and
+operational limits are documented in [docs/jobs.md](docs/jobs.md).
 
 ## Testing and quality
 
+`npm run build:production` is the release compile gate: it emits the HTTP
+service entrypoint and the Qdrant and graph ownership migration CLIs, together
+with their production dependencies. `npm run build` remains the whole-repository
+typecheck and currently includes legacy tests and manual scripts.
+
+The Docker release image runs `build:production` and starts `dist/index.js` via
+`npm start`. The ownership migration commands remain `tsx` operational commands
+for rollout, but their source entrypoints are included in the release compile
+gate.
+
 ```bash
+npm run build:production
 npm test
 npm run test:quality
 npm run test:integration
@@ -106,6 +127,7 @@ are in [docs/testing.md](docs/testing.md).
 ## V1 scope boundaries
 
 V1 does not provide multi-process file-write coordination, distributed job
-locking, persistence migration tooling, or a public endpoint for manually
-triggering maintenance jobs. JSON persistence is safe against partial writes
-within the single-process runtime.
+locking, automatic job retry, or a public endpoint for manually triggering
+maintenance jobs. Lifecycle, cleanup, context learning, consolidation, and
+relearning remain outside the V1 runtime contract. JSON persistence is safe
+against partial writes within the single-process runtime.

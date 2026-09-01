@@ -6,7 +6,7 @@ import { FeedbackCollector } from "../../ltr/feedback/feedback.collector.js";
 import type { FeedbackLearningService } from "../../ltr/feedback/feedback.learning.service.js";
 import { FeedbackService } from "../../ltr/feedback/feedback.service.js";
 import type { RankingFeedback } from "../../ltr/feedback/feedback.types.js";
-import { FeedbackType } from "../../ltr/feedback/feedback.types.js";
+import { FeedbackType, type FeedbackScope } from "../../ltr/feedback/feedback.types.js";
 import type { FeedbackRepository } from "../../ltr/feedback/feedback.repository.js";
 import type { ModelRepository } from "../../ltr/model/model.repository.js";
 import { TrainingService } from "../../ltr/training/training.service.js";
@@ -26,6 +26,7 @@ const features = {
   diversity: 0.5,
   duplicatePenalty: 0,
 };
+const scope: FeedbackScope = { kind: "tenant", tenantId: "tenant-a" };
 
 function retrievalResult(): RetrievalResult {
   return {
@@ -50,6 +51,7 @@ function feedback(type: FeedbackType): RankingFeedback {
     signal: 0,
     features,
     createdAt: new Date(),
+    scope,
   };
 }
 
@@ -57,7 +59,7 @@ test("returned results are recorded as impressions, not clicks", async () => {
   const records: Array<{ type: FeedbackType }> = [];
   const collector = new FeedbackCollector(
     {
-      async record(input: FeedbackInput) {
+      async record(_scope: FeedbackScope, input: FeedbackInput) {
         records.push({ type: input.type });
       },
     } as unknown as FeedbackLearningService,
@@ -66,10 +68,10 @@ test("returned results are recorded as impressions, not clicks", async () => {
 
   const result = retrievalResult();
 
-  await collector.resultReturned("feedback query", [result]);
-  collector.memorySelected("feedback query", result);
-  collector.contextUsed("feedback query", result);
-  collector.answerRejected("feedback query", result);
+  await collector.resultReturned(scope, "feedback query", [result]);
+  collector.memorySelected(scope, "feedback query", result);
+  collector.contextUsed(scope, "feedback query", result);
+  collector.answerRejected(scope, "feedback query", result);
 
   assert.deepEqual(
     records.map((record) => record.type),
@@ -85,7 +87,7 @@ test("returned results are recorded as impressions, not clicks", async () => {
 test("assigns signals only to explicit feedback", () => {
   const records: Array<{ type: FeedbackType; signal: number }> = [];
   const service = new FeedbackService({
-    save(input: PersistedFeedbackInput) {
+    save(_scope: FeedbackScope, input: PersistedFeedbackInput) {
       records.push({ type: input.type, signal: input.signal });
       return input as never;
     },
@@ -97,7 +99,7 @@ test("assigns signals only to explicit feedback", () => {
     FeedbackType.ACCEPT,
     FeedbackType.REJECT,
   ]) {
-    service.record({
+    service.record(scope, {
       query: "feedback query",
       memoryId: "memory-1",
       type,
@@ -116,20 +118,20 @@ test("assigns signals only to explicit feedback", () => {
 test("offline training ignores non-trainable impressions", async () => {
   const savedModels: unknown[] = [];
   const feedbackRepository = {
-    async findAll() {
+    async findAll(_scope: FeedbackScope) {
       return Array.from({ length: 10 }, () => feedback(FeedbackType.IMPRESSION));
     },
   } as unknown as FeedbackRepository;
   const modelRepository = {
-    load() {
+    loadScoped(_scope: FeedbackScope) {
       return null;
     },
-    save(model: unknown) {
+    saveScoped(_scope: FeedbackScope, model: unknown) {
       savedModels.push(model);
     },
   } as unknown as ModelRepository;
 
-  await new TrainingService(feedbackRepository, modelRepository).train();
+  await new TrainingService(feedbackRepository, modelRepository).train(scope);
 
   assert.equal(savedModels.length, 0);
 });
@@ -137,7 +139,7 @@ test("offline training ignores non-trainable impressions", async () => {
 test("offline training uses explicit feedback and excludes impressions", async () => {
   const savedModels: Array<{ samples: number }> = [];
   const feedbackRepository = {
-    async findAll() {
+    async findAll(_scope: FeedbackScope) {
       return [
         ...Array.from({ length: 10 }, () => feedback(FeedbackType.ACCEPT)),
         ...Array.from({ length: 10 }, () => feedback(FeedbackType.IMPRESSION)),
@@ -145,15 +147,15 @@ test("offline training uses explicit feedback and excludes impressions", async (
     },
   } as unknown as FeedbackRepository;
   const modelRepository = {
-    load() {
+    loadScoped(_scope: FeedbackScope) {
       return null;
     },
-    save(model: { samples: number }) {
+    saveScoped(_scope: FeedbackScope, model: { samples: number }) {
       savedModels.push(model);
     },
   } as unknown as ModelRepository;
 
-  await new TrainingService(feedbackRepository, modelRepository).train();
+  await new TrainingService(feedbackRepository, modelRepository).train(scope);
 
   assert.equal(savedModels.length, 1);
   assert.equal(savedModels[0]?.samples, 10);

@@ -22,6 +22,8 @@ export interface RetrievalRequest {
 }
 
 export interface RetrievalOptions {
+  /** Internal tenant scope, set by the trusted HTTP boundary. */
+  tenantId?: string;
   project?: string;
   type?: MemoryType;
 

@@ -2,6 +2,7 @@ import { FeatureExtractor } from "../features/feature.extractor.js";
 import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 import { FeedbackType } from "./feedback.types.js";
 import type { FeedbackLearningService } from "./feedback.learning.service.js";
+import type { FeedbackScope } from "./feedback.types.js";
 
 export class FeedbackCollector {
   constructor(
@@ -10,6 +11,7 @@ export class FeedbackCollector {
   ) {}
 
   async resultReturned(
+    scope: FeedbackScope,
     query: string,
     results: RetrievalResult[],
   ): Promise<void> {
@@ -29,7 +31,7 @@ export class FeedbackCollector {
         },
       });
 
-      await this.feedbackService.record({
+      await this.feedbackService.record(scope, {
         query,
         memoryId: result.memory.id,
         type: FeedbackType.IMPRESSION,
@@ -38,14 +40,14 @@ export class FeedbackCollector {
     }
   }
 
-  memorySelected(query: string, result: RetrievalResult): void {
+  memorySelected(scope: FeedbackScope, query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
 
     const ranked = this.extract(result);
 
-    this.feedbackService.record({
+    this.feedbackService.record(scope, {
       query,
       memoryId: result.memory.id,
       type: FeedbackType.CLICK,
@@ -53,14 +55,14 @@ export class FeedbackCollector {
     });
   }
 
-  contextUsed(query: string, result: RetrievalResult): void {
+  contextUsed(scope: FeedbackScope, query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
 
     const ranked = this.extract(result);
 
-    this.feedbackService.record({
+    this.feedbackService.record(scope, {
       query,
       memoryId: result.memory.id,
       type: FeedbackType.ACCEPT,
@@ -68,14 +70,14 @@ export class FeedbackCollector {
     });
   }
 
-  answerAccepted(query: string, result: RetrievalResult): void {
+  answerAccepted(scope: FeedbackScope, query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
 
     const ranked = this.extract(result);
 
-    this.feedbackService.record({
+    this.feedbackService.record(scope, {
       query,
       memoryId: result.memory.id,
       type: FeedbackType.ACCEPT,
@@ -83,14 +85,14 @@ export class FeedbackCollector {
     });
   }
 
-  answerRejected(query: string, result: RetrievalResult): void {
+  answerRejected(scope: FeedbackScope, query: string, result: RetrievalResult): void {
     if (!result.memory.id) {
       return;
     }
 
     const ranked = this.extract(result);
 
-    this.feedbackService.record({
+    this.feedbackService.record(scope, {
       query,
       memoryId: result.memory.id,
       type: FeedbackType.REJECT,

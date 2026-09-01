@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { config } from "../../config.js";
 import { readJsonFile, writeJsonFileAtomic } from "../../persistence/json.file.js";
-import type { RankingFeedback } from "./feedback.types.js";
+import type { FeedbackScope, RankingFeedback } from "./feedback.types.js";
 
 export class FeedbackRepository {
   private items: RankingFeedback[] = [];
@@ -20,25 +20,29 @@ export class FeedbackRepository {
 
     this.loaded = true;
 
-    const data = await readJsonFile<RankingFeedback[]>(this.filePath, []);
+    const data = await readJsonFile<{ schemaVersion: 1; records: RankingFeedback[] } | RankingFeedback[]>(this.filePath, { schemaVersion: 1, records: [] });
+    const records = Array.isArray(data) ? data : data.schemaVersion === 1 ? data.records : [];
 
-    this.items = data.map((item) => ({
+    this.items = records.filter((item) => item.scope?.kind === "tenant" || item.scope?.kind === "system").map((item) => ({
       ...item,
       createdAt: new Date(item.createdAt),
     }));
   }
 
   private async persist(): Promise<void> {
-    await writeJsonFileAtomic(this.filePath, this.items);
+    await writeJsonFileAtomic(this.filePath, { schemaVersion: 1, records: this.items });
   }
 
   async save(
-    feedback: Omit<RankingFeedback, "id" | "createdAt">,
+    scope: FeedbackScope,
+    feedback: Omit<RankingFeedback, "id" | "createdAt" | "scope">,
   ): Promise<RankingFeedback> {
     await this.load();
 
+    if (scope.kind === "legacy-unowned") throw new Error("Legacy-unowned feedback is not executable");
     const item: RankingFeedback = {
       id: randomUUID(),
+      scope,
       ...feedback,
       createdAt: new Date(),
     };
@@ -58,16 +62,16 @@ export class FeedbackRepository {
     await this.persist();
   }
 
-  async findAll(): Promise<RankingFeedback[]> {
+  async findAll(scope: FeedbackScope): Promise<RankingFeedback[]> {
     await this.load();
 
-    return [...this.items];
+    return this.items.filter((item) => item.scope.kind === scope.kind && (scope.kind !== "tenant" || item.scope.kind === "tenant" && item.scope.tenantId === scope.tenantId));
   }
 
-  async findSince(date: Date): Promise<RankingFeedback[]> {
+  async findSince(scope: FeedbackScope, date: Date): Promise<RankingFeedback[]> {
     await this.load();
 
-    return this.items.filter((item) => item.createdAt >= date);
+    return this.items.filter((item) => item.createdAt >= date && item.scope.kind === scope.kind && (scope.kind !== "tenant" || item.scope.kind === "tenant" && item.scope.tenantId === scope.tenantId));
   }
 
   async clear(): Promise<void> {

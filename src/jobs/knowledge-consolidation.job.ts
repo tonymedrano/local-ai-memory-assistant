@@ -9,7 +9,7 @@ const consolidator = new KnowledgeConsolidator();
 
 export async function knowledgeConsolidationJob() {
   await runJob(
-    "knowledge-consolidation",
+    "knowledge-consolidation", { kind: "system" },
 
     async () => {
       const knowledge = await knowledgeRepository.findAll();

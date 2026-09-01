@@ -1,10 +1,8 @@
-import { FeedbackService } from "../feedback/feedback.service.js";
-
-const feedbackService = new FeedbackService();
-
 export class FeedbackBooster {
-  getScore(memoryId: string): number {
-    return feedbackService.calculateScore(memoryId);
+  getScore(_memoryId: string): number {
+    // This global adaptive path has no tenant scope. It must not consume
+    // tenant-private context feedback until its contract becomes scoped.
+    return 0;
   }
 
   boost(baseScore: number, memoryId: string) {

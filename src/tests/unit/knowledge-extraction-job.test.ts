@@ -37,18 +37,21 @@ test("extracts the full batch before synchronizing a valid graph", async () => {
     {
       id: "memory-1",
       text: "First memory",
+      tenantId: "tenant-a",
       importance: 0.8,
       createdAt: "2026-08-31T00:00:00.000Z",
     },
     {
       id: "memory-2",
       text: "Second memory",
+      tenantId: "tenant-b",
       importance: 0.8,
       createdAt: "2026-08-31T00:00:00.000Z",
     },
   ];
 
   await knowledgeExtractionJob({
+    scope: { kind: "tenant", tenantId: "tenant-a" },
     memoryRepository: {
       async findPendingKnowledgeExtraction() {
         steps.push("find-pending");
@@ -59,9 +62,9 @@ test("extracts the full batch before synchronizing a valid graph", async () => {
       },
     },
     knowledgeService: {
-      async processMemory(text: string) {
-        steps.push(`extract:${text}`);
-        return { subject: text } as never;
+      async processMemory(memory: { text: string; tenantId?: string }) {
+        steps.push(`extract:${memory.text}`);
+        return { subject: memory.text } as never;
       },
     },
     knowledgeSyncService: {
@@ -76,8 +79,6 @@ test("extracts the full batch before synchronizing a valid graph", async () => {
     "find-pending",
     "extract:First memory",
     "mark:memory-1",
-    "extract:Second memory",
-    "mark:memory-2",
     "sync",
   ]);
 });
@@ -85,6 +86,7 @@ test("extracts the full batch before synchronizing a valid graph", async () => {
 test("fails the extraction job when graph consistency validation fails", async () => {
   await assert.rejects(
     knowledgeExtractionJob({
+      scope: { kind: "tenant", tenantId: "tenant-a" },
       memoryRepository: {
         async findPendingKnowledgeExtraction() {
           return [];
@@ -103,5 +105,12 @@ test("fails the extraction job when graph consistency validation fails", async (
       },
     }),
     /Graph synchronization failed consistency validation: Edge references a missing target node\./,
+  );
+});
+
+test("requires an explicit persisted tenant scope", async () => {
+  await assert.rejects(
+    knowledgeExtractionJob(),
+    /Knowledge extraction requires persisted tenant job scope/,
   );
 });

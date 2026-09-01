@@ -1,4 +1,5 @@
 import type { FeatureVector } from "../features/feature.types.js";
+export type FeedbackScope = { kind: "tenant"; tenantId: string } | { kind: "system" } | { kind: "legacy-unowned" };
 
 export enum FeedbackType {
   IMPRESSION = "impression",
@@ -18,6 +19,7 @@ export function isTrainableFeedback(type: FeedbackType): boolean {
 
 export interface RankingFeedback {
   id: string;
+  scope: FeedbackScope;
   query: string;
   memoryId: string;
   type: FeedbackType;

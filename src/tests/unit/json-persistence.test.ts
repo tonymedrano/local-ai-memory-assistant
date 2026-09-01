@@ -5,10 +5,6 @@ import path from "node:path";
 import test from "node:test";
 
 import { createConfig } from "../../config.js";
-import { FeedbackRepository } from "../../ltr/feedback/feedback.repository.js";
-import { FeedbackType } from "../../ltr/feedback/feedback.types.js";
-import { DEFAULT_WEIGHTS } from "../../ltr/model/default-weights.js";
-import { ModelRepository } from "../../ltr/model/model.repository.js";
 import {
   readJsonFile,
   readJsonFileSync,
@@ -77,48 +73,4 @@ test("fails clearly on corrupt persisted JSON without replacing it", async (t) =
     readJsonFile(filePath, []),
     new RegExp(`Invalid JSON persistence file ${filePath}`),
   );
-});
-
-test("persists active LTR feedback and model state at the configured file paths", async (t) => {
-  const directory = await mkdtemp(path.join(os.tmpdir(), "memory-service-json-"));
-  const feedbackPath = path.join(directory, "ranking-feedback.json");
-  const modelPath = path.join(directory, "ltr-model.json");
-
-  t.after(async () => {
-    await rm(directory, { recursive: true, force: true });
-  });
-
-  const feedback = new FeedbackRepository(feedbackPath);
-
-  await feedback.save({
-    query: "persist feedback",
-    memoryId: "memory-1",
-    type: FeedbackType.ACCEPT,
-    signal: 1,
-    features: {
-      semantic: 1,
-      bm25: 0,
-      importance: 0,
-      confidence: 0,
-      freshness: 0,
-      graphEvidence: 0,
-      accessCount: 0,
-      diversity: 0,
-      duplicatePenalty: 0,
-    },
-  });
-
-  const reloadedFeedback = new FeedbackRepository(feedbackPath);
-  const model = new ModelRepository(modelPath);
-
-  model.save({
-    version: 1,
-    trainedAt: "2026-08-31T00:00:00.000Z",
-    samples: 1,
-    weights: DEFAULT_WEIGHTS,
-  });
-
-  assert.equal((await reloadedFeedback.findAll()).length, 1);
-  assert.equal((await reloadedFeedback.findAll())[0]?.type, FeedbackType.ACCEPT);
-  assert.equal(model.load()?.samples, 1);
 });

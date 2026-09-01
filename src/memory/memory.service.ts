@@ -19,7 +19,7 @@ export function createMemoryService(
   repository: MemoryRepository,
   keywordIndex: KeywordIndex,
 ) {
-  const store = async (memory: Memory) => {
+  const store = async (memory: Memory, tenantId?: string) => {
     const now = new Date().toISOString();
 
     const enrichedMemory: Memory = {
@@ -33,6 +33,7 @@ export function createMemoryService(
       createdAt: now,
       updatedAt: now,
       origin: memory.origin ?? "user",
+      ...(tenantId ? { tenantId } : {}),
     };
 
     const vector = await createEmbedding(enrichedMemory.text);
@@ -40,6 +41,9 @@ export function createMemoryService(
     const similar = await repository.findSimilar(
       vector,
       enrichedMemory.project,
+      undefined,
+      0.9,
+      tenantId,
     );
 
     /*
@@ -95,12 +99,14 @@ export function createMemoryService(
   const recall = async (
     query: string,
     options?: RecallOptions,
+    tenantId?: string,
   ): Promise<MemorySearchResult[]> => {
     const vector = await createEmbedding(query);
 
     const results = await repository.search(vector, {
       project: options?.project,
       type: options?.type,
+      tenantId,
     });
 
     for (const memory of results) {

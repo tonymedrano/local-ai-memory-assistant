@@ -1,4 +1,5 @@
 import { getGraph } from "../graph/graph.service.js";
+import type { GraphScope } from "../graph/graph.types.js";
 
 export interface GraphPath {
   nodes: string[];
@@ -10,8 +11,8 @@ export interface GraphPath {
   }[];
 }
 
-export function findTwoHopPaths(): GraphPath[] {
-  const graph = getGraph();
+export function findTwoHopPaths(scope: GraphScope): GraphPath[] {
+  const graph = getGraph(scope);
 
   const paths: GraphPath[] = [];
 

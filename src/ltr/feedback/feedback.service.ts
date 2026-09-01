@@ -1,4 +1,4 @@
-import { FeedbackType, type RankingFeedback } from "./feedback.types.js";
+import { FeedbackType, type FeedbackScope, type RankingFeedback } from "./feedback.types.js";
 import { FeedbackRepository } from "./feedback.repository.js";
 
 export class FeedbackService {
@@ -7,9 +7,10 @@ export class FeedbackService {
   ) {}
 
   record(
-    input: Omit<RankingFeedback, "id" | "createdAt" | "signal">
+    scope: FeedbackScope,
+    input: Omit<RankingFeedback, "id" | "createdAt" | "signal" | "scope">
   ) {
-    return this.repository.save({
+    return this.repository.save(scope, {
       ...input,
       signal: this.calculateSignal(input.type),
     });

@@ -1,71 +1,26 @@
-import type { JobExecution } from "./job.types.js";
+import path from "node:path";
+import { config } from "../config.js";
+import { readJsonFileSync, writeJsonFileAtomicSync } from "../persistence/json.file.js";
+import type { JobExecution, JobScope } from "./job.types.js";
 
 export class JobRepository {
-  private executions: JobExecution[] = [];
+  private executions: JobExecution[];
+  private readonly file = path.join(config.dataDir, "job-history.json");
 
-  async start(name: string): Promise<JobExecution> {
-    const execution: JobExecution = {
-      id: crypto.randomUUID(),
-
-      name,
-
-      status: "running",
-
-      startedAt: new Date().toISOString(),
-    };
-
-    this.executions.push(execution);
-
-    return execution;
+  constructor() {
+    const loaded = readJsonFileSync<JobExecution[]>(this.file, []);
+    this.executions = loaded.map((item) => item.scope ? item : { ...item, scope: { kind: "legacy-unowned" } });
   }
 
-  async complete(id: string): Promise<void> {
-    const execution = this.executions.find((item) => item.id === id);
-
-    if (!execution) {
-      return;
-    }
-
-    execution.status = "completed";
-
-    execution.finishedAt = new Date().toISOString();
-
-    execution.duration =
-      new Date(execution.finishedAt).getTime() -
-      new Date(execution.startedAt).getTime();
+  async start(name: string, scope: JobScope): Promise<JobExecution> {
+    if (!scope || scope.kind === "legacy-unowned") throw new Error("Executable jobs require tenant or system scope");
+    const execution: JobExecution = { id: crypto.randomUUID(), name, scope, status: "running", startedAt: new Date().toISOString() };
+    this.executions.push(execution); this.persist(); return execution;
   }
-
-  async fail(id: string, error: unknown): Promise<void> {
-    const execution = this.executions.find((item) => item.id === id);
-
-    if (!execution) {
-      return;
-    }
-
-    execution.status = "failed";
-
-    execution.finishedAt = new Date().toISOString();
-
-    execution.duration =
-      new Date(execution.finishedAt).getTime() -
-      new Date(execution.startedAt).getTime();
-
-    execution.error = error instanceof Error ? error.message : String(error);
-  }
-
-  async getLatest(name?: string): Promise<JobExecution | undefined> {
-    const items = name
-      ? this.executions.filter((item) => item.name === name)
-      : this.executions;
-
-    return items.at(-1);
-  }
-
-  async clear(): Promise<void> {
-    this.executions = [];
-  }
-
-  async getAll() {
-    return this.executions;
-  }
+  async complete(id: string): Promise<void> { const e = this.executions.find((x) => x.id === id); if (!e) return; e.status = "completed"; e.finishedAt = new Date().toISOString(); e.duration = Date.parse(e.finishedAt) - Date.parse(e.startedAt); this.persist(); }
+  async fail(id: string, error: unknown): Promise<void> { const e = this.executions.find((x) => x.id === id); if (!e) return; e.status = "failed"; e.finishedAt = new Date().toISOString(); e.duration = Date.parse(e.finishedAt) - Date.parse(e.startedAt); e.error = error instanceof Error ? error.message : String(error); this.persist(); }
+  async getLatest(name?: string) { const items = name ? this.executions.filter((e) => e.name === name) : this.executions; return items.at(-1); }
+  async getAll() { return this.executions; }
+  async clear() { this.executions = []; this.persist(); }
+  private persist() { writeJsonFileAtomicSync(this.file, this.executions); }
 }

@@ -9,6 +9,7 @@ import { applyContextToRetrievalStrategy } from "../../context/retrieval/context
 import type { QueryProfile } from "../../retrieval/intelligence/query.types.js";
 import { RetrievalPipeline } from "../../retrieval/pipeline/retrieval.pipeline.js";
 import type { RetrievalStrategy } from "../../retrieval/strategy/retrieval.strategy.js";
+import { tenantGraphScope } from "../../knowledge/graph/graph.types.js";
 
 function context(): ContextModel {
   return buildContext({
@@ -50,14 +51,38 @@ test("ContextBuilder passes the extracted context to retrieval", async () => {
     },
   } as unknown as RetrievalPipeline;
   const retrievalContext = context();
+  const scope = tenantGraphScope("tenant-a");
 
   await new ContextBuilder(retrievalPipeline).build(
+    scope,
     retrievalContext.query,
     retrievalContext,
+    "tenant-a",
   );
 
   assert.equal(receivedRequestContext, retrievalContext);
   assert.equal(receivedArgumentContext, retrievalContext);
+});
+
+test("ContextBuilder rejects a mismatched secondary tenant before retrieval", async () => {
+  let retrievalCalls = 0;
+  const retrievalPipeline = {
+    async retrieve() {
+      retrievalCalls++;
+      return { memories: [], elapsedMs: 0 };
+    },
+  } as unknown as RetrievalPipeline;
+
+  await assert.rejects(
+    new ContextBuilder(retrievalPipeline).build(
+      tenantGraphScope("tenant-a"),
+      "retrieve project evidence",
+      undefined,
+      "tenant-b",
+    ),
+    /Context scope and tenantId must match/,
+  );
+  assert.equal(retrievalCalls, 0);
 });
 
 test("context hints cannot override an explicit query strategy", () => {
@@ -138,7 +163,7 @@ test("RetrievalPipeline applies context strategy adjustments without mutating ex
   await pipeline.retrieve({
     query: retrievalContext.query,
     context: retrievalContext,
-    options: { strategy: baseStrategy },
+    options: { strategy: baseStrategy, tenantId: "tenant-a" },
   });
 
   assert.equal(receivedContext, retrievalContext);

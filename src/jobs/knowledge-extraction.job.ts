@@ -3,8 +3,10 @@ import { runJob } from "./job.runner.js";
 import { KnowledgeService } from "../knowledge/knowledge.service.js";
 import { MemoryRepository } from "../memory/memory.repository.js";
 import type { KnowledgeSyncService } from "../knowledge/sync/knowledge-sync.service.js";
+import type { JobScope } from "../jobs-history/job.types.js";
 
 export interface KnowledgeExtractionJobDependencies {
+  scope?: JobScope;
   memoryRepository?: Pick<
     MemoryRepository,
     "findPendingKnowledgeExtraction" | "markKnowledgeExtracted"
@@ -16,6 +18,9 @@ export interface KnowledgeExtractionJobDependencies {
 export async function knowledgeExtractionJob(
   dependencies: KnowledgeExtractionJobDependencies = {},
 ) {
+  const scope = dependencies.scope;
+  if (!scope) throw new Error("Knowledge extraction requires persisted tenant job scope");
+  if (scope.kind !== "tenant") throw new Error("Knowledge extraction requires tenant job scope");
   const repository = dependencies.memoryRepository ?? new MemoryRepository();
   const service = dependencies.knowledgeService ?? new KnowledgeService();
   const syncService =
@@ -24,17 +29,18 @@ export async function knowledgeExtractionJob(
       .KnowledgeSyncService();
 
   await runJob(
-    "knowledge-extraction",
+    "knowledge-extraction", scope,
 
     async () => {
-      const memories = await repository.findPendingKnowledgeExtraction();
+      const memories = (await repository.findPendingKnowledgeExtraction())
+        .filter((memory) => memory.tenantId === scope.tenantId);
 
       console.log(
         `[KnowledgeExtractionJob] Processing ${memories.length} memories`,
       );
 
       for (const memory of memories) {
-        const knowledge = await service.processMemory(memory.text);
+        const knowledge = await service.processMemory(memory);
 
         await repository.markKnowledgeExtracted(memory.id);
 
