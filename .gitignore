@@ -155,3 +155,8 @@ dist/
 
 # Environment
 .env
+
+# just runtime
+data/job-history.json
+data/tenant-work.json
+data/knowledge-graph.json.legacy-quarantine
