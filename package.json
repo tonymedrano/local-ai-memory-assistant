@@ -20,6 +20,7 @@
     "production-check": "npm run test:quality && npm run test:integration && npm run eval",
     "graph:migrate-ownership": "tsx src/knowledge/graph/migrate-ownership.ts",
     "qdrant:migrate-ownership": "tsx src/qdrant/migrate-ownership.ts",
+    "continue:mcp": "node scripts/continue-mcp.mjs",
     "test:e2e": "tsx src/tests/test-e2e.ts",
     "test:restart": "tsx src/tests/test-restart-persistence.ts",
     "test:qdrant-config": "npm run test:unit"
