@@ -160,3 +160,4 @@ dist/
 data/job-history.json
 data/tenant-work.json
 data/knowledge-graph.json.legacy-quarantine
+data/ranking-feedback.json
