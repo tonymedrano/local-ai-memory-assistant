@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 
+import { badRequest } from "../../api/http.errors.js";
+import { pathParameterSchema } from "../../api/request.schemas.js";
 import { resolutionStorage } from "./resolution.storage.js";
 
 export function getResolutions(req: Request, res: Response) {
@@ -7,13 +9,11 @@ export function getResolutions(req: Request, res: Response) {
 }
 
 export function getResolutionBySubject(req: Request, res: Response) {
-  const subject = req.params.subject;
+  const subject = pathParameterSchema.safeParse(req.params.subject);
 
-  if (typeof subject !== "string") {
-    return res.status(400).json({
-      error: "Invalid subject parameter",
-    });
+  if (!subject.success) {
+    return badRequest(res, "Invalid subject parameter");
   }
 
-  res.json(resolutionStorage.findBySubject(subject));
+  return res.json(resolutionStorage.findBySubject(subject.data));
 }

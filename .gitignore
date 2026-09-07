@@ -144,6 +144,7 @@ vite.config.ts.timestamp-*
 
 # Qdrant data
 data/qdrant/
+data/ltr/evaluation-result.json
 
 # Docker volumes
 *.db
@@ -154,3 +155,9 @@ dist/
 
 # Environment
 .env
+
+# just runtime
+data/job-history.json
+data/tenant-work.json
+data/knowledge-graph.json.legacy-quarantine
+data/ranking-feedback.json

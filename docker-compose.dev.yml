@@ -13,9 +13,16 @@ services:
     volumes:
       - ./src:/app/src
       - ./data:/app/data
+      - /app/node_modules
 
     environment:
       NODE_ENV: development
+      AUTH_MODE: ${AUTH_MODE:?AUTH_MODE=jwt is required for secure local development}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required for secure local development}
+      JWT_ISSUER: ${JWT_ISSUER:-}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-}
+      JWT_TENANT_CLAIM: ${JWT_TENANT_CLAIM:-tenantId}
+      DATA_DIR: /app/data
       QDRANT_URL: http://qdrant:6333
       OLLAMA_URL: http://host.docker.internal:11434
 

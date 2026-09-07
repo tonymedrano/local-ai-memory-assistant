@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 
-import { recall } from "../memory/memory.service.js";
+import { recall } from "../core/container.js";
 
 export async function context(req: Request, res: Response) {
   const query = req.body.query ?? "";

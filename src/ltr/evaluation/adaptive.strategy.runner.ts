@@ -1,0 +1,27 @@
+import type { RetrievalPipeline } from "../../retrieval/pipeline/retrieval.pipeline.js";
+
+export class AdaptiveStrategyRunner {
+  constructor(private readonly pipeline: RetrievalPipeline) {}
+
+  async run(query: string) {
+    const start = Date.now();
+
+    const result = await this.pipeline.retrieve({
+      query,
+      limit: 5,
+      options: {
+        useLTR: true,
+      },
+    });
+
+    return {
+      query,
+
+      results: result.memories
+        .map((m) => m.memory.id)
+        .filter((id): id is string => Boolean(id)),
+
+      elapsedMs: Date.now() - start,
+    };
+  }
+}

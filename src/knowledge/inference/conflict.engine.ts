@@ -1,6 +1,7 @@
 import type { Conflict } from "./conflict.types.js";
 
 import { graphRepository } from "../graph/graph.repository.js";
+import type { GraphScope } from "../graph/graph.types.js";
 
 const oppositeRelations: Record<string, string[]> = {
   uses: ["does-not-use"],
@@ -8,8 +9,8 @@ const oppositeRelations: Record<string, string[]> = {
   requires: ["does-not-require"],
 };
 
-export function detectConflicts(): Conflict[] {
-  const graph = graphRepository.getGraph();
+export function detectConflicts(scope: GraphScope): Conflict[] {
+  const graph = graphRepository.getGraph(scope);
 
   console.log(
     "[ConflictDetection] edges:",

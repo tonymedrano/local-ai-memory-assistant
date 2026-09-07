@@ -1,34 +1,20 @@
-import fs from "fs/promises";
 import path from "path";
 
+import { config } from "../config.js";
+import { readJsonFile, writeJsonFileAtomic } from "../persistence/json.file.js";
 import type { ContextLearning } from "./learning.types.js";
 
-const DATA_PATH =
-  process.env.LEARNING_DATA_PATH ?? "./data/context-learning.json";
+const DATA_PATH = path.join(config.dataDir, "context-learning.json");
 
 export class LearningStorage {
   private file = path.resolve(DATA_PATH);
 
   async load(): Promise<ContextLearning[]> {
-    try {
-      const content = await fs.readFile(this.file, "utf-8");
-
-      const data = JSON.parse(content);
-
-      return data.map((item: any) => ({
-        ...item,
-        createdAt: new Date(item.createdAt),
-      }));
-    } catch (error) {
-      return [];
-    }
+    const data = await readJsonFile<ContextLearning[]>(this.file, []);
+    return data.map((item) => ({ ...item, createdAt: new Date(item.createdAt) }));
   }
 
   async save(events: ContextLearning[]) {
-    await fs.mkdir(path.dirname(this.file), {
-      recursive: true,
-    });
-
-    await fs.writeFile(this.file, JSON.stringify(events, null, 2), "utf-8");
+    await writeJsonFileAtomic(this.file, events);
   }
 }

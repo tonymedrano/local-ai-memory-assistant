@@ -1,15 +1,20 @@
 import type { InferenceRule, DerivedKnowledge } from "./inference.types.js";
+import { graphScopeKey, type GraphScope } from "../graph/graph.types.js";
 
 export const usesImpliesRequires: InferenceRule = {
   name: "uses-implies-requires",
 
   description: "If A uses B, infer A requires B",
 
-  evaluate(graph: any): DerivedKnowledge[] {
+  evaluate(graph: any, scope: GraphScope): DerivedKnowledge[] {
     const results: DerivedKnowledge[] = [];
 
     for (const edge of graph.edges) {
       if (edge.relation !== "uses") {
+        continue;
+      }
+
+      if (edge.scope && graphScopeKey(edge.scope) !== graphScopeKey(scope)) {
         continue;
       }
 
@@ -20,6 +25,11 @@ export const usesImpliesRequires: InferenceRule = {
       const objectNode = graph.nodes.find(
         (node: any) => node.id === edge.target,
       );
+
+      if ((subjectNode?.scope && graphScopeKey(subjectNode.scope) !== graphScopeKey(scope)) ||
+          (objectNode?.scope && graphScopeKey(objectNode.scope) !== graphScopeKey(scope))) {
+        continue;
+      }
 
       results.push({
         subject: edge.source,

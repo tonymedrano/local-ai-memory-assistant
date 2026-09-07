@@ -3,7 +3,7 @@ export interface InferenceRule {
 
   description: string;
 
-  evaluate(graph: unknown): DerivedKnowledge[];
+  evaluate(graph: unknown, scope: import("../graph/graph.types.js").GraphScope): DerivedKnowledge[];
 }
 
 export interface DerivedKnowledge {

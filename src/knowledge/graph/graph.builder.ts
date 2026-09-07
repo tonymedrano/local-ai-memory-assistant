@@ -1,16 +1,14 @@
 import { graphRepository } from "./graph.repository.js";
 
-import type { GraphNode, GraphEdge } from "./graph.types.js";
+import type { GraphNode, GraphEdge, GraphScope } from "./graph.types.js";
+import { resolveGraphEdgeId, resolveGraphNodeId } from "./identity/identity.resolver.js";
 
-function createId(value: string) {
-  return value.toLowerCase().replace(/\s+/g, "-");
-}
-
-export function buildKnowledgeGraph(memories: any[]) {
+export function buildKnowledgeGraph(scope: GraphScope, memories: any[]) {
   for (const memory of memories) {
-    const nodeId = createId(memory.subject);
+    const nodeId = resolveGraphNodeId(scope, memory.subject);
 
     const node: GraphNode = {
+      scope,
       id: nodeId,
 
       type: memory.type ?? "concept",
@@ -27,9 +25,10 @@ export function buildKnowledgeGraph(memories: any[]) {
     graphRepository.addNode(node);
 
     for (const relation of memory.relations ?? []) {
-      const targetId = createId(relation.target);
+      const targetId = resolveGraphNodeId(scope, relation.target);
 
       graphRepository.addNode({
+        scope,
         id: targetId,
 
         type: "concept",
@@ -40,7 +39,8 @@ export function buildKnowledgeGraph(memories: any[]) {
       });
 
       const edge: GraphEdge = {
-        id: `${nodeId}-${relation.type}-${targetId}`,
+        scope: { kind: "system" },
+        id: resolveGraphEdgeId(scope, nodeId, relation.type, targetId),
 
         source: nodeId,
 
@@ -53,9 +53,9 @@ export function buildKnowledgeGraph(memories: any[]) {
         createdAt: memory.createdAt,
       };
 
-      graphRepository.addEdge(edge);
+      graphRepository.addEdge(scope, edge);
     }
   }
 
-  return graphRepository.getGraph();
+  return graphRepository.getGraph(scope);
 }

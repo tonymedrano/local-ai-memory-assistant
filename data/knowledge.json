@@ -7,5 +7,29 @@
     "relations": [],
     "confidence": 0.95,
     "createdAt": "2026-07-27T18:28:58.846Z"
+  },
+  {
+    "id": "ffcdedeb-747b-4608-b7ef-83fa1ac7bb88",
+    "type": "technology",
+    "subject": "Qdrant-a63a387b-85bf-462e-ad19-35d24fc37c6c",
+    "content": "Qdrant almacena embeddings.",
+    "relations": [
+      {
+        "source": "Qdrant-a63a387b-85bf-462e-ad19-35d24fc37c6c",
+        "relation": "stores",
+        "target": "Embeddings-527067bd-64c5-4ea1-8869-cb32087f2d58"
+      }
+    ],
+    "confidence": 0.95,
+    "createdAt": "2026-08-23T09:47:49.958Z"
+  },
+  {
+    "id": "dbaf087f-ca5c-4f41-b7c1-5415a04dad10",
+    "type": "fact",
+    "subject": "Embeddings-527067bd-64c5-4ea1-8869-cb32087f2d58",
+    "content": "Representaciones vectoriales utilizadas para búsqueda semántica.",
+    "relations": [],
+    "confidence": 0.9,
+    "createdAt": "2026-08-23T09:47:49.958Z"
   }
 ]

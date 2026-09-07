@@ -2,9 +2,26 @@
 
 import { config } from "../config.js";
 
-import type { MemoryType } from "../memory/memory.types.js";
+export interface QdrantBootstrapOptions {
+  baseUrl?: string;
+  collection?: string;
+  fetch?: typeof globalThis.fetch;
+}
 
-const baseUrl = config.qdrantUrl;
+async function requestQdrant(
+  fetchImplementation: typeof globalThis.fetch,
+  qdrantUrl: string,
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  try {
+    return await fetchImplementation(`${qdrantUrl}${path}`, init);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+
+    throw new Error(`Unable to reach Qdrant at ${qdrantUrl}: ${reason}`);
+  }
+}
 
 /**
  * Inicializa la colección principal del sistema.
@@ -17,68 +34,31 @@ const baseUrl = config.qdrantUrl;
  *      +-- chunks
  *      +-- documentación
  */
-export async function initCollection() {
-  const response = await fetch(`${baseUrl}/collections`);
+export async function initCollection(options: QdrantBootstrapOptions = {}) {
+  const qdrantUrl = options.baseUrl ?? config.qdrantUrl;
+  const collection = options.collection ?? config.collection;
+  const fetchImplementation = options.fetch ?? globalThis.fetch;
+  const response = await requestQdrant(
+    fetchImplementation,
+    qdrantUrl,
+    "/collections",
+  );
 
   if (!response.ok) {
-    throw new Error(`Qdrant error ${response.status}`);
+    throw new Error(`Qdrant collection bootstrap failed with status ${response.status}`);
   }
 
   const data = await response.json();
 
   const exists = data.result.collections.some(
-    (c: any) => c.name === config.collection,
+    (c: any) => c.name === collection,
   );
 
   if (!exists) {
-    const create = await fetch(`${baseUrl}/collections/${config.collection}`, {
-      method: "PUT",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        vectors: {
-          size: 768,
-          distance: "Cosine",
-        },
-      }),
-    });
-
-    if (!create.ok) {
-      throw new Error(await create.text());
-    }
-  }
-}
-
-/**
- * Inicializa la colección de memoria contextual.
- *
- * contextual_memory
- *      |
- *      +-- decisiones
- *      +-- hechos
- *      +-- soluciones
- *      +-- conocimiento
- */
-export async function initMemoryCollection() {
-  const response = await fetch(`${baseUrl}/collections`);
-
-  if (!response.ok) {
-    throw new Error(`Qdrant error ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  const exists = data.result.collections.some(
-    (c: any) => c.name === config.memoryCollection,
-  );
-
-  if (!exists) {
-    const create = await fetch(
-      `${baseUrl}/collections/${config.memoryCollection}`,
-
+    const create = await requestQdrant(
+      fetchImplementation,
+      qdrantUrl,
+      `/collections/${collection}`,
       {
         method: "PUT",
 
@@ -102,299 +82,62 @@ export async function initMemoryCollection() {
 }
 
 /**
- * Guarda una memoria contextual.
+ * Inicializa la colección de memoria contextual.
  *
- * Usa:
- *
- * contextual_memory
- *
+ * config.memoryCollection
+ *      |
+ *      +-- decisiones
+ *      +-- hechos
+ *      +-- soluciones
+ *      +-- conocimiento
  */
-export async function saveMemory(
-  id: string,
-
-  vector: number[],
-
-  payload: Record<string, unknown> | any,
+export async function initMemoryCollection(
+  options: QdrantBootstrapOptions = {},
 ) {
-  console.log("QDRANT SAVE");
-  console.log({
-    collection: config.memoryCollection,
-    id,
-    vectorSize: vector.length,
-    payload,
-  });
-  const response = await fetch(
-    `${baseUrl}/collections/${config.memoryCollection}/points`,
-
-    {
-      method: "PUT",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        points: [
-          {
-            id,
-
-            vector,
-
-            payload,
-          },
-        ],
-      }),
-    },
+  const qdrantUrl = options.baseUrl ?? config.qdrantUrl;
+  const collection = options.collection ?? config.memoryCollection;
+  const fetchImplementation = options.fetch ?? globalThis.fetch;
+  const response = await requestQdrant(
+    fetchImplementation,
+    qdrantUrl,
+    "/collections",
   );
 
   if (!response.ok) {
-    throw new Error(await response.text());
-  }
-}
-
-export interface SearchOptions {
-  project?: string;
-
-  type?: MemoryType;
-}
-
-/**
- * Busca memoria contextual.
- *
- * Permite filtrar por:
- *
- * - proyecto
- * - tipo de memoria
- *
- */
-export async function searchMemory(
-  vector: number[],
-
-  options?: SearchOptions,
-) {
-  const filter: any = {};
-
-  if (options?.project) {
-    filter.must ??= [];
-
-    filter.must.push({
-      key: "project",
-
-      match: {
-        value: options.project,
-      },
-    });
-  }
-
-  if (options?.type) {
-    filter.must ??= [];
-
-    filter.must.push({
-      key: "type",
-
-      match: {
-        value: options.type,
-      },
-    });
-  }
-
-  const response = await fetch(
-    `${baseUrl}/collections/${config.memoryCollection}/points/search`,
-
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        vector,
-
-        limit: 5,
-
-        with_payload: true,
-
-        score_threshold: 0.6,
-
-        ...(Object.keys(filter).length
-          ? {
-              filter,
-            }
-          : {}),
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(await response.text());
+    throw new Error(
+      `Qdrant memory collection bootstrap failed with status ${response.status}`,
+    );
   }
 
   const data = await response.json();
 
-  return data.result;
-}
+  const exists = data.result.collections.some(
+    (c: any) => c.name === collection,
+  );
 
-export async function findSimilarMemory(
-  vector: number[],
-  project?: string,
-  threshold = 0.9,
-) {
-  const filter: any = {};
-
-  if (project) {
-    filter.must = [
+  if (!exists) {
+    const create = await requestQdrant(
+      fetchImplementation,
+      qdrantUrl,
+      `/collections/${collection}`,
       {
-        key: "project",
+        method: "PUT",
 
-        match: {
-          value: project,
+        headers: {
+          "Content-Type": "application/json",
         },
+
+        body: JSON.stringify({
+          vectors: {
+            size: 768,
+            distance: "Cosine",
+          },
+        }),
       },
-    ];
+    );
+
+    if (!create.ok) {
+      throw new Error(await create.text());
+    }
   }
-
-  const response = await fetch(
-    `${baseUrl}/collections/${config.memoryCollection}/points/search`,
-
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        vector,
-
-        limit: 1,
-
-        with_payload: true,
-
-        score_threshold: threshold,
-
-        ...(Object.keys(filter).length ? { filter } : {}),
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-
-  const data = await response.json();
-
-  if (!data.result || data.result.length === 0) {
-    return null;
-  }
-
-  return data.result[0];
-}
-
-export async function updateMemory(
-  id: string,
-  payload: Record<string, unknown>,
-) {
-  const response = await fetch(
-    `${baseUrl}/collections/${config.memoryCollection}/points/payload`,
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        points: [id],
-
-        payload,
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-}
-
-/**
- * Busca memorias similares para procesos internos.
- *
- * Usado por:
- *
- * - deduplicación
- * - consolidación
- * - refuerzo de memoria
- *
- */
-export async function searchSimilarMemories(
-  vector: number[],
-  options?: SearchOptions,
-) {
-  const filter: any = {};
-
-  if (options?.project) {
-    filter.must ??= [];
-
-    filter.must.push({
-      key: "project",
-
-      match: {
-        value: options.project,
-      },
-    });
-  }
-
-  if (options?.type) {
-    filter.must ??= [];
-
-    filter.must.push({
-      key: "type",
-
-      match: {
-        value: options.type,
-      },
-    });
-  }
-
-  const response = await fetch(
-    `${baseUrl}/collections/${config.memoryCollection}/points/search`,
-    {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        vector,
-
-        limit: 3,
-
-        with_payload: true,
-
-        score_threshold: 0.8,
-
-        ...(Object.keys(filter).length
-          ? {
-              filter,
-            }
-          : {}),
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-
-  const data = await response.json();
-
-  return (data.result ?? []).map((item: any) => ({
-    id: item.id,
-
-    score: item.score,
-
-    ...(item.payload ?? {}),
-  }));
 }

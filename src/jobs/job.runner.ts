@@ -1,7 +1,23 @@
 import { jobRepository } from "../jobs-history/job.repository.instance.js";
+import type { JobScope } from "../jobs-history/job.types.js";
 
-export async function runJob(name: string, task: () => Promise<void>) {
-  const execution = await jobRepository.start(name);
+const runningJobs = new Set<string>();
+
+export class JobAlreadyRunningError extends Error {
+  constructor(name: string) {
+    super(`Job "${name}" is already running`);
+    this.name = "JobAlreadyRunningError";
+  }
+}
+
+export async function runJob(name: string, scope: JobScope, task: () => Promise<void>) {
+  if (runningJobs.has(name)) {
+    throw new JobAlreadyRunningError(name);
+  }
+
+  runningJobs.add(name);
+
+  const execution = await jobRepository.start(name, scope);
 
   try {
     await task();
@@ -11,5 +27,7 @@ export async function runJob(name: string, task: () => Promise<void>) {
     await jobRepository.fail(execution.id!, error);
 
     throw error;
+  } finally {
+    runningJobs.delete(name);
   }
 }

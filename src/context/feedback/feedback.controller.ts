@@ -1,28 +1,29 @@
 import { Router } from "express";
 
+import { badRequest, internalError } from "../../api/http.errors.js";
+import {
+  contextFeedbackSchema,
+  pathParameterSchema,
+} from "../../api/request.schemas.js";
 import { FeedbackService } from "./feedback.service.js";
+import { tenantIdFromRequest } from "../../security/tenant.js";
+import { notFound } from "../../api/http.errors.js";
+import { memoryRepository } from "../../memory/memory.repository.instance.js";
 
+export function createContextFeedbackRouter(service = new FeedbackService(), repository: Pick<typeof memoryRepository, "findById"> = memoryRepository): Router {
 const router = Router();
-
-const service = new FeedbackService();
-
 router.post("/context/feedback", async (req, res) => {
+  const parsed = contextFeedbackSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return badRequest(res, "Invalid context feedback payload");
+  }
+  const tenantId = tenantIdFromRequest(req, res); if (!tenantId) return;
+
   try {
-    const { query, memories, feedback } = req.body;
+    const { query, memories, feedback } = parsed.data;
 
-    if (!query || !Array.isArray(memories)) {
-      return res.status(400).json({
-        error: "query and memories are required",
-      });
-    }
-
-    if (feedback !== "positive" && feedback !== "negative") {
-      return res.status(400).json({
-        error: "feedback must be positive or negative",
-      });
-    }
-
-    const created = await service.create({
+    const created = await service.create(tenantId, {
       query,
 
       memories,
@@ -34,18 +35,24 @@ router.post("/context/feedback", async (req, res) => {
 
     res.json(created);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      error: "Failed to create feedback",
-    });
+    return internalError(res, error, "[ContextFeedbackController]");
   }
 });
 
 router.get("/context/feedback/:memoryId", async (req, res) => {
-  const result = service.getMemoryFeedback(req.params.memoryId);
+  const parsed = pathParameterSchema.safeParse(req.params.memoryId);
+
+  if (!parsed.success) {
+    return badRequest(res, "Invalid memory id");
+  }
+  const tenantId = tenantIdFromRequest(req, res); if (!tenantId) return;
+  if (!await repository.findById(parsed.data, tenantId)) return notFound(res, "Memory not found");
+
+  const result = service.getMemoryFeedback(tenantId, parsed.data);
 
   res.json(result);
 });
 
-export default router;
+return router;
+}
+export default createContextFeedbackRouter();
