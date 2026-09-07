@@ -1,4 +1,5 @@
 import { findTwoHopPaths } from "./path-finder.js";
+import type { GraphScope } from "../graph/graph.types.js";
 
 import type { DerivedKnowledge } from "./inference.types.js";
 
@@ -6,11 +7,11 @@ import { propagateConfidence } from "./confidence.js";
 
 import { getGraph } from "../graph/graph.service.js";
 
-export function inferTwoHopRequires(): DerivedKnowledge[] {
-  const paths = findTwoHopPaths();
+export function inferTwoHopRequires(scope: GraphScope): DerivedKnowledge[] {
+  const paths = findTwoHopPaths(scope);
   const validPaths = paths.filter((path) => path.nodes[0] !== path.nodes[2]);
 
-  const graph = getGraph();
+  const graph = getGraph(scope);
 
   return validPaths.map((path) => {
     const subjectId = path.nodes[0];

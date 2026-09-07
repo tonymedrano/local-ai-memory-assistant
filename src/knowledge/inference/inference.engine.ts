@@ -1,4 +1,5 @@
 import { getGraph } from "../graph/graph.service.js";
+import type { GraphScope } from "../graph/graph.types.js";
 
 import { usesImpliesRequires } from "./inference.rules.js";
 
@@ -12,18 +13,18 @@ const rules = [
     usesImpliesRequires,
     {
         name: "two-hop-requires",
-        evaluate: () =>
-            inferTwoHopRequires()
+        evaluate: (graph: unknown, scope: GraphScope) =>
+            inferTwoHopRequires(scope)
     }
 ];
 
-export function runInference(): DerivedKnowledge[] {
-  const graph = getGraph();
+export function runInference(scope: GraphScope): DerivedKnowledge[] {
+  const graph = getGraph(scope);
 
   const results: DerivedKnowledge[] = [];
 
   for (const rule of rules) {
-    const derived = rule.evaluate(graph);
+    const derived = rule.evaluate(graph, scope);
 
     results.push(...derived);
   }

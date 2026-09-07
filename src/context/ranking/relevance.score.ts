@@ -1,4 +1,3 @@
-import { FeedbackService } from "../feedback/feedback.service.js";
 import { AdaptiveWeightsService } from "./adaptive.weights.js";
 
 export type ScoreIntent = "decision" | "architecture" | "code" | "general";
@@ -16,8 +15,8 @@ export interface ScoreInput {
 
 export function calculateRelevanceScore(item: ScoreInput): number {
   const adaptiveWeights = new AdaptiveWeightsService();
-  const feedbackService = new FeedbackService();
-  const feedback = item.id ? feedbackService.calculateScore(item.id) : 0;
+  // This scorer has no tenant scope, so tenant-private feedback is excluded.
+  const feedback = 0;
   const weights = adaptiveWeights.getWeights(item.intent ?? "general");
   const confidence = item.confidence ?? 0.5;
   const importance = item.importance ?? 0.5;

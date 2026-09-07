@@ -8,6 +8,7 @@ export interface FeatureVector {
   accessCount: number;
   diversity: number;
   duplicatePenalty: number;
+  contextScore?: number;
 }
 
 export interface RankedFeatures {

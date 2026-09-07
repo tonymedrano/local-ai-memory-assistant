@@ -1,5 +1,5 @@
 import { ReciprocalRankFusion } from "./hybrid/rrf.js";
-import type { RetrievalResult } from "./types.js";
+import type { RetrievalResult } from "../retrieval/retrieval.types.js";
 import { MemoryType } from "../memory/memory.types.js";
 
 const rrf = new ReciprocalRankFusion();

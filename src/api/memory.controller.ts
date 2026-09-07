@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
-
-import { store, recall } from "../memory/memory.service.js";
+import { recall, store } from "../core/container.js";
+import { badRequest, internalError } from "./http.errors.js";
+import { memorySchema, memorySearchSchema } from "./request.schemas.js";
+import { tenantIdFromRequest } from "../security/tenant.js";
 
 /**
  * Guarda una memoria contextual.
@@ -15,21 +17,24 @@ import { store, recall } from "../memory/memory.service.js";
  *  |
  * Ollama embedding
  *  |
- * Qdrant contextual_memory
+ * Qdrant memory collection configured through MEMORY_COLLECTION
  */
 export async function addMemory(req: Request, res: Response) {
-  try {
-    const memory = req.body;
+  const parsed = memorySchema.safeParse(req.body);
 
-    const result = await store(memory);
+  if (!parsed.success) {
+    return badRequest(res, "Invalid memory payload");
+  }
+
+  const tenantId = tenantIdFromRequest(req, res);
+  if (!tenantId) return;
+
+  try {
+    const result = await store(parsed.data, tenantId);
 
     res.json(result);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      error: "Error storing memory",
-    });
+    return internalError(res, error, "[MemoryController] store");
   }
 }
 
@@ -43,17 +48,22 @@ export async function addMemory(req: Request, res: Response) {
  * }
  */
 export async function findMemory(req: Request, res: Response) {
-  try {
-    const { query, options } = req.body;
+  const parsed = memorySearchSchema.safeParse(req.body);
 
-    const result = await recall(query, options);
+  if (!parsed.success) {
+    return badRequest(res, "Invalid memory search payload");
+  }
+
+  const tenantId = tenantIdFromRequest(req, res);
+  if (!tenantId) return;
+
+  try {
+    const { query, options } = parsed.data;
+
+    const result = await recall(query, options, tenantId);
 
     res.json(result);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      error: "Error searching memory",
-    });
+    return internalError(res, error, "[MemoryController] search");
   }
 }

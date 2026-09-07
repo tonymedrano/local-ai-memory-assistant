@@ -1,96 +1,52 @@
 import cron from "node-cron";
 
-import { lifecycleJob } from "./lifecycle.job.js";
-import { cleanupJob } from "./cleanup.job.js";
+import { trainingJob } from "./training.job.js";
+import { tenantWorkRepository } from "./tenant-work.repository.js";
 import { knowledgeExtractionJob } from "./knowledge-extraction.job.js";
-import { knowledgeConsolidationJob } from "./knowledge-consolidation.job.js";
-import { relearningJob } from "./relearning.job.js";
 import { inferenceJob } from "./inference.job.js";
-import { contextLearningJob } from "./context-learning.job.js";
+
+export interface TenantWorkSchedulerDependencies {
+  tenantWorkRepository?: Pick<typeof tenantWorkRepository, "claimNext" | "complete" | "fail">;
+  knowledgeExtractionJob?: typeof knowledgeExtractionJob;
+  inferenceJob?: typeof inferenceJob;
+  trainingJob?: typeof trainingJob;
+}
+
+export async function runNextTenantWork(
+  dependencies: TenantWorkSchedulerDependencies = {},
+): Promise<boolean> {
+  const workRepository = dependencies.tenantWorkRepository ?? tenantWorkRepository;
+  const extractKnowledge = dependencies.knowledgeExtractionJob ?? knowledgeExtractionJob;
+  const inferKnowledge = dependencies.inferenceJob ?? inferenceJob;
+  const trainLtr = dependencies.trainingJob ?? trainingJob;
+  const work = workRepository.claimNext();
+  if (!work) return false;
+  try {
+    if (work.type === "knowledge-extraction") await extractKnowledge({ scope: work.scope });
+    else if (work.type === "inference") await inferKnowledge({ kind: "tenant", tenantId: work.scope.tenantId });
+    else if (work.type === "knowledge-maintenance") throw new Error("Knowledge maintenance is disabled pending tenant-scoped consolidation and relearning");
+    else if (work.type === "ltr-training") await trainLtr(work.scope);
+    else throw new Error(`Unsupported tenant work type: ${String(work.type)}`);
+    workRepository.complete(work.id);
+  } catch (error) {
+    workRepository.fail(work.id, error);
+    throw error;
+  }
+  return true;
+}
 
 export function startScheduler(): void {
   console.log("[Scheduler] Starting...");
 
-  /**
-   * Lifecycle Manager
-   *
-   * Cada día a las 03:00
-   */
-  cron.schedule("0 3 * * *", async () => {
-    try {
-      await lifecycleJob();
-    } catch (error) {
-      console.error("[Scheduler] Lifecycle failed", error);
-    }
-  });
-
-  /**
-   * Knowledge Extraction
-   *
-   * Cada día a las 04:00
-   */
+  // Drain durable tenant-owned work; each item carries its own persisted scope.
   cron.schedule("0 4 * * *", async () => {
     try {
-      await knowledgeExtractionJob();
+      while (await runNextTenantWork()) {
+        // Drain durable tenant work items one scope at a time.
+      }
     } catch (error) {
-      console.error("[Scheduler] Knowledge extraction failed", error);
+      console.error("[Scheduler] Tenant work drain failed", error);
     }
-  });
-
-  /**
-   * Knowledge Consolidation
-   *
-   * Cada día a las 05:00
-   */
-  cron.schedule("0 5 * * *", async () => {
-    try {
-      await knowledgeConsolidationJob();
-    } catch (error) {
-      console.error("[Scheduler] Knowledge consolidation failed", error);
-    }
-  });
-
-  cron.schedule("30 5 * * *", async () => {
-    try {
-      await contextLearningJob();
-    } catch (error) {
-      console.error("[Scheduler] context learning job failed", error);
-    }
-  });
-
-  /**
-   * Knowledge Relearning
-   *
-   * Cada día a las 06:00
-   */
-  cron.schedule("0 6 * * *", async () => {
-    try {
-      await relearningJob();
-    } catch (error) {
-      console.error("[Scheduler] Relearning failed", error);
-    }
-  });
-
-  /**
-   * Inference
-   *
-   * Cada día 06:00
-   */
-  cron.schedule("0 6 * * *", async () => {
-    try {
-      await inferenceJob();
-    } catch (error) {
-      console.error("[Scheduler] Inference failed", error);
-    }
-  });
-
-  /**
-   * Cleanup
-   *
-   * Domingo 04:00
-   */
-  cron.schedule("0 4 * * 0", async () => {
-    await cleanupJob();
   });
 
   console.log("[Scheduler] Running.");

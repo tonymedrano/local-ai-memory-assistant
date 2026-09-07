@@ -1,8 +1,9 @@
 import { config } from "../config.js";
+import { ExternalProviderError, fetchWithTimeout } from "../external/fetch-with-timeout.js";
 
 export class EmbeddingService {
   async embed(text: string): Promise<number[]> {
-    const response = await fetch(`${config.ollamaUrl}/api/embeddings`, {
+    const response = await fetchWithTimeout("Ollama embeddings", `${config.ollamaUrl}/api/embeddings`, {
       method: "POST",
 
       headers: {
@@ -15,13 +16,16 @@ export class EmbeddingService {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Embedding failed: ${response.status}`);
+    let data: { embedding?: number[] };
+    try {
+      data = (await response.json()) as { embedding?: number[] };
+    } catch {
+      throw new ExternalProviderError("Ollama embeddings returned invalid JSON", "Ollama embeddings", "invalid-response");
     }
 
-    const data = (await response.json()) as {
-      embedding: number[];
-    };
+    if (!Array.isArray(data.embedding) || data.embedding.length === 0) {
+      throw new ExternalProviderError("Ollama embeddings returned no vector", "Ollama embeddings", "invalid-response");
+    }
 
     return data.embedding;
   }

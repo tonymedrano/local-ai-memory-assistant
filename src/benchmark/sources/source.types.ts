@@ -4,7 +4,6 @@ export type BenchmarkSource =
   | "inference"
   | "explanation";
 
-
 export interface ExtractedResult {
   text: string;
   source: BenchmarkSource;

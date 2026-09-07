@@ -14,11 +14,27 @@ services:
 
     environment:
       NODE_ENV: production
+      AUTH_MODE: jwt
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required for production Docker Compose}
+      JWT_ISSUER: ${JWT_ISSUER:-}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-}
+      JWT_TENANT_CLAIM: ${JWT_TENANT_CLAIM:-tenantId}
+      DATA_DIR: /app/data
       QDRANT_URL: http://qdrant:6333
       OLLAMA_URL: http://host.docker.internal:11434
 
     depends_on:
       - qdrant
+
+    volumes:
+      - ./data:/app/data
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/ready').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
 
 
   qdrant:

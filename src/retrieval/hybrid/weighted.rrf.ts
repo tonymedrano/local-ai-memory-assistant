@@ -1,4 +1,4 @@
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 const SOURCE_WEIGHTS: Record<string, number> = {
   vector: 1,
@@ -13,10 +13,30 @@ const SOURCE_WEIGHTS: Record<string, number> = {
   hybrid: 1,
 };
 
+export interface FusionWeights {
+  vector: number;
+  keyword: number;
+  graph: number;
+  graphEvidence: number;
+}
+
 export class WeightedReciprocalRankFusion {
   constructor(private readonly k = 60) {}
 
-  fuse(...rankings: RetrievalResult[][]): RetrievalResult[] {
+  fuse(
+    vectorResults: RetrievalResult[],
+    keywordResults: RetrievalResult[],
+    graphResults: RetrievalResult[],
+    evidenceResults: RetrievalResult[],
+    weights: FusionWeights,
+  ): RetrievalResult[] {
+    const rankings = [
+      vectorResults,
+      keywordResults,
+      graphResults,
+      evidenceResults,
+    ];
+
     const scores = new Map<string, RetrievalResult>();
 
     for (const ranking of rankings) {
@@ -29,7 +49,10 @@ export class WeightedReciprocalRankFusion {
 
         const sourceWeight = SOURCE_WEIGHTS[result.source] ?? 1;
 
-        const score = (1 / (this.k + index + 1)) * sourceWeight;
+        const strategyWeight = this.getStrategyWeight(result.source, weights);
+
+        const score =
+          (1 / (this.k + index + 1)) * sourceWeight * strategyWeight;
 
         const existing = scores.get(id);
 
@@ -53,5 +76,24 @@ export class WeightedReciprocalRankFusion {
     }
 
     return Array.from(scores.values()).sort((a, b) => b.score - a.score);
+  }
+
+  private getStrategyWeight(source: string, weights: FusionWeights): number {
+    switch (source) {
+      case "vector":
+        return weights.vector;
+
+      case "keyword":
+        return weights.keyword;
+
+      case "graph":
+        return weights.graph;
+
+      case "graph-evidence":
+        return weights.graphEvidence;
+
+      default:
+        return 1;
+    }
   }
 }

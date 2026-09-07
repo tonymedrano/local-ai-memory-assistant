@@ -1,4 +1,4 @@
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 import { SemanticReranker } from "./semantic.reranker.js";
 
 const reranker = new SemanticReranker();

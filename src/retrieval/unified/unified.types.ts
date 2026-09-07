@@ -1,4 +1,4 @@
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 
 export interface UnifiedResult {
   results: RetrievalResult[];

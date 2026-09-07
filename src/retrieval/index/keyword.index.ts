@@ -63,7 +63,7 @@ export class KeywordIndex {
   }
 
   search(query: string): string[] {
-    console.log("INDEX SEARCH", query, this.index);
+    console.log("[KeywordIndex] SEARCH:", query);
 
     const results = new Set<string>();
 

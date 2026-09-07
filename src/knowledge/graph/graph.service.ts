@@ -1,19 +1,20 @@
 import { graphRepository } from "./graph.repository.js";
+import type { GraphScope } from "./graph.types.js";
 
-export function getGraph() {
-  return graphRepository.getGraph();
+export function getGraph(scope: GraphScope) {
+  return graphRepository.getGraph(scope);
 }
 
-export function getNode(id: string) {
-  return graphRepository.getNode(id);
+export function getNode(scope: GraphScope, id: string) {
+  return graphRepository.getNode(scope, id);
 }
 
-export function getNeighbors(id: string) {
-  return graphRepository.getNeighbors(id);
+export function getNeighbors(scope: GraphScope, id: string) {
+  return graphRepository.getNeighbors(scope, id);
 }
 
-export function getStats() {
-  const graph = graphRepository.getGraph();
+export function getStats(scope: GraphScope) {
+  const graph = graphRepository.getGraph(scope);
 
   return {
     nodes: graph.nodes.length,
@@ -27,15 +28,15 @@ export function getStats() {
   };
 }
 
-export function findByLabel(label: string) {
-  return graphRepository.findByLabel(label);
+export function findByLabel(scope: GraphScope, label: string) {
+  return graphRepository.findByLabel(scope, label);
 }
 
-export function getRelations(id: string) {
-  const edges = graphRepository.getEdgesFrom(id);
+export function getRelations(scope: GraphScope, id: string) {
+  const edges = graphRepository.getEdgesFrom(scope, id);
 
   return edges.map((edge) => {
-    const target = graphRepository.getNode(edge.target);
+    const target = graphRepository.getNode(scope, edge.target);
 
     return {
       relation: edge.relation,
@@ -47,15 +48,15 @@ export function getRelations(id: string) {
   });
 }
 
-export function findNodeByLabel(label: string) {
-  return graphRepository.findByLabel(label);
+export function findNodeByLabel(scope: GraphScope, label: string) {
+  return graphRepository.findByLabel(scope, label);
 }
 
-export function getIncomingRelations(id: string) {
-  const edges = graphRepository.getEdgesTo(id);
+export function getIncomingRelations(scope: GraphScope, id: string) {
+  const edges = graphRepository.getEdgesTo(scope, id);
 
   return edges.map((edge) => {
-    const source = graphRepository.getNode(edge.source);
+    const source = graphRepository.getNode(scope, edge.source);
 
     return {
       relation: edge.relation,

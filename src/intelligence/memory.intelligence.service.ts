@@ -1,8 +1,9 @@
-import { memoryRepository, learningService } from "../core/container.js";
+import { memoryRepository as productionMemoryRepository, learningService } from "../core/container.js";
 
 export class MemoryIntelligenceService {
-  async inspect(memoryId: string) {
-    const memory = await memoryRepository.findById(memoryId);
+  constructor(private readonly memoryRepository: Pick<typeof productionMemoryRepository, "findById"> = productionMemoryRepository) {}
+  async inspect(tenantId: string, memoryId: string) {
+    const memory = await this.memoryRepository.findById(memoryId, tenantId);
 
     if (!memory) {
       return null;

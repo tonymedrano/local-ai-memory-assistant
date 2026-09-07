@@ -31,6 +31,9 @@ export interface KnowledgeItem {
 
   id?:string;
 
+  /** Tenant ownership carried from the source memory. */
+  tenantId?: string;
+
   type:KnowledgeType;
 
   subject:string;

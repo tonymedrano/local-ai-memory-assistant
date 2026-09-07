@@ -15,6 +15,8 @@ export enum MemoryType {
 }
 
 export interface Memory {
+  /** Tenant identity supplied by the trusted API boundary. */
+  tenantId?: string;
   knowledgeExtracted?: boolean;
 
   id?: string;
@@ -97,6 +99,8 @@ export interface RecallResult {
 
 export interface MemoryItem {
   id: string;
+
+  tenantId?: string;
 
   text: string;
 

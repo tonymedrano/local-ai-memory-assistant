@@ -1,9 +1,10 @@
-import fs from "node:fs";
 import path from "node:path";
 
+import { config } from "../../config.js";
+import { readJsonFileSync, writeJsonFileAtomicSync } from "../../persistence/json.file.js";
 import type { DerivedKnowledge } from "./inference.types.js";
 
-const DATA_DIR = path.resolve("data");
+const DATA_DIR = config.dataDir;
 
 const FILE_PATH = path.join(DATA_DIR, "derived-knowledge.json");
 
@@ -13,25 +14,17 @@ class InferenceStorage {
   }
 
   private ensureStorage() {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, {
-        recursive: true,
-      });
-    }
-
-    if (!fs.existsSync(FILE_PATH)) {
+    if (!readJsonFileSync<DerivedKnowledge[] | undefined>(FILE_PATH, undefined)) {
       this.save([]);
     }
   }
 
   load(): DerivedKnowledge[] {
-    const content = fs.readFileSync(FILE_PATH, "utf-8");
-
-    return JSON.parse(content);
+    return readJsonFileSync(FILE_PATH, []);
   }
 
   save(knowledge: DerivedKnowledge[]) {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(knowledge, null, 2), "utf-8");
+    writeJsonFileAtomicSync(FILE_PATH, knowledge);
   }
 
   clear() {

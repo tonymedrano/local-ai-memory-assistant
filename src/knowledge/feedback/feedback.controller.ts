@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 
+import { badRequest } from "../../api/http.errors.js";
+import { pathParameterSchema } from "../../api/request.schemas.js";
 import { feedbackStorage } from "./feedback.storage.js";
 
 export function getFeedback(req: Request, res: Response) {
@@ -7,17 +9,15 @@ export function getFeedback(req: Request, res: Response) {
 }
 
 export function getFeedbackByKnowledge(req: Request, res: Response) {
-  const id = req.params.id;
+  const id = pathParameterSchema.safeParse(req.params.id);
 
-  if (!id || Array.isArray(id)) {
-    return res.status(400).json({
-      error: "Invalid knowledge id",
-    });
+  if (!id.success) {
+    return badRequest(res, "Invalid knowledge id");
   }
 
   const result = feedbackStorage
     .getAll()
-    .filter((item) => item.knowledgeId === id);
+    .filter((item) => item.knowledgeId === id.data);
 
   res.json(result);
 }

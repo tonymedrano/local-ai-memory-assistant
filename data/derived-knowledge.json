@@ -47,5 +47,17 @@
       "typescript-uses-node"
     ],
     "createdAt": "2026-07-27T19:25:51.201Z"
+  },
+  {
+    "subject": "scope-test-subject",
+    "subjectLabel": "Apollo",
+    "relation": "requires",
+    "object": "scope-test-object",
+    "objectLabel": "TypeScript",
+    "confidence": 1,
+    "source": [
+      "foreign-evidence-edge"
+    ],
+    "createdAt": "2026-08-31T11:38:36.985Z"
   }
 ]

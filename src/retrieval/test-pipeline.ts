@@ -21,10 +21,22 @@ import { GraphEvidenceRetriever } from "./graph/graph.evidence.retriever.js";
 import { WeightedReciprocalRankFusion } from "./hybrid/weighted.rrf.js";
 import { SemanticReranker } from "./reranking/semantic.reranker.js";
 
+import { FeatureExtractor } from "../ltr/features/feature.extractor.js";
+import { KeywordIndexLoader } from "./index/keyword.index.loader.js";
+
+import type { LTRModel } from "../ltr/training/ltr.model.js";
+import type { FeatureVector } from "../ltr/features/feature.types.js";
+import type { LTRModelProvider } from "../ltr/model/ltr.model.provider.interface.js";
+import { LTRRanker } from "../ltr/ranking/ltr.ranker.js";
+
 async function main() {
   const repository = new MemoryRepository();
 
   const keywordIndex = new KeywordIndex();
+
+  const keywordIndexLoader = new KeywordIndexLoader(repository, keywordIndex);
+
+  await keywordIndexLoader.load();
 
   const vectorRetriever = new VectorRetriever(
     repository,
@@ -39,7 +51,7 @@ async function main() {
   const semanticReranker = new SemanticReranker();
   const graphEvidenceRetriever = new GraphEvidenceRetriever();
 
- const hybridRetriever = new HybridRetriever(
+  const hybridRetriever = new HybridRetriever(
     vectorRetriever,
     keywordRetriever,
     graphRetriever,
@@ -48,12 +60,52 @@ async function main() {
     semanticReranker,
   );
 
- 
-
   const reranker = new EmbeddingReranker();
+  const mockModel: LTRModel = {
+    predict(features: FeatureVector): number {
+      return (
+        features.semantic * 0.35 +
+        features.bm25 * 0.2 +
+        features.importance * 0.15 +
+        features.confidence * 0.1 +
+        features.freshness * 0.1 +
+        features.graphEvidence * 0.05 +
+        features.accessCount * 0.03 +
+        features.diversity * 0.02 +
+        features.duplicatePenalty * -0.1
+      );
+    },
+
+    getWeights() {
+      return {
+        semantic: 0.35,
+        bm25: 0.2,
+        importance: 0.15,
+        confidence: 0.1,
+        freshness: 0.1,
+        graphEvidence: 0.05,
+        accessCount: 0.03,
+        diversity: 0.02,
+        duplicatePenalty: -0.1,
+
+        feedbackScore: 0,
+        retrievalFrequency: 0,
+        ageScore: 0,
+      };
+    },
+  };
+
+  const mockModelProvider: LTRModelProvider = {
+    getModel() {
+      return mockModel;
+    },
+  };
+
+  const ltrRanker = new LTRRanker(new FeatureExtractor(), mockModelProvider);
 
   const pipeline = new RetrievalPipeline(
     hybridRetriever,
+    ltrRanker,
     reranker,
     new QualityScoringService(),
     new DuplicateDetector(new TextSimilarityService()),
@@ -68,6 +120,34 @@ async function main() {
   if (!result.memories.length) {
     throw new Error("No retrieval results");
   }
+
+  const forcedKeywordResult = await pipeline.retrieve({
+    query: "Angular Native Federation",
+    limit: 5,
+    options: {
+      strategy: {
+        mode: "keyword",
+        vectorWeight: 0,
+        keywordWeight: 1,
+        graphWeight: 0,
+        graphEvidenceWeight: 0,
+        topK: 10,
+        expandQuery: false,
+        rerank: true,
+        temporalBoost: 0,
+      },
+    },
+  });
+
+  if (!forcedKeywordResult.memories.length) {
+    throw new Error("Forced keyword retrieval returned no results");
+  }
+
+  console.log(
+    "Forced keyword strategy OK:",
+    forcedKeywordResult.memories.length,
+    "results",
+  );
 
   console.log(
     "Pipeline OK:",

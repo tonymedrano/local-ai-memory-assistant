@@ -3,8 +3,10 @@ import type { Explanation } from "./explanation.types.js";
 import { inferenceRepository } from "./inference.repository.js";
 
 import { graphRepository } from "../graph/graph.repository.js";
+import { graphScopeKey, type GraphScope } from "../graph/graph.types.js";
 
 export function explain(
+  scope: GraphScope,
   subject: string,
   relation: string,
   object: string,
@@ -21,19 +23,27 @@ export function explain(
 
   const objectLabel = derived.objectLabel ?? object;
 
-  const evidence = derived.source.map((edgeId) => {
-    const edge = graphRepository.getGraph().edges.find((e) => e.id === edgeId);
+  const evidence = derived.source.map((edgeId): string | null => {
+    const edge = graphRepository.getGraph(scope).edges.find((e) => e.id === edgeId);
 
     if (!edge) {
-      return edgeId;
+      return null;
     }
 
-    const source = graphRepository.getNode(edge.source);
+    if (graphScopeKey(edge.scope) !== graphScopeKey(scope)) return null;
 
-    const target = graphRepository.getNode(edge.target);
+    const source = graphRepository.getNode(scope, edge.source);
+
+    const target = graphRepository.getNode(scope, edge.target);
+
+    if (!source || !target || graphScopeKey(source.scope) !== graphScopeKey(scope) || graphScopeKey(target.scope) !== graphScopeKey(scope)) {
+      return null;
+    }
 
     return `${source?.label ?? edge.source} ${edge.relation} ${target?.label ?? edge.target}`;
   });
+
+  if (evidence.some((item) => item === null)) return null;
 
   return {
     subject: subjectLabel,
@@ -49,7 +59,7 @@ export function explain(
 
       "Applied inference rule: uses-implies-requires",
 
-      ...evidence.map((item) => `Evidence: ${item}`),
+      ...evidence.map((item) => `Evidence: ${item!}`),
     ],
 
     evidence: derived.source,

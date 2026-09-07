@@ -1,39 +1,55 @@
 import type { Request, Response } from "express";
 
+import { badRequest, notFound } from "../../api/http.errors.js";
+import { pathParameterSchema } from "../../api/request.schemas.js";
+
 import { inferenceRepository } from "./inference.repository.js";
 
 import { explain } from "./explanation.engine.js";
 
 import { detectConflicts } from "./conflict.engine.js";
+import { tenantIdFromRequest } from "../../security/tenant.js";
+import { tenantGraphScope } from "../graph/graph.types.js";
 
 export function getInference(req: Request, res: Response) {
-  const subject = String(req.params.subject);
+  const subject = req.params.subject;
 
-  if (subject) {
-    return res.json(inferenceRepository.find(subject));
+  if (subject !== undefined) {
+    const parsed = pathParameterSchema.safeParse(subject);
+
+    if (!parsed.success) {
+      return badRequest(res, "Invalid inference subject");
+    }
+
+    return res.json(inferenceRepository.find(parsed.data));
   }
 
   return res.json(inferenceRepository.getAll());
 }
 
 export function getExplanation(req: Request, res: Response) {
-  const subject = String(req.params.subject);
+  const tenantId = tenantIdFromRequest(req, res);
+  if (!tenantId) return;
+  const scope = tenantGraphScope(tenantId);
+  const subject = pathParameterSchema.safeParse(req.params.subject);
+  const relation = pathParameterSchema.safeParse(req.params.relation);
+  const object = pathParameterSchema.safeParse(req.params.object);
 
-  const relation = String(req.params.relation);
+  if (!subject.success || !relation.success || !object.success) {
+    return badRequest(res, "Invalid explanation parameters");
+  }
 
-  const object = String(req.params.object);
-
-  const result = explain(subject, relation, object);
+  const result = explain(scope, subject.data, relation.data, object.data);
 
   if (!result) {
-    return res.status(404).json({
-      error: "Explanation not found",
-    });
+    return notFound(res, "Explanation not found");
   }
 
   return res.json(result);
 }
 
-export function getConflicts(_req: Request, res: Response) {
-  return res.json(detectConflicts());
+export function getConflicts(req: Request, res: Response) {
+  const tenantId = tenantIdFromRequest(req, res);
+  if (!tenantId) return;
+  return res.json(detectConflicts(tenantGraphScope(tenantId)));
 }

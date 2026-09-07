@@ -6,7 +6,7 @@ const lifecycleService = new LifecycleService();
 
 export async function lifecycleJob() {
   await runJob(
-    "lifecycle",
+    "lifecycle", { kind: "system" },
 
     async () => {
       await lifecycleService.run();

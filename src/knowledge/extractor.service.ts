@@ -7,12 +7,16 @@ import type {
   KnowledgeItem,
   KnowledgeRelationType
 } from "./knowledge.types.js";
+import type { Memory } from "../memory/memory.types.js";
 
 export class KnowledgeExtractor {
   constructor(private llm = new OllamaClient()) {}
 
-  async extract(memory: string): Promise<KnowledgeItem> {
-    const prompt = KNOWLEDGE_EXTRACTION_PROMPT + memory;
+  async extract(memory: Pick<Memory, "text" | "tenantId">): Promise<KnowledgeItem> {
+    if (!memory.tenantId || !memory.tenantId.trim()) {
+      throw new Error("Cannot extract knowledge from memory without tenantId");
+    }
+    const prompt = KNOWLEDGE_EXTRACTION_PROMPT + memory.text;
 
     const response = await this.llm.complete(prompt);
 
@@ -35,6 +39,8 @@ export class KnowledgeExtractor {
   ),
 
       confidence,
+
+      tenantId: memory.tenantId,
 
       createdAt: new Date(),
     };

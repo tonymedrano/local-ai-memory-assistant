@@ -5,6 +5,10 @@ import { ContextCompressor } from "./compression/context.compressor.js";
 import { ContextPromptBuilder } from "./prompt/context.prompt.builder.js";
 import type { ContextResult } from "./context.types.js";
 import { retrievalPipeline } from "../core/container.js";
+import { config } from "../config.js";
+import { ContextExtractionOrchestrator } from "./extraction/context.extraction.orchestrator.js";
+import { buildContextFromExtraction } from "./extraction/context.extraction.adapter.js";
+import { tenantGraphScope } from "../knowledge/graph/graph.types.js";
 
 const builder = new ContextBuilder(
   retrievalPipeline,
@@ -13,8 +17,9 @@ const intentDetector = new IntentDetector();
 const selector = new ContextSelector();
 const compressor = new ContextCompressor();
 const promptBuilder = new ContextPromptBuilder();
+const extractionOrchestrator = new ContextExtractionOrchestrator();
 
-export async function buildContext(query: string) {
+export async function buildContext(query: string, tenantId?: string) {
   /*
    * 1. Detect user intent
    */
@@ -25,7 +30,12 @@ export async function buildContext(query: string) {
    * 2. Retrieve complete context
    */
 
-  const context: ContextResult = await builder.build(query);
+  const retrievalContext = config.contextAwareRetrieval
+    ? buildContextFromExtraction(query, extractionOrchestrator.extract(query))
+    : undefined;
+
+  if (!tenantId) throw new Error("Context requires tenant scope");
+  const context: ContextResult = await builder.build(tenantGraphScope(tenantId), query, retrievalContext, tenantId);
 
   /*
    * 3. Select relevant context

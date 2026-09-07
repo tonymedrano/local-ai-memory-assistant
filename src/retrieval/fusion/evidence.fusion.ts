@@ -1,5 +1,5 @@
 import type { ExpandedTerm } from "../expansion/semantic.types.js";
-import type { RetrievalResult } from "../types.js";
+import type { RetrievalResult } from "../../retrieval/retrieval.types.js";
 import type { FusionResult, FusionSignals } from "./fusion.types.js";
 
 const SOURCE_BONUS: Record<string, number> = {

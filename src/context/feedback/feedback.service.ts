@@ -1,46 +1,30 @@
 import { FeedbackRepository } from "./feedback.repository.js";
 import type { ContextFeedback } from "./feedback.types.js";
 
-import { memoryRepository } from "../../memory/memory.repository.instance.js";
-import { learningService } from "../../core/container.js";
-import { LearningEventType } from "../../learning/learning.types.js";
-
-const repository = new FeedbackRepository();
+import { memoryRepository as productionMemoryRepository } from "../../memory/memory.repository.instance.js";
 
 export class FeedbackService {
-  async create(feedback: ContextFeedback) {
-    const saved = await repository.save(feedback);
-
+  constructor(private readonly repository = new FeedbackRepository(), private readonly memoryRepository: Pick<typeof productionMemoryRepository, "findById" | "update"> = productionMemoryRepository) {}
+  async create(tenantId: string, feedback: Omit<ContextFeedback, "tenantId">) {
     for (const memoryId of feedback.memories) {
-      const currentScore = 0;
-
-      await learningService.recordEvent({
-        memoryId,
-
-        event:
-          feedback.feedback === "positive"
-            ? LearningEventType.ANSWER_ACCEPTED
-            : LearningEventType.ANSWER_REJECTED,
-
-        query: feedback.query,
-
-        currentScore,
-      });
+      if (!await this.memoryRepository.findById(memoryId, tenantId)) {
+        throw new Error("Memory not found for tenant");
+      }
     }
-
+    const saved = await this.repository.save({ ...feedback, tenantId });
     return saved;
   }
 
   getAll() {
-    return repository.getAll();
+    return this.repository.getAll();
   }
 
-  getMemoryFeedback(memoryId: string) {
-    return repository.findByMemory(memoryId);
+  getMemoryFeedback(tenantId: string, memoryId: string) {
+    return this.repository.findByMemory(tenantId, memoryId);
   }
 
-  calculateScore(memoryId: string) {
-    const feedback = this.getMemoryFeedback(memoryId);
+  calculateScore(tenantId: string, memoryId: string) {
+    const feedback = this.getMemoryFeedback(tenantId, memoryId);
 
     if (!feedback.length) {
       return 0;
@@ -61,16 +45,14 @@ export class FeedbackService {
     return score / feedback.length;
   }
 
-  async applyFeedback(memoryId: string) {
-    const score = this.calculateScore(memoryId);
+  async applyFeedback(tenantId: string, memoryId: string) {
+    const score = this.calculateScore(tenantId, memoryId);
 
     if (score === 0) {
       return null;
     }
 
-    const memories = await memoryRepository.getAll();
-
-    const memory = memories.find((item) => item.id === memoryId);
+    const memory = await this.memoryRepository.findById(memoryId, tenantId);
 
     if (!memory) {
       return null;
@@ -88,11 +70,11 @@ export class FeedbackService {
       newImportance = Math.max(currentImportance - 0.1, 0);
     }
 
-    await memoryRepository.update(memoryId, {
+    await this.memoryRepository.update(memoryId, {
       importance: newImportance,
 
       updatedAt: new Date().toISOString(),
-    });
+    }, tenantId);
 
     return {
       memoryId,

@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { internalError } from "../api/http.errors.js";
 import { MetricsService } from "./metrics.service.js";
 
 export function createMetricsController(metrics: MetricsService): Router {
@@ -11,11 +12,7 @@ export function createMetricsController(metrics: MetricsService): Router {
 
       res.json(snapshot);
     } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        error: "Unable to load metrics",
-      });
+      return internalError(res, error, "[MetricsController] snapshot");
     }
   });
 
@@ -27,11 +24,7 @@ export function createMetricsController(metrics: MetricsService): Router {
         success: true,
       });
     } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        error: "Unable to reset metrics",
-      });
+      return internalError(res, error, "[MetricsController] reset");
     }
   });
 

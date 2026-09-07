@@ -4,7 +4,7 @@ import { learningService } from "../core/container.js";
 
 export async function contextLearningJob() {
   await runJob(
-    "context-learning",
+    "context-learning", { kind: "system" },
 
     async () => {
       const memories = await memoryRepository.getAll();
