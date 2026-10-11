@@ -2,7 +2,7 @@ export class OllamaClient {
   constructor(
     private baseUrl = "http://localhost:11434",
 
-    private model = "qwen2.5:14b",
+    private model = "qwen3-coder:30b",
   ) {}
 
   async complete(prompt: string): Promise<string> {

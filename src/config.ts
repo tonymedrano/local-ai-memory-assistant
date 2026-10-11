@@ -59,7 +59,7 @@ export function createConfig(env: NodeJS.ProcessEnv = process.env) {
   if (authMode !== "development" && authMode !== "jwt") throw new Error("AUTH_MODE must be development or jwt");
   if (authMode === "jwt" && !env.JWT_SECRET?.trim()) throw new Error("JWT_SECRET is required when AUTH_MODE=jwt");
   return {
-    chatModel: "qwen2.5:14b",
+    chatModel: "qwen3-coder:30b",
     port: Number(env.PORT ?? 3000),
     ollamaUrl: env.OLLAMA_URL ?? "http://localhost:11434",
     qdrantUrl: env.QDRANT_URL ?? "http://localhost:6333",

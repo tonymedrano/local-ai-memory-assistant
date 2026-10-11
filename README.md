@@ -39,9 +39,9 @@ tenant-isolation behavior. This integration exposes read-only
 
 - Node.js 22
 - Qdrant
-- Ollama with `nomic-embed-text` and `qwen2.5:14b` available
+- Ollama with `nomic-embed-text` and `qwen3-coder:30b` available
 
-`qwen2.5:14b` is used by knowledge/consolidation workflows. `nomic-embed-text`
+`qwen3-coder:30b` is used by knowledge/consolidation workflows. `nomic-embed-text`
 is used to store and search memory.
 
 ## Configure and run locally
